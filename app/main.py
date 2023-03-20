@@ -3,8 +3,8 @@
 from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
-from app.GUI.Menu import MainWindow
-from app.GUI.Board import SecondWindow
+from app.GUI.Menu import Menu
+from app.GUI.Board import Board
 from app.GUI.WindowManager import WindowManager
 
 
