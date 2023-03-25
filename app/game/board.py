@@ -1,5 +1,10 @@
+from typing import Any, Optional
+from utils.vector2d import Vector2d
+from game.pieces.piece import Piece
+
+
 class Board:
-    def __init__(self, width, height):
+    def __init__(self, width: int, height: int):
         self._width = width
         self._height = height
         self._move_number = 0
@@ -7,44 +12,44 @@ class Board:
         self._moves_history = []
 
     @property
-    def width(self):
+    def width(self) -> int:
         return self._width
 
     @width.setter
-    def width(self, value):
+    def width(self, value: int) -> None:
         self._width = value
 
     @property
-    def height(self):
+    def height(self) -> int:
         return self._height
     
     @height.setter
-    def height(self, value):
+    def height(self, value: int) -> None:
         self._height = value
         
     @property
-    def move_number(self):
+    def move_number(self) -> int:
         return self._move_number
     
     @move_number.setter
-    def move_number(self, value):
+    def move_number(self, value: int) -> None:
         self._move_number = value
         
     @property
-    def moves_history(self):
+    def moves_history(self) -> list[Any]:
         return self._moves_history
     
     @moves_history.setter
-    def moves_history(self, value):
+    def moves_history(self, value: list[Any]) -> None:
         self._moves_history = value
 
-    def get_size(self):
+    def get_size(self) -> (int, int):
         return self._width, self._height
 
-    def get_piece(self, position):
+    def get_piece(self, position: Vector2d) -> Optional[Piece]:
         return self._pieces.get(position)
 
-    def can_move_to(self, to, piece=None):
+    def can_move_to(self, to: Vector2d, piece=None) -> bool:
         #
         # Check, if position after moving is in bounds of board
         #
@@ -62,10 +67,10 @@ class Board:
         else:
             return True if not self.get_piece(to) else False
 
-    def add_piece(self, piece):
+    def add_piece(self, piece: Piece) -> None:
         if not self.get_piece(piece.position):
             self._pieces[piece.position] = piece
 
-    def add_pieces(self, pieces):
+    def add_pieces(self, pieces: list[Piece]) -> None:
         for piece in pieces:
             self.add_piece(piece)
