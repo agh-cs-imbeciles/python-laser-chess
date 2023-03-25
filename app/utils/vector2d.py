@@ -19,6 +19,9 @@ class Vector2d:
     def y(self, y):
         self._y = y
 
+    def __hash__(self):
+        return hash((self.x, self.y))
+
     def __eq__(self, other):
         if not isinstance(other, Vector2d):
             return False

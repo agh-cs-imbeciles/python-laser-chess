@@ -1,5 +1,5 @@
 class Board:
-    def __init__(self, width, height, player_ids):
+    def __init__(self, width, height):
         self._width = width
         self._height = height
         self._move_number = 0
@@ -61,3 +61,11 @@ class Board:
         #
         else:
             return True if not self.get_piece(to) else False
+
+    def add_piece(self, piece):
+        if not self.get_piece(piece.position):
+            self._pieces[piece.position] = piece
+
+    def add_pieces(self, pieces):
+        for piece in pieces:
+            self.add_piece(piece)

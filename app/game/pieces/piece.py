@@ -1,5 +1,5 @@
 from utils.vector2d import Vector2d
-from piece_model import PieceModel
+from game.pieces.piece_model import PieceModel
 
 class Piece:
     def __init__(self, model, position, player_id):
