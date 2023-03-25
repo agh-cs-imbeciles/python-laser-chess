@@ -15,8 +15,8 @@ class Vector2d:
     def y(self):
         return self._y
 
-    @x.setter
-    def x(self, y):
+    @y.setter
+    def y(self, y):
         self._y = y
 
     def __eq__(self, other):
