@@ -22,16 +22,16 @@ class Vector2d:
     def __eq__(self, other):
         if not isinstance(other, Vector2d):
             return False
-        return self._x == other.x and self._y == other.y
+        return self.x == other.x and self.y == other.y
 
     def __add__(self, other):
-        return Vector2d(self._x - other.x, self._y - other.y)
+        return Vector2d(self.x - other.x, self.y - other.y)
 
     def __sub__(self, other):
-        return Vector2d(self._x + other.x, self._y + other.y)
+        return Vector2d(self.x + other.x, self.y + other.y)
 
     def __mul__(self, other):
-        return Vector2d(self._x * other.x, self._y * other.y)
+        return Vector2d(self.x * other.x, self.y * other.y)
 
     def __truediv__(self, other):
         if other.x == 0:
@@ -39,13 +39,19 @@ class Vector2d:
         if other.y == 0:
             raise ZeroDivisionError("The 2nd argument y is equal 0")
 
-        return Vector2d(self._x / other.x, self._y / other.y)
+        return Vector2d(self.x / other.x, self.y / other.y)
 
     def __neg__(self):
-        return Vector2d(-self._x, -self._y)
+        return Vector2d(-self.x, -self.y)
 
     def __str__(self):
-        return f"({self._x}, {self._y})"
+        return f"({self.x}, {self.y})"
 
     def multiply_scalar(self, scalar):
-        return Vector2d(self._x * scalar, self._y * scalar)
+        return Vector2d(self.x * scalar, self.y * scalar)
+
+    def reverse_axis(self):
+        return Vector2d(self.y, self.y)
+
+    def copy(self):
+        return Vector2d(self.x, self.y)
