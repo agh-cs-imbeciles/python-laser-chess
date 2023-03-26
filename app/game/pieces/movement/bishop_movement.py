@@ -15,32 +15,21 @@ class BishopMovement(PieceMovement):
         b = self._board
         p = self._piece
 
-        def check_diagonal(origin: Vector2d, destination: Vector2d, increment: Tuple[int, int]):
-            deltas = zip(
-                [dx for dx in range(origin.x, destination.x, increment[0])],
-                [dy for dy in range(origin.y, destination.y, increment[1])]
-            )
-            for dx, dy in deltas:
-                pos = Vector2d(p.position.x + dy, p.position.y + dx)
-                if not b.can_move_to(pos, p):
-                    break
-                self._legal_moves.append(pos)
-
         #
         # Upper right diagonal
         #
-        check_diagonal(p.position + Vector2d(1, 1), Vector2d(b.width, b.height), (1, 1))
+        self.check_squares(p, b, p.position + Vector2d(1, 1), Vector2d(b.width, b.height), (1, 1))
         #
         # Bottom left diagonal
         #
-        check_diagonal(p.position + Vector2d(-1, -1), Vector2d(-1, -1), (-1, -1))
+        self.check_squares(p, b, p.position + Vector2d(-1, -1), Vector2d(-1, -1), (-1, -1))
         #
         # Upper left diagonal
         #
-        check_diagonal(p.position + Vector2d(-1, 1), Vector2d(-1, b.height), (-1, 1))
+        self.check_squares(p, b, p.position + Vector2d(-1, 1), Vector2d(-1, b.height), (-1, 1))
         #
         # Bottom right diagonal
         #
-        check_diagonal(p.position + Vector2d(1, -1), Vector2d(b.width, -1), (1, -1))
+        self.check_squares(p, b, p.position + Vector2d(1, -1), Vector2d(b.width, -1), (1, -1))
 
         return self._legal_moves

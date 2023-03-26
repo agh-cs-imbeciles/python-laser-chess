@@ -42,7 +42,7 @@ class Vector2d:
         if other.y == 0:
             raise ZeroDivisionError("The 2nd argument y is equal 0")
 
-        return Vector2d(self.x / other.x, self.y / other.y)
+        return Vector2d(self.x // other.x, self.y // other.y)
 
     def __neg__(self) -> "Vector2d":
         return Vector2d(-self.x, -self.y)
@@ -51,7 +51,7 @@ class Vector2d:
         return f"({self.x}, {self.y})"
 
     def multiply_scalar(self, scalar: float) -> "Vector2d":
-        return Vector2d(self.x * scalar, self.y * scalar)
+        return Vector2d(int(self.x * scalar), int(self.y * scalar))
 
     def reverse_axis(self) -> "Vector2d":
         return Vector2d(self.y, self.y)

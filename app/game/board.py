@@ -1,6 +1,7 @@
 from typing import Dict, Optional
 from utils.vector2d import Vector2d
 from game.pieces.piece import Piece
+from game.pieces.movement.piece_movement import PieceMovement
 from game.observer.position_obs import PositionObserver
 
 
@@ -9,7 +10,7 @@ class Board(PositionObserver):
         self._width: int = width
         self._height: int = height
         self._move_number: int = 0
-        self._pieces: Dict[Vector2d, Piece] = {}
+        self._pieces: Dict[Vector2d, PieceMovement] = {}
 
     @property
     def width(self) -> int:
