@@ -1,9 +1,10 @@
 from typing import Dict, Optional
 from utils.vector2d import Vector2d
 from game.pieces.piece import Piece
+from game.observer.position_obs import PositionObserver
 
 
-class Board:
+class Board(PositionObserver):
     def __init__(self, width: int, height: int):
         self._width: int = width
         self._height: int = height
@@ -34,6 +35,12 @@ class Board:
     @move_number.setter
     def move_number(self, value: int) -> None:
         self._move_number = value
+
+    # override PositionObserver
+    def on_position_change(self, origin: Vector2d, destination: Vector2d) -> None:
+        p = self._pieces
+        p.pop(origin, None)
+        p[destination] = p.pop(origin)
 
     def get_size(self) -> tuple[int, int]:
         return self._width, self._height

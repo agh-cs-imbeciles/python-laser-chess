@@ -1,5 +1,6 @@
 from utils.vector2d import Vector2d
 from game.pieces.piece_model import PieceModel
+from game.observer.position_obs import PositionObserver
 
 
 class Piece:
@@ -7,6 +8,7 @@ class Piece:
         self._model: PieceModel = model
         self._position: Vector2d = position
         self._player_id: int = player_id
+        self._position_observers: [PositionObserver] = []
 
     def __str__(self) -> str:
         match self._model:
@@ -50,4 +52,7 @@ class Piece:
         self._player_id = player_id
 
     def move(self, to: Vector2d) -> None:
+        origin = self._position.copy()
         self._position = to
+        for observer in self._position_observers:
+            observer.on_position_change(origin, to)
