@@ -1,8 +1,11 @@
 # returns path to image of piece on certain position
-def _get_image_path(i: int, j: int) -> None | str:
-    match i:
+from utils.vector2d import Vector2d
+
+
+def _get_image_path(vector: Vector2d) -> None | str:
+    match vector.y:
         case 0:
-            match j:
+            match vector.x:
                 case 0 | 7:
                     return "assets/b_rook.png"
                 case 1 | 6:
@@ -16,7 +19,7 @@ def _get_image_path(i: int, j: int) -> None | str:
         case 1:
             return "assets/b_pawn.png"
         case 7:
-            match j:
+            match vector.x:
                 case 0 | 7:
                     return "assets/w_rook.png"
                 case 1 | 6:
