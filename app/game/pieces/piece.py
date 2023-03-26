@@ -20,6 +20,8 @@ class Piece:
                 return "Bishop"
             case PieceModel.ROOK:
                 return "Rook"
+            case PieceModel.KNIGHT:
+                return "Knight"
             case PieceModel.MIRROR:
                 return "Mirror"
 
