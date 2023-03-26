@@ -51,6 +51,9 @@ class Piece:
     def player_id(self, player_id: int) -> None:
         self._player_id = player_id
 
+    def add_observer(self, observer: PositionObserver) -> None:
+        self._position_observers.append(observer)
+
     def move(self, to: Vector2d) -> None:
         origin = self._position.copy()
         self._position = to
