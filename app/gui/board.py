@@ -7,17 +7,23 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.uix.image import Image
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.screenmanager import Screen
+from gui.gui_functions import _get_image_path
 from utils.kivy_utilities import RGBA_to_tuple
 from game.game import Game
 from numpy import empty
 from typing import Any, Optional, Tuple
+
+from utils.vector2d import Vector2d
+
 
 class Board(Screen):
     def __init__(self, **kwargs):
         super().__init__()
         self._game = Game()
         self._grid = self.ids.board
-        self._positions = empty(shape=(8, 8), dtype=object)
+        self._positions = empty(shape=(8, 8), dtype=RelativeLayout)
+        self._dots = empty(shape=27, dtype=Image)
+        self._current_dots = []
         self._init_board()
     def _init_board(self):
         for i in range(8):
@@ -25,9 +31,9 @@ class Board(Screen):
                 field_layout = RelativeLayout()
                 button = Button()
                 button.indexes = (i, j)
-                button.bind(on_press=self.on_click)
+                button.bind(on_press=self.on_tile_click)
                 button.background_normal = ""
-                img_path = self._get_image_path(i,j)
+                img_path = _get_image_path(i,j)
                 field_layout.add_widget(button)
                 if img_path != None:
                     img = Image(source=img_path)
@@ -38,35 +44,31 @@ class Board(Screen):
                 else:
                     button.background_color = RGBA_to_tuple((54, 54, 54, 255))
                 self._grid.add_widget(self._positions[i][j])
+        for i in range(len(self._dots)):
+            self._dots[i] = Image(source="assets/dot.png")
+        # self.on_move((0, 0),(3, 0))
+        # self.on_show_posible_movements([Vector2d(2,2),Vector2d(3,2)])
 
-    def _get_image_path(self, i: int, j: int) -> str:
-        if i==0 :
-            if j==0 or j==7:
-                return "assets/b_rook.png"
-            if j==1 or j==6:
-                return "assets/b_knight.png"
-            if j==2 or j==5:
-                return "assets/b_bishop.png"
-            if j==3:
-                return "assets/b_queen.png"
-            if j==4:
-                return "assets/b_king.png"
-        if i==1:
-            return "assets/b_pawn.png"
-        if i==7:
-            if j==0 or j==7:
-                return "assets/w_rook.png"
-            if j==1 or j==6:
-                return "assets/w_knight.png"
-            if j==2 or j==5:
-                return "assets/w_bishop.png"
-            if j==3:
-                return "assets/w_queen.png"
-            if j==4:
-                return "assets/w_king.png"
-        if i==6:
-            return "assets/w_pawn.png"
-        return None;
-    def on_click(self,instance: Button):
+    def on_tile_click(self,instance: Button):
+        for d in self._current_dots:
+            d.parent.remove_widget(d)
+        self._current_dots.clear()
         print(instance.indexes)
+    
+    def on_show_posible_movements(self, movements: list[Vector2d]):
+        i = 0
+        for m in movements:
+            self._positions[m.y][m.x].add_widget(self._dots[i])
+            self._current_dots.append(self._dots[i])
+            i += 1
+
+    def on_move(self, from_: Tuple[int, int], to: Tuple[int, int]):
+        from_rel = self._positions[from_[0], from_[1]]
+        piece_representation = from_rel.children[0]
+        from_rel.remove_widget(piece_representation)
+        to_rel = self._positions[to[0], to[1]]
+        to_rel.add_widget(piece_representation)
+
+
+
 
