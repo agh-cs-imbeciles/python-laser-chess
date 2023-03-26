@@ -1,4 +1,6 @@
-from typing import Dict, Optional
+from typing import Dict, Optional,Tuple
+
+from game.pieces.movement.piece_movement import PieceMovement
 from utils.vector2d import Vector2d
 from game.pieces.piece import Piece
 from game.pieces.movement.piece_movement import PieceMovement
@@ -10,7 +12,7 @@ class Board(PositionObserver):
         self._width: int = width
         self._height: int = height
         self._move_number: int = 0
-        self._pieces: Dict[Vector2d, PieceMovement] = {}
+        self._pieces: Dict[Vector2d, Tuple[Piece, PieceMovement]] = {}
 
     @property
     def width(self) -> int:
@@ -46,7 +48,16 @@ class Board(PositionObserver):
         return self._width, self._height
 
     def get_piece(self, position: Vector2d) -> Optional[Piece]:
-        return self._pieces.get(position)
+        piece = self._pieces.get(position)
+        if piece is None:
+            return None
+        return piece[0]
+
+    def get_piece_movement(self, position: Vector2d) -> Optional[PieceMovement]:
+        piece = self._pieces.get(position)
+        if piece is None:
+            return None
+        return piece[1]
 
     def can_move_to(self, to: Vector2d, piece: Optional[Piece] = None) -> bool:
         #
@@ -70,7 +81,13 @@ class Board(PositionObserver):
     def add_piece(self, piece: Piece) -> None:
         if not self.get_piece(piece.position):
             self._pieces[piece.position] = piece
+            piece.add_observer(self)
+
 
     def add_pieces(self, pieces: list[Piece]) -> None:
         for piece in pieces:
             self.add_piece(piece)
+
+
+
+

@@ -8,7 +8,7 @@ from utils.vector2d import Vector2d
 class PieceMovement(ABC):
     def __init__(self, piece: Piece, board) -> None:
         self._piece: Piece = piece
-        self._board= board
+        self._board = board
         self._legal_moves: list[Vector2d] = []
 
     @abstractmethod
