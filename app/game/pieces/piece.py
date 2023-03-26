@@ -13,19 +13,19 @@ class Piece:
     def __str__(self) -> str:
         match self._model:
             case PieceModel.KING:
-                return "King"
+                return "K"
             case PieceModel.QUEEN:
-                return "Queen"
+                return "Q"
             case PieceModel.PAWN:
-                return "Pawn"
+                return ""
             case PieceModel.BISHOP:
-                return "Bishop"
+                return "B"
             case PieceModel.ROOK:
-                return "Rook"
+                return "R"
             case PieceModel.KNIGHT:
-                return "Knight"
+                return "N"
             case PieceModel.MIRROR:
-                return "Mirror"
+                return "M"
 
     @property
     def model(self) -> PieceModel:

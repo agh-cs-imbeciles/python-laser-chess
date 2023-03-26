@@ -14,6 +14,7 @@ class Game:
         self._moves_history: list[Tuple[PieceMove, PieceMove]] = []
 
         self.__init_board()
+        self.move_piece()
         
     @property
     def board(self) -> Board:
@@ -45,4 +46,3 @@ class Game:
 
     def move_piece(self, piece: Piece, to: Vector2d):
         piece.move(to)
-    
