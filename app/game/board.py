@@ -78,13 +78,12 @@ class Board(PositionObserver):
         else:
             return True if not self.get_piece(to) else False
 
-    def add_piece(self, piece: Piece) -> None:
-        if not self.get_piece(piece.position):
-            self._pieces[piece.position] = piece
-            piece.add_observer(self)
+    def add_piece(self, piece: Tuple[Piece, PieceMovement]) -> None:
+        if not self.get_piece(piece[0].position):
+            self._pieces[piece[0].position] = piece
+            piece[0].add_observer(self)
 
-
-    def add_pieces(self, pieces: list[Piece]) -> None:
+    def add_pieces(self, pieces: list[Tuple[Piece, PieceMovement]]) -> None:
         for piece in pieces:
             self.add_piece(piece)
 

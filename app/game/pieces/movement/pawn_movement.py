@@ -1,4 +1,4 @@
-from piece_movement import PieceMovement
+from game.pieces.movement.piece_movement import PieceMovement
 from game.pieces.piece import Piece
 from game.board import Board
 from utils.vector2d import Vector2d
@@ -13,10 +13,10 @@ class PawnMovement(PieceMovement):
         promotion_position: Vector2d
     ) -> None:
         super().__init__(pawn, board)
-        self._initial_position: Vector2d = pawn.position.copy
+        self._initial_position: Vector2d = pawn.position.copy()
         self._direction: Vector2d = direction
         self._en_passant_position: Vector2d = en_passant_position
-        self._promotion.position: Vector2d = promotion_position
+        self._promotion_position: Vector2d = promotion_position
 
     # override
     def get_legal_moves(self) -> list[Vector2d]:
