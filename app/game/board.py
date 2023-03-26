@@ -11,7 +11,6 @@ class Board(PositionObserver):
         self._move_number: int = 0
         self._pieces: Dict[Vector2d, Piece] = {}
 
-
     @property
     def width(self) -> int:
         return self._width

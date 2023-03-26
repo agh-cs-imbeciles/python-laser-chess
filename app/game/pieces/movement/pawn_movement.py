@@ -1,5 +1,5 @@
 from piece_movement import PieceMovement
-from piece import Piece
+from game.pieces.piece import Piece
 from game.board import Board
 from utils.vector2d import Vector2d
 
