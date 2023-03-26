@@ -1,15 +1,15 @@
-from typing import Any, Optional
+from typing import Dict, Any, Optional
 from utils.vector2d import Vector2d
 from game.pieces.piece import Piece
 
 
 class Board:
     def __init__(self, width: int, height: int):
-        self._width = width
-        self._height = height
-        self._move_number = 0
-        self._pieces = {}
-        self._moves_history = []
+        self._width: int = width
+        self._height: int = height
+        self._move_number: int = 0
+        self._pieces: Dict[Vector2d, Piece] = {}
+        self._moves_history: list[Any] = []
 
     @property
     def width(self) -> int:
@@ -22,34 +22,34 @@ class Board:
     @property
     def height(self) -> int:
         return self._height
-    
+
     @height.setter
     def height(self, value: int) -> None:
         self._height = value
-        
+
     @property
     def move_number(self) -> int:
         return self._move_number
-    
+
     @move_number.setter
     def move_number(self, value: int) -> None:
         self._move_number = value
-        
+
     @property
     def moves_history(self) -> list[Any]:
         return self._moves_history
-    
+
     @moves_history.setter
     def moves_history(self, value: list[Any]) -> None:
         self._moves_history = value
 
-    def get_size(self) -> (int, int):
+    def get_size(self) -> tuple[int, int]:
         return self._width, self._height
 
     def get_piece(self, position: Vector2d) -> Optional[Piece]:
         return self._pieces.get(position)
 
-    def can_move_to(self, to: Vector2d, piece=None) -> bool:
+    def can_move_to(self, to: Vector2d, piece: Optional[Piece] = None) -> bool:
         #
         # Check, if position after moving is in bounds of board
         #
@@ -59,8 +59,9 @@ class Board:
         #
         # Move with potential capturing
         #
-        if piece is not None:
-            return True if not self.get_piece(to) or self.get_piece(to).player_id != piece.player_id else False
+        if isinstance(piece, Piece):
+            p = self.get_piece(to)
+            return True if not p or p.player_id != piece.player_id else False
         #
         # Move without capturing
         #

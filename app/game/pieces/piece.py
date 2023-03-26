@@ -1,13 +1,14 @@
 from utils.vector2d import Vector2d
 from game.pieces.piece_model import PieceModel
 
-class Piece:
-    def __init__(self, model, position, player_id):
-        self._model = model
-        self._position = position
-        self._player_id = player_id
 
-    def __str__(self):
+class Piece:
+    def __init__(self, model: PieceModel, position: Vector2d, player_id: int) -> None:
+        self._model: PieceModel = model
+        self._position: Vector2d = position
+        self._player_id: int = player_id
+
+    def __str__(self) -> str:
         match self._model:
             case PieceModel.KING:
                 return "King"
@@ -21,31 +22,30 @@ class Piece:
                 return "Rook"
             case PieceModel.MIRROR:
                 return "Mirror"
-        return None
 
     @property
-    def model(self):
+    def model(self) -> PieceModel:
         return self._model
     
     @model.setter
-    def model(self, value):
+    def model(self, value: PieceModel) -> None:
         self._model = value
 
     @property
-    def position(self):
+    def position(self) -> Vector2d:
         return self._position
 
     @position.setter
-    def position(self, position):
+    def position(self, position: Vector2d) -> None:
         self._position = position
     
     @property
-    def player_id(self):
+    def player_id(self) -> int:
         return self._player_id
 
     @player_id.setter
-    def player_id(self, player):
-        self._player_id = player
+    def player_id(self, player_id: int) -> None:
+        self._player_id = player_id
 
-    def move(self, to):
+    def move(self, to: Vector2d) -> None:
         self._position = to
