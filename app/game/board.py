@@ -1,4 +1,4 @@
-from typing import Dict, Any, Optional
+from typing import Dict, Optional
 from utils.vector2d import Vector2d
 from game.pieces.piece import Piece
 
@@ -9,7 +9,7 @@ class Board:
         self._height: int = height
         self._move_number: int = 0
         self._pieces: Dict[Vector2d, Piece] = {}
-        self._moves_history: list[Any] = []
+
 
     @property
     def width(self) -> int:
@@ -34,14 +34,6 @@ class Board:
     @move_number.setter
     def move_number(self, value: int) -> None:
         self._move_number = value
-
-    @property
-    def moves_history(self) -> list[Any]:
-        return self._moves_history
-
-    @moves_history.setter
-    def moves_history(self, value: list[Any]) -> None:
-        self._moves_history = value
 
     def get_size(self) -> tuple[int, int]:
         return self._width, self._height

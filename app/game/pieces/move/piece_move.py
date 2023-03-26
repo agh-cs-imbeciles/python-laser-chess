@@ -3,8 +3,8 @@ from game.pieces.piece import Piece
 
 
 class PieceMove:
-    def __init__(self, move_index: int, piece: Piece, from_p: Vector2d, to_p: Vector2d):
+    def __init__(self, move_index: int, piece: Piece, origin: Vector2d, destination: Vector2d) -> None:
         self.move: int = move_index
         self.piece: Piece = piece
-        self.from_p: Vector2d = from_p
-        self.to_p: Vector2d = to_p
+        self.origin: Vector2d = origin
+        self.destination: Vector2d = destination
