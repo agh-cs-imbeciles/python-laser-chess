@@ -1,22 +1,22 @@
 class Vector2d:
-    def __init__(self, x=0, y=0):
+    def __init__(self, x: int=0, y: int=0):
         self._x = x
         self._y = y
 
     @property
-    def x(self):
+    def x(self) -> int:
         return self._x
 
     @x.setter
-    def x(self, x):
+    def x(self, x: int):
         self._x = x
 
     @property
-    def y(self):
+    def y(self) -> int:
         return self._y
 
     @y.setter
-    def y(self, y):
+    def y(self, y: int):
         self._y = y
 
     def __hash__(self):
@@ -50,7 +50,7 @@ class Vector2d:
     def __str__(self):
         return f"({self.x}, {self.y})"
 
-    def multiply_scalar(self, scalar):
+    def multiply_scalar(self, scalar: int):
         return Vector2d(self.x * scalar, self.y * scalar)
 
     def reverse_axis(self):

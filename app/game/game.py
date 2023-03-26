@@ -3,7 +3,6 @@ from game.pieces.piece import Piece
 from game.pieces.piece_model import PieceModel
 from utils.vector2d import Vector2d
 
-
 class Game:
     def __init__(self):
         self.__BOARD_SIZE = 8
@@ -13,19 +12,19 @@ class Game:
         self.init_board()
         
     @property
-    def board(self):
+    def board(self) -> Board:
         return self._board
     
     @board.setter
-    def board(self, value):
+    def board(self, value: Board):
         self._board = value
 
     @property
-    def players(self):
+    def players(self) -> list[any]:
         return self._players
 
     @players.setter
-    def players(self, value):
+    def players(self, value: list[any]):
         self._players = value
 
     def init_board(self):

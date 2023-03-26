@@ -6,4 +6,5 @@ class PieceModel(Enum):
     PAWN    = 2
     BISHOP  = 3
     ROOK    = 4
-    MIRROR  = 5
+    KNIGHT  = 5
+    MIRROR  = 6
