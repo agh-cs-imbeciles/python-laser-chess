@@ -14,4 +14,8 @@ class QueenMovement(BishopMovement, RookMovement):
 
     def get_legal_moves(self) -> list[Vector2d]:
         super().get_legal_moves()
+        # BishopMovement.get_legal_moves(self)
+        tmp_legal = self._legal_moves.copy()
+        RookMovement.get_legal_moves(self)
+        self._legal_moves.extend(tmp_legal)
         return self._legal_moves

@@ -47,7 +47,7 @@ class PieceRepresentationLayout(RelativeLayout):
                     case piece_type.BISHOP:
                         self._img = Image(source="assets/b_bishop.png")
                     case piece_type.QUEEN:
-                        self._img = Image(source="assets/b_queeen.png")
+                        self._img = Image(source="assets/b_queen.png")
                     case piece_type.MIRROR:
                         self._img = Image(source="assets/b_mirror.png")
                     case _:
