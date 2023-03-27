@@ -31,6 +31,7 @@ class Board(obs.PositionObserver, Screen, metaclass=MetaAB):
         self._current_dots = []
         self._init_board()
         self._selected = None
+        self._selected_piece = None
         self._board = self._game.board
 
     def _init_board(self):
@@ -70,13 +71,18 @@ class Board(obs.PositionObserver, Screen, metaclass=MetaAB):
         for d in self._current_dots:
             d.parent.remove_widget(d)
         self._current_dots.clear()
-
         if self._selected is None:
             self._selected = self._board.get_piece_movement(instance.vector)
+            self._selected_piece = self._board.get_piece(instance.vector)
+            if self._selected is None or self._selected_piece.player_id != self._board.move_number:
+                self._selected = None
+                self._selected_piece = None
+                return
             self.on_show_possible_movements(self._selected.get_legal_moves())
             return
-
-        self._selected._piece.move(instance.vector)
+        self._board.move_piece_if_possible(self._selected_piece,instance.vector)
+        self._selected = None
+        self._selected_piece = None
 
     def on_show_possible_movements(self, movements: list[Vector2d]):
         i = 0

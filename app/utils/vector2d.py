@@ -22,16 +22,19 @@ class Vector2d:
     def __hash__(self) -> int:
         return hash((self.x, self.y))
 
+    def __iter__(self):
+        return self.x, self.y
+
     def __eq__(self, other) -> bool:
         if not isinstance(other, Vector2d):
             return False
         return self.x == other.x and self.y == other.y
 
     def __add__(self, other: "Vector2d") -> "Vector2d":
-        return Vector2d(self.x - other.x, self.y - other.y)
+        return Vector2d(self.x + other.x, self.y + other.y)
 
     def __sub__(self, other: "Vector2d") -> "Vector2d":
-        return Vector2d(self.x + other.x, self.y + other.y)
+        return Vector2d(self.x - other.x, self.y - other.y)
 
     def __mul__(self, other: "Vector2d") -> "Vector2d":
         return Vector2d(self.x * other.x, self.y * other.y)
@@ -54,7 +57,7 @@ class Vector2d:
         return Vector2d(int(self.x * scalar), int(self.y * scalar))
 
     def reverse_axis(self) -> "Vector2d":
-        return Vector2d(self.y, self.y)
+        return Vector2d(self.y, self.x)
 
     def copy(self) -> "Vector2d":
         return Vector2d(self.x, self.y)
