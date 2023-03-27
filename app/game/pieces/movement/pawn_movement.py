@@ -1,13 +1,13 @@
-from game.pieces.movement.piece_movement import PieceMovement
-from game.pieces.piece import Piece
-from game.board import Board
-from utils.vector2d import Vector2d
+from utils import Vector2d
+import game as g
+import game.pieces as pcs
+import game.pieces.movement as mvm
 
 
-class PawnMovement(PieceMovement):
+class PawnMovement(mvm.PieceMovement):
     def __init__(
-        self, pawn: Piece,
-        board: Board,
+        self, pawn: pcs.Piece,
+        board: g.Board,
         direction: Vector2d,
         en_passant_position: Vector2d,
         promotion_position: Vector2d

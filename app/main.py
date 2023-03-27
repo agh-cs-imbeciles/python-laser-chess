@@ -1,9 +1,10 @@
 from kivy.app import App
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
-from gui.menu import Menu
-from gui.board import Board
-from gui.window_manager import WindowManager
+import gui
+# from gui.menu import Menu
+# from gui.board import Board
+# from gui.window_manager import WindowManager
 
 kv = Builder.load_file("wind.kv")
 

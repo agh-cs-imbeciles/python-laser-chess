@@ -1,13 +1,13 @@
 from abc import ABC, abstractmethod
 from typing import Tuple
+from utils import Vector2d
 # import game.board as b
-from game.pieces.piece import Piece
-from utils.vector2d import Vector2d
+import game.pieces as pcs
 
 
 class PieceMovement(ABC):
-    def __init__(self, piece: Piece, board) -> None:
-        self._piece: Piece = piece
+    def __init__(self, piece: pcs.Piece, board) -> None:
+        self._piece: pcs.Piece = piece
         self._board = board
         self._legal_moves: list[Vector2d] = []
 
@@ -16,7 +16,7 @@ class PieceMovement(ABC):
         pass
 
     def check_squares(
-        self, piece: Piece, board, origin: Vector2d, destination: Vector2d, increment: Tuple[int, int]
+        self, piece: pcs.Piece, board, origin: Vector2d, destination: Vector2d, increment: Tuple[int, int]
     ) -> None:
         if increment[0] == 0 and increment[1] == 0:
             return

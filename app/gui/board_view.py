@@ -1,3 +1,4 @@
+from typing import Any, Optional, Tuple
 from kivy.graphics import Rectangle, Color
 from kivy.graphics.instructions import Callback
 from kivy.properties import ColorProperty, NumericProperty
@@ -7,25 +8,26 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.uix.image import Image
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.screenmanager import Screen
-from game.observer.position_obs import PositionObserver
-from game.pieces.piece import Piece
-from gui.piece_representation import PieceRepresentation
-from utils.kivy_utilities import rgba_int_to_float
-from game.game import Game
+import gui
+from utils import Vector2d, rgba_int_to_float
+import game as g
+import game.pieces as pcs
+import game.observer as obs
 from numpy import empty
-from typing import Any, Optional, Tuple
-from utils.vector2d import Vector2d
 
-class MetaAB(type(PositionObserver), type(Screen)):
+
+class MetaAB(type(obs.PositionObserver), type(Screen)):
     pass
-class Board( PositionObserver,Screen,metaclass=MetaAB):
+
+
+class Board(obs.PositionObserver, Screen, metaclass=MetaAB):
     def __init__(self, **kwargs):
         super().__init__()
-        self._game = Game()
+        self._game = g.Game()
         self._grid = self.ids.board
         self._positions = empty(shape=(8, 8), dtype=RelativeLayout)
         self._dots = empty(shape=27, dtype=Image)
-        self._representations = empty(shape=(8,8), dtype=PieceRepresentation)
+        self._representations = empty(shape=(8, 8), dtype=gui.PieceRepresentation)
         self._current_dots = []
         self._init_board()
         self._selected = None
@@ -45,9 +47,9 @@ class Board( PositionObserver,Screen,metaclass=MetaAB):
                 field_layout.add_widget(button)
                 piece = board.get_piece(vector)
 
-                if piece != None:
+                if piece is not None:
                     piece.add_observer(self)
-                    piece_rep = PieceRepresentation(piece.model, piece.player_id)
+                    piece_rep = gui.PieceRepresentation(piece.model, piece.player_id)
                     self._representations[vector.x][vector.y] = piece_rep
                     img = piece_rep.get_representation()
                     field_layout.add_widget(img)
@@ -69,15 +71,13 @@ class Board( PositionObserver,Screen,metaclass=MetaAB):
             d.parent.remove_widget(d)
         self._current_dots.clear()
 
-        if self._selected == None:
+        if self._selected is None:
             self._selected = self._board.get_piece_movement(instance.vector)
             self.on_show_possible_movements(self._selected.get_legal_moves())
             return
 
         self._selected._piece.move(instance.vector)
 
-
-        
     def on_show_possible_movements(self, movements: list[Vector2d]):
         i = 0
         for m in movements:
@@ -92,7 +92,5 @@ class Board( PositionObserver,Screen,metaclass=MetaAB):
         to_rel = self._positions[destination.y][destination.x]
         to_rel.add_widget(piece_representation)
 
-
-
-    def update_representation(self, from_piece: Piece, to_piece: Piece):
+    def update_representation(self, from_piece: pcs.Piece, to_piece: pcs.Piece):
         pass

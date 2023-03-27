@@ -1,12 +1,11 @@
-from typing import Tuple
-from piece_movement import PieceMovement
-from game.pieces.piece import Piece
-from game.board import Board
-from utils.vector2d import Vector2d
+from utils import Vector2d
+import game as g
+import game.pieces as pcs
+import game.pieces.movement as mvm
 
 
-class RookMovement(PieceMovement):
-    def __init__(self, pawn: Piece, board: Board) -> None:
+class RookMovement(mvm.PieceMovement):
+    def __init__(self, pawn: pcs.Piece, board: g.Board) -> None:
         super().__init__(pawn, board)
 
     # override

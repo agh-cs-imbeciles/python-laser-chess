@@ -1,38 +1,38 @@
-from utils.vector2d import Vector2d
-from game.pieces.piece_model import PieceModel
-from game.observer.position_obs import PositionObserver
+from utils import Vector2d
+import game.pieces as pcs
+import game.observer as obs
 
 
 class Piece:
-    def __init__(self, model: PieceModel, position: Vector2d, player_id: int) -> None:
-        self._model: PieceModel = model
+    def __init__(self, model: pcs.PieceModel, position: Vector2d, player_id: int) -> None:
+        self._model: pcs.PieceModel = model
         self._position: Vector2d = position
         self._player_id: int = player_id
-        self._position_observers: [PositionObserver] = []
+        self._position_observers: [obs.PositionObserver] = []
 
     def __str__(self) -> str:
         match self._model:
-            case PieceModel.KING:
+            case pcs.PieceModel.KING:
                 return "K"
-            case PieceModel.QUEEN:
+            case pcs.PieceModel.QUEEN:
                 return "Q"
-            case PieceModel.PAWN:
+            case pcs.PieceModel.PAWN:
                 return ""
-            case PieceModel.BISHOP:
+            case pcs.PieceModel.BISHOP:
                 return "B"
-            case PieceModel.ROOK:
+            case pcs.PieceModel.ROOK:
                 return "R"
-            case PieceModel.KNIGHT:
+            case pcs.PieceModel.KNIGHT:
                 return "N"
-            case PieceModel.MIRROR:
+            case pcs.PieceModel.MIRROR:
                 return "M"
 
     @property
-    def model(self) -> PieceModel:
+    def model(self) -> pcs.PieceModel:
         return self._model
     
     @model.setter
-    def model(self, value: PieceModel) -> None:
+    def model(self, value: pcs.PieceModel) -> None:
         self._model = value
 
     @property
@@ -51,7 +51,7 @@ class Piece:
     def player_id(self, player_id: int) -> None:
         self._player_id = player_id
 
-    def add_observer(self, observer: PositionObserver) -> None:
+    def add_observer(self, observer: obs.PositionObserver) -> None:
         self._position_observers.append(observer)
 
     def move(self, to: Vector2d) -> None:

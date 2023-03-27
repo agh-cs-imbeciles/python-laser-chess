@@ -1,12 +1,11 @@
-from bishop_movement import BishopMovement
-from rook_movement import RookMovement
-from game.pieces.piece import Piece
-from game.board import Board
-from utils.vector2d import Vector2d
+from utils import Vector2d
+import game as g
+import game.pieces as pcs
+import game.pieces.movement as mvm
 
 
-class QueenMovement(BishopMovement, RookMovement):
-    def __init__(self, pawn: Piece, board: Board) -> None:
+class QueenMovement(mvm.BishopMovement, mvm.RookMovement):
+    def __init__(self, pawn: pcs.Piece, board: g.Board) -> None:
         super().__init__(pawn, board)
 
     def get_legal_moves(self) -> list[Vector2d]:

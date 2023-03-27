@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from utils.vector2d import Vector2d
+from utils import Vector2d
 
 
 class PositionObserver(ABC):

@@ -1,8 +1,8 @@
 from kivy.uix.image import Image
-
 from game.pieces.piece_model import PieceModel
 
-#0-white
+
+# 0-white
 class PieceRepresentation:
     def __init__(self, piece_type: PieceModel, player: int):
         match player:
@@ -17,7 +17,7 @@ class PieceRepresentation:
                     case piece_type.BISHOP:
                         self._img = Image(source="assets/w_bishop.png")
                     case piece_type.QUEEN:
-                        self._img = Image(source="assets/w_queeen.png")
+                        self._img = Image(source="assets/w_queen.png")
                     case piece_type.MIRROR:
                         self._img = Image(source="assets/w_mirror.png")
             case 1:
