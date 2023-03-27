@@ -1,22 +1,23 @@
-from piece_movement import PieceMovement
-from piece import Piece
-from game.board import Board
-from utils.vector2d import Vector2d
+from __future__ import annotations
+from utils import Vector2d
+import game as g
+import game.pieces as pcs
+import game.pieces.movement as mvm
 
 
-class PawnMovement(PieceMovement):
+class PawnMovement(mvm.PieceMovement):
     def __init__(
-        self, pawn: Piece,
-        board: Board,
+        self, pawn: pcs.Piece,
+        board: g.Board,
         direction: Vector2d,
         en_passant_position: Vector2d,
         promotion_position: Vector2d
     ) -> None:
         super().__init__(pawn, board)
-        self._initial_position: Vector2d = pawn.position.copy
+        self._initial_position: Vector2d = pawn.position.copy()
         self._direction: Vector2d = direction
         self._en_passant_position: Vector2d = en_passant_position
-        self._promotion.position: Vector2d = promotion_position
+        self._promotion_position: Vector2d = promotion_position
 
     # override
     def get_legal_moves(self) -> list[Vector2d]:

@@ -1,9 +1,9 @@
 from typing import Tuple, Any
-from game.board import Board
-from game.pieces.piece import Piece
-from game.pieces.piece_model import PieceModel
-from utils.vector2d import Vector2d
-from game.pieces.move.piece_move import PieceMove
+from utils import Vector2d
+from game import Board
+from game.pieces import Piece, PieceModel
+from game.pieces.move import PieceMove
+from game.pieces.movement import PawnMovement
 
 
 class Game:
@@ -35,13 +35,17 @@ class Game:
     def __init_board(self) -> None:
         pawn_xs = [2, 3, 4, 5]
         for x in pawn_xs:
+            p1 = Piece(PieceModel.PAWN, Vector2d(x, 1), 0)
+            p2 = Piece(PieceModel.PAWN, Vector2d(x, self.__BOARD_SIZE - 2), 1)
             self.board.add_pieces([
-                Piece(PieceModel.PAWN, Vector2d(x, 1), 0),
-                Piece(PieceModel.PAWN, Vector2d(x, self.__BOARD_SIZE - 2), 1)]
-            )
+                (p1, PawnMovement(p1, self.board, Vector2d(0, 1), Vector2d(0, 4), Vector2d(0, 7))),
+                (p2, PawnMovement(p2, self.board, Vector2d(0, -1), Vector2d(0, 3), Vector2d(0, 0)))
+            ])
+        p1 = Piece(PieceModel.PAWN, Vector2d(0, 1), 0)
+        p2 = Piece(PieceModel.PAWN, Vector2d(self.__BOARD_SIZE - 1, self.__BOARD_SIZE - 2), 1)
         self.board.add_pieces([
-            Piece(PieceModel.PAWN, Vector2d(0, 1), 0),
-            Piece(PieceModel.PAWN, Vector2d(self.__BOARD_SIZE - 1, self.__BOARD_SIZE - 2), 1)
+            (p1, PawnMovement(p1, self.board, Vector2d(0, 1), Vector2d(0, 4), Vector2d(0, 7))),
+            (p2, PawnMovement(p2, self.board, Vector2d(0, -1), Vector2d(0, 3), Vector2d(0, 0)))
         ])
 
     def move_piece(self, piece: Piece, to: Vector2d):

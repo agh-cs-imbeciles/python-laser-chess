@@ -1,7 +1,11 @@
-from typing import Dict, Optional
-from utils.vector2d import Vector2d
-from game.pieces.piece import Piece
-from game.observer.position_obs import PositionObserver
+from __future__ import annotations
+from typing import TYPE_CHECKING, Dict, Optional, Tuple
+from utils import Vector2d
+from game.observer import PositionObserver
+
+if TYPE_CHECKING:
+    from game.pieces import Piece
+    from game.pieces.movement import PieceMovement
 
 
 class Board(PositionObserver):
@@ -9,8 +13,7 @@ class Board(PositionObserver):
         self._width: int = width
         self._height: int = height
         self._move_number: int = 0
-        self._pieces: Dict[Vector2d, Piece] = {}
-
+        self._pieces: Dict[Vector2d, Tuple[Piece, PieceMovement]] = {}
 
     @property
     def width(self) -> int:
@@ -46,7 +49,16 @@ class Board(PositionObserver):
         return self._width, self._height
 
     def get_piece(self, position: Vector2d) -> Optional[Piece]:
-        return self._pieces.get(position)
+        piece = self._pieces.get(position)
+        if piece is None:
+            return None
+        return piece[0]
+
+    def get_piece_movement(self, position: Vector2d) -> Optional[PieceMovement]:
+        piece = self._pieces.get(position)
+        if piece is None:
+            return None
+        return piece[1]
 
     def can_move_to(self, to: Vector2d, piece: Optional[Piece] = None) -> bool:
         #
@@ -67,10 +79,15 @@ class Board(PositionObserver):
         else:
             return True if not self.get_piece(to) else False
 
-    def add_piece(self, piece: Piece) -> None:
-        if not self.get_piece(piece.position):
-            self._pieces[piece.position] = piece
+    def add_piece(self, piece: Tuple[Piece, PieceMovement]) -> None:
+        if not self.get_piece(piece[0].position):
+            self._pieces[piece[0].position] = piece
+            piece[0].add_observer(self)
 
-    def add_pieces(self, pieces: list[Piece]) -> None:
+    def add_pieces(self, pieces: list[Tuple[Piece, PieceMovement]]) -> None:
         for piece in pieces:
             self.add_piece(piece)
+
+
+
+
