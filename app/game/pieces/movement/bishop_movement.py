@@ -35,6 +35,4 @@ class BishopMovement(PieceMovement):
         # Bottom right diagonal
         #
         self.check_squares(p, b, p.position + Vector2d(1, -1), Vector2d(b.width, -1), (1, -1))
-        for i in self._legal_moves:
-            print(i)
         return self._legal_moves

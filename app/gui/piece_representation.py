@@ -64,5 +64,4 @@ class PieceRepresentationLayout(RelativeLayout):
     def add_img(self, img: Image):
         self._img = img
         self.add_widget(img)
-        print("kkk")
 

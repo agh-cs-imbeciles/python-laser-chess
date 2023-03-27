@@ -22,9 +22,14 @@ class PieceMovement(ABC):
     ) -> None:
         if increment[0] == 0 and increment[1] == 0:
             return
-
-        dys = [dy for dy in range(origin.y, destination.y, increment[1])]
-        dxs = [dx for dx in range(origin.x, destination.x, increment[0])]
+        if increment[1] != 0:
+            dys = [dy for dy in range(origin.y, destination.y, increment[1])]
+        if increment[0] != 0:
+            dxs = [dx for dx in range(origin.x, destination.x, increment[0])]
+        if increment[0] == 0:
+            dxs = [piece.position.x for _ in range(len(dys))]
+        if increment[1] == 0:
+            dys = [piece.position.y for _ in range(len(dxs))]
         deltas = zip(dxs, dys)
         for dx, dy in deltas:
             pos = Vector2d(dx, dy)
