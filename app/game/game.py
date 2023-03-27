@@ -14,7 +14,6 @@ class Game:
         self._moves_history: list[Tuple[PieceMove, PieceMove]] = []
 
         self.__init_board()
-        # self.move_piece()
 
     @property
     def board(self) -> Board:
@@ -52,7 +51,7 @@ class Game:
         ])
         self.__init_bishops()
         self.__init_rooks()
-        self.__init_hetmanica()
+        self.__init_hetmanice()
         self.__init_knights()
 
     def __init_bishops(self):
@@ -82,7 +81,7 @@ class Game:
             p = Piece(PieceModel.KNIGHT, bs[0], bs[1])
             self.board.add_piece((p, KnightMovement(p, self.board)))
 
-    def __init_hetmanica(self):
+    def __init_hetmanice(self):
         rook_data = [
             (Vector2d(3, 0), 0),
             (Vector2d(3, self.board.height - 1), 1),

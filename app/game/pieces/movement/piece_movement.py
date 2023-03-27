@@ -22,19 +22,21 @@ class PieceMovement(ABC):
     ) -> None:
         if increment[0] == 0 and increment[1] == 0:
             return
-        if increment[1] != 0:
-            dys = [dy for dy in range(origin.y, destination.y, increment[1])]
+
         if increment[0] != 0:
-            dxs = [dx for dx in range(origin.x, destination.x, increment[0])]
+            xs = [x for x in range(origin.x, destination.x, increment[0])]
+        if increment[1] != 0:
+            ys = [y for y in range(origin.y, destination.y, increment[1])]
         if increment[0] == 0:
-            dxs = [piece.position.x for _ in range(len(dys))]
+            xs = [origin.x for _ in ys]
         if increment[1] == 0:
-            dys = [piece.position.y for _ in range(len(dxs))]
-        deltas = zip(dxs, dys)
-        for dx, dy in deltas:
-            pos = Vector2d(dx, dy)
-            if not board.can_move_to(pos, piece):
+            ys = [origin.y for _ in xs]
+
+        deltas = zip(xs, ys)
+        for x, y in deltas:
+            pos = Vector2d(x, y)
+            if not board.can_move_to(pos):
+                if board.is_piece_at(pos) and piece.player_id != board.get_piece(pos).player_id:
+                    self._legal_moves.append(pos)
                 break
             self._legal_moves.append(pos)
-            if board.is_piece(pos):
-                break
