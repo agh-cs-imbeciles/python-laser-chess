@@ -3,7 +3,7 @@ from utils import Vector2d
 from game import Board
 from game.pieces import Piece, PieceModel
 from game.pieces.move import PieceMove
-from game.pieces.movement import PawnMovement, BishopMovement, RookMovement, QueenMovement
+from game.pieces.movement import PawnMovement, BishopMovement, RookMovement, QueenMovement, KnightMovement
 
 
 class Game:
@@ -53,6 +53,7 @@ class Game:
         self.__init_bishops()
         self.__init_rooks()
         self.__init_hetmanica()
+        self.__init_knights()
 
     def __init_bishops(self):
         bishop_data = [
@@ -71,6 +72,15 @@ class Game:
         for bs in rook_data:
             p = Piece(PieceModel.ROOK, bs[0], bs[1])
             self.board.add_piece((p, RookMovement(p, self.board)))
+
+    def __init_knights(self):
+        rook_data = [
+            (Vector2d(1, 0), 0), (Vector2d(6, 0), 0),
+            (Vector2d(1, self.board.height - 1), 1), (Vector2d(6, self.board.height - 1), 1),
+        ]
+        for bs in rook_data:
+            p = Piece(PieceModel.KNIGHT, bs[0], bs[1])
+            self.board.add_piece((p, KnightMovement(p, self.board)))
 
     def __init_hetmanica(self):
         rook_data = [

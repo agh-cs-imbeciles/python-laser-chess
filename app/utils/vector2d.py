@@ -61,3 +61,11 @@ class Vector2d:
 
     def copy(self) -> "Vector2d":
         return Vector2d(self.x, self.y)
+
+    def pivot_symmetry(self, by_x: bool | None) -> "Vector2d":
+        if by_x is None:
+            return Vector2d(self.x, self.y)
+        if by_x:
+            return Vector2d(self.x, -self.y)
+        return Vector2d(-self.x, self.y)
+
