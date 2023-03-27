@@ -12,12 +12,11 @@ class PieceRepresentationLayout(RelativeLayout):
     def __init__(self, piece: Piece,button: Button):
         super().__init__()
         self.add_widget(button)
+        self._img = None
         if piece is None:
-            self._img = None
             return
         piece_type = piece.model
         player = piece.player_id
-        self._img = None
         match player:
             case 0:
                 match piece_type:
@@ -54,7 +53,7 @@ class PieceRepresentationLayout(RelativeLayout):
                         self._img = None
         self.add_widget(self._img)
 
-    def remove_img(self) -> Image:
+    def remove_img(self) -> Image|None:
         if self._img is None:
             return None
         img = self._img
