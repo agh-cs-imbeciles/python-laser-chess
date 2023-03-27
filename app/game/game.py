@@ -3,7 +3,7 @@ from utils import Vector2d
 from game import Board
 from game.pieces import Piece, PieceModel
 from game.pieces.move import PieceMove
-from game.pieces.movement import PawnMovement
+from game.pieces.movement import PawnMovement, BishopMovement
 
 
 class Game:
@@ -15,7 +15,7 @@ class Game:
 
         self.__init_board()
         # self.move_piece()
-        
+
     @property
     def board(self) -> Board:
         return self._board
@@ -33,6 +33,9 @@ class Game:
         return self._moves_history
 
     def __init_board(self) -> None:
+        #
+        # Pawns
+        #
         pawn_xs = [2, 3, 4, 5]
         for x in pawn_xs:
             p1 = Piece(PieceModel.PAWN, Vector2d(x, 1), 0)
@@ -47,6 +50,17 @@ class Game:
             (p1, PawnMovement(p1, self.board, Vector2d(0, 1), Vector2d(0, 4), Vector2d(0, 7))),
             (p2, PawnMovement(p2, self.board, Vector2d(0, -1), Vector2d(0, 3), Vector2d(0, 0)))
         ])
+
+        self.__init_bishops()
+
+    def __init_bishops(self):
+        bishop_data = [
+            (Vector2d(2, 0), 0), (Vector2d(5, 0), 0),
+            (Vector2d(2, self.board.height - 1), 1), (Vector2d(5, self.board.height - 1), 1),
+        ]
+        for bs in bishop_data:
+            p = Piece(PieceModel.BISHOP, bs[0], bs[1])
+            self.board.add_piece((p, BishopMovement(p, self.board)))
 
     def move_piece(self, piece: Piece, to: Vector2d):
         piece.move(to)
