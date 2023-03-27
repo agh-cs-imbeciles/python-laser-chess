@@ -1,6 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 from game.pieces.movement import PieceMovement
+from utils.vector2d import Vector2d
 
 if TYPE_CHECKING:
     from game.pieces.piece import Piece
@@ -34,5 +35,6 @@ class BishopMovement(PieceMovement):
         # Bottom right diagonal
         #
         self.check_squares(p, b, p.position + Vector2d(1, -1), Vector2d(b.width, -1), (1, -1))
-
+        for i in self._legal_moves:
+            print(i)
         return self._legal_moves

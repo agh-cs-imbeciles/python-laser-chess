@@ -23,16 +23,13 @@ class PieceMovement(ABC):
         if increment[0] == 0 and increment[1] == 0:
             return
 
-        if increment[0] == 0:
-            dys = [dy for dy in range(origin.y, destination.y, increment[1])]
-            dxs = [origin.x for _ in dys]
-        else:
-            dxs = [dx for dx in range(origin.x, destination.x, increment[0])]
-            dys = [origin.y for _ in dxs]
-
+        dys = [dy for dy in range(origin.y, destination.y, increment[1])]
+        dxs = [dx for dx in range(origin.x, destination.x, increment[0])]
         deltas = zip(dxs, dys)
         for dx, dy in deltas:
-            pos = Vector2d(piece.position.x + dy, piece.position.y + dx)
+            pos = Vector2d(dx, dy)
             if not board.can_move_to(pos, piece):
                 break
             self._legal_moves.append(pos)
+            if board.is_piece(pos):
+                break

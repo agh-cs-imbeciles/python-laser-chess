@@ -42,7 +42,7 @@ class Game:
             p2 = Piece(PieceModel.PAWN, Vector2d(x, self.__BOARD_SIZE - 2), 1)
             self.board.add_pieces([
                 (p1, PawnMovement(p1, self.board, Vector2d(0, 1), Vector2d(0, 4), Vector2d(0, 7))),
-                (p2, PawnMovement(p2, self.board, Vector2d(0, -1), Vector2d(0, 3), Vector2d(0, 0)))
+                (p2, PawnMovement(p2, self.board, Vector2d(0, -1), Vector2d(0, 3), Vector2d(0, 0))),
             ])
         p1 = Piece(PieceModel.PAWN, Vector2d(0, 1), 0)
         p2 = Piece(PieceModel.PAWN, Vector2d(self.__BOARD_SIZE - 1, self.__BOARD_SIZE - 2), 1)
@@ -50,10 +50,10 @@ class Game:
             (p1, PawnMovement(p1, self.board, Vector2d(0, 1), Vector2d(0, 4), Vector2d(0, 7))),
             (p2, PawnMovement(p2, self.board, Vector2d(0, -1), Vector2d(0, 3), Vector2d(0, 0)))
         ])
-
         self.__init_bishops()
 
     def __init_bishops(self):
+        print("ll")
         bishop_data = [
             (Vector2d(2, 0), 0), (Vector2d(5, 0), 0),
             (Vector2d(2, self.board.height - 1), 1), (Vector2d(5, self.board.height - 1), 1),
