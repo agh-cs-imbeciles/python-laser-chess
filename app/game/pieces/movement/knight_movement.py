@@ -10,8 +10,8 @@ if TYPE_CHECKING:
 
 
 class KnightMovement(PieceMovement):
-    def __init__(self, pawn: Piece, board: Board) -> None:
-        super().__init__(pawn, board)
+    def __init__(self, knight: Piece, board: Board) -> None:
+        super().__init__(knight, board)
 
     # override
     def get_legal_moves(self) -> list[Vector2d]:

@@ -36,59 +36,76 @@ class Board(obs.PositionObserver, Screen, metaclass=MetaAB):
 
     def _init_board(self):
         board = self._game.board
+        for i in range(len(self._dots)):
+            self._dots[i] = Image(source="assets/dot.png")
         for i in range(8):
             for j in range(8):
                 vector = Vector2d(j, 7 - i)
+
+                # preparation of every button on board
 
                 button = Button()
                 button.vector = vector
                 button.bind(on_press=self.on_tile_click)
                 button.background_normal = ""
-                piece = board.get_piece(vector)
-                if piece is not None:
-                    piece.add_observer(self)
                 if (i + j) % 2 == 0:
                     button.background_color = rgba_int_to_float((150, 50, 50, 255))
                 else:
                     button.background_color = rgba_int_to_float((54, 54, 54, 255))
+
+                # assigning observer to piece
+
+                piece = board.get_piece(vector)
+                if piece is not None:
+                    piece.add_observer(self)
+
+                # adding piece and button to board
+
                 piece_layout = PieceRepresentationLayout(piece, button)
                 self._grid.add_widget(piece_layout)
                 self._representations[vector.y][vector.x] = piece_layout
-        for i in range(len(self._dots)):
-            self._dots[i] = Image(source="assets/dot.png")
 
     def on_tile_click(self, instance: Button):
+
+        # clear indicating dots
+
         for d in self._current_dots:
             d.parent.remove_widget(d)
         self._current_dots.clear()
+
+        # no piece selected
+
         if self._selected is None:
             self._selected = self._board.get_piece_movement(instance.vector)
             self._selected_piece = self._board.get_piece(instance.vector)
+
+            # piece of wrong team or tile without piece clicked
+
             if self._selected is None or self._selected_piece.player_id != self._board.move_number:
                 self._selected = None
                 self._selected_piece = None
                 return
+
+            # proper piece clicked
+
             self.on_show_possible_movements(self._selected.get_legal_moves())
             return
-        self._board.move_piece_if_possible(self._selected_piece, instance.vector)
+
+        # piece is moved
+
+        self._game.move_piece(self._selected_piece, instance.vector)
         self._selected = None
         self._selected_piece = None
 
     def on_show_possible_movements(self, movements: list[Vector2d]):
-        i = 0
-        for m in movements:
+        for i, m in enumerate(movements):
             self._representations[m.y][m.x].add_widget(self._dots[i])
             self._current_dots.append(self._dots[i])
-            i += 1
 
     def on_position_change(self, origin: Vector2d, destination: Vector2d) -> None:
         img = self._representations[origin.y][origin.x].remove_img()
+        self._representations[destination.y][destination.x].remove_img()
         self._representations[destination.y][destination.x].add_img(img)
-        # from_rel = self._positions[origin.y][origin.x]
-        # piece_representation = from_rel.children[0]
-        # from_rel.remove_widget(piece_representation)
-        # to_rel = self._positions[destination.y][destination.x]
-        # to_rel.add_widget(piece_representation)
 
     def update_representation(self, from_piece: pcs.Piece, to_piece: pcs.Piece):
         pass

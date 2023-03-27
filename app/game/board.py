@@ -3,10 +3,10 @@ from typing import TYPE_CHECKING, Dict, Optional, Tuple
 from utils import Vector2d
 from game.observer import PositionObserver
 from game.pieces import Piece
-if TYPE_CHECKING:
-    from game.pieces import Piece
-    from game.pieces.movement import PieceMovement
+from game.pieces.move import PieceMoveType, PieceMoveDetector
 
+if TYPE_CHECKING:
+    from game.pieces.movement import PieceMovement
 
 class Board(PositionObserver):
     def __init__(self, width: int, height: int):
@@ -42,8 +42,8 @@ class Board(PositionObserver):
     # override PositionObserver
     def on_position_change(self, origin: Vector2d, destination: Vector2d) -> None:
         p = self._pieces
-        # p.pop(origin, None)
-        p[destination] = p.pop(origin,None)
+        # moveType = PieceMoveDetector.detect(self, self.get_piece(origin), destination)
+        p[destination] = p.pop(origin, None)
 
     def get_size(self) -> tuple[int, int]:
         return self._width, self._height
@@ -90,16 +90,3 @@ class Board(PositionObserver):
     def add_pieces(self, pieces: list[Tuple[Piece, PieceMovement]]) -> None:
         for piece in pieces:
             self.add_piece(piece)
-
-    def move_piece_if_possible(self, piece: Piece, destination: Vector2d):
-        if self._move_number != piece.player_id:
-            return
-        piece_movement = self.get_piece_movement(piece.position)
-        legal = piece_movement.get_legal_moves()
-        if destination in legal:
-            piece.move(destination)
-            self._move_number = (self.move_number + 1) % 2
-
-
-
-

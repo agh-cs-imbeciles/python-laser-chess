@@ -9,8 +9,8 @@ if TYPE_CHECKING:
 
 
 class RookMovement(PieceMovement):
-    def __init__(self, pawn: Piece, board: Board) -> None:
-        super().__init__(pawn, board)
+    def __init__(self, rook: Piece, board: Board) -> None:
+        super().__init__(rook, board)
 
     # override
     def get_legal_moves(self) -> list[Vector2d]:

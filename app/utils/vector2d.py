@@ -30,6 +30,9 @@ class Vector2d:
             return False
         return self.x == other.x and self.y == other.y
 
+    def __ne__(self, other):
+        return not self == other
+
     def __add__(self, other: "Vector2d") -> "Vector2d":
         return Vector2d(self.x + other.x, self.y + other.y)
 

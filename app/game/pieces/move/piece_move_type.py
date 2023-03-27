@@ -5,5 +5,6 @@ class PieceMoveType(Enum):
     MOVE        = 0
     CAPTURE     = 1
     CASTLING    = 2
-    CHECK       = 3
-    CHECKMATE   = 4
+    PROMOTION   = 3
+    CHECK       = 4
+    CHECKMATE   = 5

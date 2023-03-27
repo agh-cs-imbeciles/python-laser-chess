@@ -12,55 +12,45 @@ class PieceRepresentationLayout(RelativeLayout):
     def __init__(self, piece: Piece,button: Button):
         super().__init__()
         self.add_widget(button)
+        self._img = None
         if piece is None:
-            self._img = None
             return
         piece_type = piece.model
         player = piece.player_id
-        self._img = None
-        match player:
-            case 0:
-                match piece_type:
-                    case piece_type.PAWN:
-                        self._img = Image(source="assets/w_pawn.png")
-                    case piece_type.KNIGHT:
-                        self._img = Image(source="assets/w_knight.png")
-                    case piece_type.ROOK:
-                        self._img = Image(source="assets/w_rook.png")
-                    case piece_type.BISHOP:
-                        self._img = Image(source="assets/w_bishop.png")
-                    case piece_type.QUEEN:
-                        self._img = Image(source="assets/w_queen.png")
-                    case piece_type.MIRROR:
-                        self._img = Image(source="assets/w_mirror.png")
-                    case _:
-                        self._img = None
 
-            case 1:
-                match piece_type:
-                    case piece_type.PAWN:
-                        self._img = Image(source="assets/b_pawn.png")
-                    case piece_type.KNIGHT:
-                        self._img = Image(source="assets/b_knight.png")
-                    case piece_type.ROOK:
-                        self._img = Image(source="assets/b_rook.png")
-                    case piece_type.BISHOP:
-                        self._img = Image(source="assets/b_bishop.png")
-                    case piece_type.QUEEN:
-                        self._img = Image(source="assets/b_queen.png")
-                    case piece_type.MIRROR:
-                        self._img = Image(source="assets/b_mirror.png")
-                    case _:
-                        self._img = None
+        color = ""
+        match player:
+            case 0: color = "w"
+            case 1: color = "b"
+        match piece_type:
+            case piece_type.KING:
+                self._img = Image(source=f"assets/{color}_king.png")
+            case piece_type.QUEEN:
+                self._img = Image(source=f"assets/{color}_queen.png")
+            case piece_type.PAWN:
+                self._img = Image(source=f"assets/{color}_pawn.png")
+            case piece_type.KNIGHT:
+                self._img = Image(source=f"assets/{color}_knight.png")
+            case piece_type.ROOK:
+                self._img = Image(source=f"assets/{color}_rook.png")
+            case piece_type.BISHOP:
+                self._img = Image(source=f"assets/{color}_bishop.png")
+            case piece_type.MIRROR:
+                self._img = Image(source=f"assets/{color}_mirror.png")
+            case _:
+                self._img = None
+
         self.add_widget(self._img)
 
-    def remove_img(self) -> Image:
+    def remove_img(self) -> Image|None:
         if self._img is None:
             return None
+
         img = self._img
         self._img = None
         self.remove_widget(img)
         return img
+
     def add_img(self, img: Image):
         self._img = img
         self.add_widget(img)

@@ -9,8 +9,8 @@ if TYPE_CHECKING:
 
 
 class QueenMovement(BishopMovement, RookMovement):
-    def __init__(self, pawn: Piece, board: Board) -> None:
-        super().__init__(pawn, board)
+    def __init__(self, queen: Piece, board: Board) -> None:
+        super().__init__(queen, board)
 
     def get_legal_moves(self) -> list[Vector2d]:
         super().get_legal_moves()
@@ -18,4 +18,5 @@ class QueenMovement(BishopMovement, RookMovement):
         tmp_legal = self._legal_moves.copy()
         RookMovement.get_legal_moves(self)
         self._legal_moves.extend(tmp_legal)
+
         return self._legal_moves
