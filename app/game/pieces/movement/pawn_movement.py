@@ -1,3 +1,4 @@
+from __future__ import annotations
 from utils import Vector2d
 import game as g
 import game.pieces as pcs

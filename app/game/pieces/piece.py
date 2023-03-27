@@ -1,38 +1,42 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
 from utils import Vector2d
-import game.pieces as pcs
-import game.observer as obs
+
+if TYPE_CHECKING:
+    from game.pieces import PieceModel
+    from game.observer import PositionObserver
 
 
 class Piece:
-    def __init__(self, model: pcs.PieceModel, position: Vector2d, player_id: int) -> None:
-        self._model: pcs.PieceModel = model
+    def __init__(self, model: PieceModel, position: Vector2d, player_id: int) -> None:
+        self._model: PieceModel = model
         self._position: Vector2d = position
         self._player_id: int = player_id
-        self._position_observers: [obs.PositionObserver] = []
+        self._position_observers: [PositionObserver] = []
 
     def __str__(self) -> str:
         match self._model:
-            case pcs.PieceModel.KING:
+            case PieceModel.KING:
                 return "K"
-            case pcs.PieceModel.QUEEN:
+            case PieceModel.QUEEN:
                 return "Q"
-            case pcs.PieceModel.PAWN:
+            case PieceModel.PAWN:
                 return ""
-            case pcs.PieceModel.BISHOP:
+            case PieceModel.BISHOP:
                 return "B"
-            case pcs.PieceModel.ROOK:
+            case PieceModel.ROOK:
                 return "R"
-            case pcs.PieceModel.KNIGHT:
+            case PieceModel.KNIGHT:
                 return "N"
-            case pcs.PieceModel.MIRROR:
+            case PieceModel.MIRROR:
                 return "M"
 
     @property
-    def model(self) -> pcs.PieceModel:
+    def model(self) -> PieceModel:
         return self._model
     
     @model.setter
-    def model(self, value: pcs.PieceModel) -> None:
+    def model(self, value: PieceModel) -> None:
         self._model = value
 
     @property
@@ -51,7 +55,7 @@ class Piece:
     def player_id(self, player_id: int) -> None:
         self._player_id = player_id
 
-    def add_observer(self, observer: obs.PositionObserver) -> None:
+    def add_observer(self, observer: PositionObserver) -> None:
         self._position_observers.append(observer)
 
     def move(self, to: Vector2d) -> None:

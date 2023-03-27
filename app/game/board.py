@@ -1,17 +1,19 @@
-from typing import Dict, Optional, Tuple
+from __future__ import annotations
+from typing import TYPE_CHECKING, Dict, Optional, Tuple
 from utils import Vector2d
-import game as g
-import game.pieces as pcs
-import game.pieces.movement as pm
-import game.observer as obs
+from game.observer import PositionObserver
+
+if TYPE_CHECKING:
+    from game.pieces import Piece
+    from game.pieces.movement import PieceMovement
 
 
-class Board(obs.PositionObserver):
+class Board(PositionObserver):
     def __init__(self, width: int, height: int):
         self._width: int = width
         self._height: int = height
         self._move_number: int = 0
-        self._pieces: Dict[Vector2d, Tuple[pcs.Piece, pm.PieceMovement]] = {}
+        self._pieces: Dict[Vector2d, Tuple[Piece, PieceMovement]] = {}
 
     @property
     def width(self) -> int:
@@ -46,19 +48,19 @@ class Board(obs.PositionObserver):
     def get_size(self) -> tuple[int, int]:
         return self._width, self._height
 
-    def get_piece(self, position: Vector2d) -> Optional[pcs.Piece]:
+    def get_piece(self, position: Vector2d) -> Optional[Piece]:
         piece = self._pieces.get(position)
         if piece is None:
             return None
         return piece[0]
 
-    def get_piece_movement(self, position: Vector2d) -> Optional[pm.PieceMovement]:
+    def get_piece_movement(self, position: Vector2d) -> Optional[PieceMovement]:
         piece = self._pieces.get(position)
         if piece is None:
             return None
         return piece[1]
 
-    def can_move_to(self, to: Vector2d, piece: Optional[pcs.Piece] = None) -> bool:
+    def can_move_to(self, to: Vector2d, piece: Optional[Piece] = None) -> bool:
         #
         # Check, if position after moving is in bounds of board
         #
@@ -68,7 +70,7 @@ class Board(obs.PositionObserver):
         #
         # Move with potential capturing
         #
-        if isinstance(piece, pcs.Piece):
+        if isinstance(piece, Piece):
             p = self.get_piece(to)
             return True if not p or p.player_id != piece.player_id else False
         #
@@ -77,12 +79,12 @@ class Board(obs.PositionObserver):
         else:
             return True if not self.get_piece(to) else False
 
-    def add_piece(self, piece: Tuple[pcs.Piece, pm.PieceMovement]) -> None:
+    def add_piece(self, piece: Tuple[Piece, PieceMovement]) -> None:
         if not self.get_piece(piece[0].position):
             self._pieces[piece[0].position] = piece
             piece[0].add_observer(self)
 
-    def add_pieces(self, pieces: list[Tuple[pcs.Piece, pm.PieceMovement]]) -> None:
+    def add_pieces(self, pieces: list[Tuple[Piece, PieceMovement]]) -> None:
         for piece in pieces:
             self.add_piece(piece)
 

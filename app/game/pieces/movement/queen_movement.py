@@ -1,11 +1,15 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
 from utils import Vector2d
-import game as g
-import game.pieces as pcs
-import game.pieces.movement as mvm
+from game.pieces.movement import BishopMovement, RookMovement
+
+if TYPE_CHECKING:
+    from game import Board
+    from game.pieces import Piece
 
 
-class QueenMovement(mvm.BishopMovement, mvm.RookMovement):
-    def __init__(self, pawn: pcs.Piece, board: g.Board) -> None:
+class QueenMovement(BishopMovement, RookMovement):
+    def __init__(self, pawn: Piece, board: Board) -> None:
         super().__init__(pawn, board)
 
     def get_legal_moves(self) -> list[Vector2d]:

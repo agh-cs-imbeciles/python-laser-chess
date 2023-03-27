@@ -1,8 +1,11 @@
-from typing import Tuple
-from piece_movement import PieceMovement
-from game.pieces.piece import Piece
-from game.board import Board
-from utils.vector2d import Vector2d
+from __future__ import annotations
+from typing import TYPE_CHECKING
+from game.pieces.movement import PieceMovement
+
+if TYPE_CHECKING:
+    from game.pieces.piece import Piece
+    from game.board import Board
+    from utils.vector2d import Vector2d
 
 
 class BishopMovement(PieceMovement):

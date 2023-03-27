@@ -1,11 +1,15 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
 from utils import Vector2d
-import game as g
-import game.pieces as pcs
-import game.pieces.movement as mvm
+from game.pieces.movement import PieceMovement
+
+if TYPE_CHECKING:
+    from game import Board
+    from game.pieces import Piece
 
 
-class RookMovement(mvm.PieceMovement):
-    def __init__(self, pawn: pcs.Piece, board: g.Board) -> None:
+class RookMovement(PieceMovement):
+    def __init__(self, pawn: Piece, board: Board) -> None:
         super().__init__(pawn, board)
 
     # override
