@@ -19,6 +19,6 @@ class PieceMovement(ABC):
     def get_legal_moves(self) -> list[Vector2d]:
         pass
 
-    @abstractmethod
-    def get_all_obstructing_pieces(self) -> list[Piece]:
-        pass
+    # @abstractmethod
+    # def get_all_obstructing_pieces(self) -> list[Piece]:
+    #     pass

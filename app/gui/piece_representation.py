@@ -13,13 +13,20 @@ class PieceRepresentationLayout(RelativeLayout):
         self._img = None
         if piece is None:
             return
+        self.__load(piece)
+        self.add_widget(self._img)
+    def __load(self, piece: Piece):
+        if piece is None:
+            self._img = None
+            return
         piece_type = piece.model
         player = piece.player_id
-
         color = ""
         match player:
-            case 0: color = "w"
-            case 1: color = "b"
+            case 0:
+                color = "w"
+            case 1:
+                color = "b"
         match piece_type:
             case piece_type.KING:
                 self._img = Image(source=f"assets/{color}_king.png")
@@ -37,19 +44,21 @@ class PieceRepresentationLayout(RelativeLayout):
                 self._img = Image(source=f"assets/{color}_mirror.png")
             case _:
                 self._img = None
-
-        self.add_widget(self._img)
-
     def remove_img(self) -> Image | None:
         if self._img is None:
             return None
-
         img = self._img
-        self._img = None
         self.remove_widget(img)
+        self._img = None
         return img
 
     def add_img(self, img: Image):
         self._img = img
         self.add_widget(img)
+
+    def new_image(self,piece: Piece):
+        if piece is None:
+            return
+        self.__load(piece)
+        self.add_widget(self._img)
 

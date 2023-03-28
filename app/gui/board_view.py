@@ -103,9 +103,14 @@ class Board(obs.PositionObserver, Screen, metaclass=MetaAB):
             self._current_dots.append(self._dots[i])
 
     def on_position_change(self, origin: Vector2d, destination: Vector2d) -> None:
-        img = self._representations[origin.y][origin.x].remove_img()
-        self._representations[destination.y][destination.x].remove_img()
-        self._representations[destination.y][destination.x].add_img(img)
+        for i in range(len(self._representations)):
+            for j in range(len(self._representations[i])):
+                self._representations[i][j].remove_img()
+                self._representations[i][j].new_image(self._board.get_piece(Vector2d(j, i)))
+                # self._representations[i][j].add_img()
+        # img = self._representations[origin.y][origin.x].remove_img()
+        # self._representations[destination.y][destination.x].remove_img()
+        # self._representations[destination.y][destination.x].add_img(img)
 
     def update_representation(self, from_piece: pcs.Piece, to_piece: pcs.Piece):
         pass
