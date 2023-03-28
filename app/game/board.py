@@ -93,11 +93,30 @@ class Board(PositionObserver):
         for piece in pieces:
             self.add_piece(piece)
 
+    def update_checked_squares(
+        self, piece: Piece, origin: Vector2d, destination: Vector2d, increment: tuple[int, int]
+    ) -> None:
+        pass
+
     def check_squares(
         self, piece: Piece, origin: Vector2d, destination: Vector2d, increment: tuple[int, int]
-    ) -> Optional[list[Vector2d]]:
+    ) -> list[Vector2d]:
+        return self.__check_squares_lmp(piece, origin, destination, increment)[0]
+
+    def __check_squares_lmp(
+        self, piece: Piece, origin: Vector2d, destination: Vector2d, increment: tuple[int, int]
+    ) -> tuple[list[Vector2d], Piece | None]:
+        """
+        Check squares of the board and return legal moves (lm) list and optional blocking piece (p).
+        :param piece: piece involved
+        :param origin: origin vector of ray checking
+        :param destination: destination vector of ray checking
+        :param increment: x, y increment values
+        :return: tuple of legal moves and optional piece, if is in the way of ray
+        """
+
         if increment[0] == 0 and increment[1] == 0:
-            return
+            raise ValueError("increment tuple must be different than (0, 0)")
 
         if increment[0] != 0:
             xs = [x for x in range(origin.x, destination.x, increment[0])]
@@ -109,6 +128,7 @@ class Board(PositionObserver):
             ys = [origin.y for _ in xs]
 
         legal_moves = []
+        blocking_piece = None
         deltas = zip(xs, ys)
 
         for x, y in deltas:
@@ -116,7 +136,8 @@ class Board(PositionObserver):
             if not self.can_move_to(pos):
                 if self.is_piece_at(pos) and piece.player_id != self.get_piece(pos).player_id:
                     legal_moves.append(pos)
+                    blocking_piece = self.get_piece(pos)
                 break
             legal_moves.append(pos)
 
-        return legal_moves
+        return legal_moves, blocking_piece

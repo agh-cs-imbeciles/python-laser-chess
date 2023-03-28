@@ -24,3 +24,7 @@ class KingMovement(PieceMovement):
                 self._legal_moves.append(self._piece.position + d)
 
         return self._legal_moves
+
+    # override
+    def get_all_obstructing_pieces(self) -> list[Piece]:
+        return []
