@@ -111,7 +111,7 @@ class Game:
             p = Piece(PieceModel.KNIGHT, kd[0], kd[1])
             self.board.add_piece((p, KnightMovement(p, self.board)))
 
-    def move_piece(self, piece: Piece, destination: Vector2d):
+    def move_piece(self, piece: Piece, destination: Vector2d) -> None:
         if self.board.move_number != piece.player_id:
             return
 

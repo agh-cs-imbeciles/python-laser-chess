@@ -8,3 +8,6 @@ class PieceMoveType(Enum):
     PROMOTION   = 3
     CHECK       = 4
     CHECKMATE   = 5
+    STALEMATE   = 6
+    DRAW        = 7
+

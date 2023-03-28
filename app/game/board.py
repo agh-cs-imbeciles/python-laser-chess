@@ -15,7 +15,7 @@ class Board(PositionObserver):
         self._height: int = height
         self._move_number: int = 0
         self._pieces: dict[Vector2d, tuple[Piece, PieceMovement]] = {}
-        self._checked_squares: [dict[Vector2d, Piece]] = [{}, {}]
+        self._checked_squares: [dict[Vector2d, bool]] = [{}, {}]
 
     @property
     def width(self) -> int:
@@ -40,12 +40,21 @@ class Board(PositionObserver):
     @move_number.setter
     def move_number(self, value: int) -> None:
         self._move_number = value
+        
+    @property
+    def checked_squares(self):
+        return self._checked_squares
+    
+    @checked_squares.setter
+    def checked_squares(self, value: [dict[Vector2d, bool]]):
+        self._checked_squares = value
 
     # override PositionObserver
     def on_position_change(self, origin: Vector2d, destination: Vector2d) -> None:
         p = self._pieces
         # moveType = PieceMoveDetector.detect(self, self.get_piece(origin), destination)
         p[destination] = p.pop(origin, None)
+        self.update_checked_squares()
 
     def get_size(self) -> tuple[int, int]:
         return self._width, self._height
@@ -93,10 +102,15 @@ class Board(PositionObserver):
         for piece in pieces:
             self.add_piece(piece)
 
-    def update_checked_squares(
-        self, piece: Piece, origin: Vector2d, destination: Vector2d, increment: tuple[int, int]
-    ) -> None:
-        pass
+    def update_checked_squares(self) -> None:
+        for checked_squares in self.checked_squares:
+            checked_squares.clear()
+
+        for key, piece_data in self._pieces.items():
+            for move in piece_data[1].get_legal_moves():
+                for i, checked_squares in enumerate(self.checked_squares):
+                    if piece_data[0].player_id != i:
+                        self.checked_squares[i][move] = True
 
     def check_squares(
         self, piece: Piece, origin: Vector2d, destination: Vector2d, increment: tuple[int, int]
