@@ -10,7 +10,8 @@ if TYPE_CHECKING:
 
 class PawnMovement(PieceMovement):
     def __init__(
-        self, pawn: Piece,
+        self,
+        pawn: Piece,
         board: Board,
         direction: Vector2d,
         en_passant_position: Vector2d,

@@ -1,10 +1,11 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, Dict, Optional, Tuple
+from typing import TYPE_CHECKING, Optional
 from utils import Vector2d
 from game.observer import PositionObserver
 from game.pieces import Piece
+from game.pieces.move import PieceMoveType, PieceMoveDetector
+
 if TYPE_CHECKING:
-    from game.pieces import Piece
     from game.pieces.movement import PieceMovement
 
 
@@ -13,7 +14,8 @@ class Board(PositionObserver):
         self._width: int = width
         self._height: int = height
         self._move_number: int = 0
-        self._pieces: Dict[Vector2d, Tuple[Piece, PieceMovement]] = {}
+        self._pieces: dict[Vector2d, tuple[Piece, PieceMovement]] = {}
+        self._checked_squares: [dict[Vector2d, Piece]] = [{}, {}]
 
     @property
     def width(self) -> int:
@@ -42,8 +44,8 @@ class Board(PositionObserver):
     # override PositionObserver
     def on_position_change(self, origin: Vector2d, destination: Vector2d) -> None:
         p = self._pieces
-        # p.pop(origin, None)
-        p[destination] = p.pop(origin,None)
+        # moveType = PieceMoveDetector.detect(self, self.get_piece(origin), destination)
+        p[destination] = p.pop(origin, None)
 
     def get_size(self) -> tuple[int, int]:
         return self._width, self._height
@@ -79,29 +81,63 @@ class Board(PositionObserver):
         else:
             return True if not self.get_piece(to) else False
 
-    def is_piece(self,vector: Vector2d) -> bool:
-        if self.get_piece(vector) is None:
-            return False
-        return True
+    def is_piece_at(self, vector: Vector2d) -> bool:
+        return self.get_piece(vector) is not None
 
-    def add_piece(self, piece: Tuple[Piece, PieceMovement]) -> None:
+    def add_piece(self, piece: tuple[Piece, PieceMovement]) -> None:
         if not self.get_piece(piece[0].position):
             self._pieces[piece[0].position] = piece
             piece[0].add_observer(self)
 
-    def add_pieces(self, pieces: list[Tuple[Piece, PieceMovement]]) -> None:
+    def add_pieces(self, pieces: list[tuple[Piece, PieceMovement]]) -> None:
         for piece in pieces:
             self.add_piece(piece)
 
-    def move_piece_if_possible(self, piece: Piece, destination: Vector2d):
-        if self._move_number != piece.player_id:
-            return
-        piece_movement = self.get_piece_movement(piece.position)
-        legal = piece_movement.get_legal_moves()
-        if destination in legal:
-            piece.move(destination)
-            self._move_number = (self.move_number + 1) % 2
+    def update_checked_squares(
+        self, piece: Piece, origin: Vector2d, destination: Vector2d, increment: tuple[int, int]
+    ) -> None:
+        pass
 
+    def check_squares(
+        self, piece: Piece, origin: Vector2d, destination: Vector2d, increment: tuple[int, int]
+    ) -> list[Vector2d]:
+        return self.__check_squares_lmp(piece, origin, destination, increment)[0]
 
+    def __check_squares_lmp(
+        self, piece: Piece, origin: Vector2d, destination: Vector2d, increment: tuple[int, int]
+    ) -> tuple[list[Vector2d], Piece | None]:
+        """
+        Check squares of the board and return legal moves (lm) list and optional blocking piece (p).
+        :param piece: piece involved
+        :param origin: origin vector of ray checking
+        :param destination: destination vector of ray checking
+        :param increment: x, y increment values
+        :return: tuple of legal moves and optional piece, if is in the way of ray
+        """
 
+        if increment[0] == 0 and increment[1] == 0:
+            raise ValueError("increment tuple must be different than (0, 0)")
 
+        if increment[0] != 0:
+            xs = [x for x in range(origin.x, destination.x, increment[0])]
+        if increment[1] != 0:
+            ys = [y for y in range(origin.y, destination.y, increment[1])]
+        if increment[0] == 0:
+            xs = [origin.x for _ in ys]
+        if increment[1] == 0:
+            ys = [origin.y for _ in xs]
+
+        legal_moves = []
+        blocking_piece = None
+        deltas = zip(xs, ys)
+
+        for x, y in deltas:
+            pos = Vector2d(x, y)
+            if not self.can_move_to(pos):
+                if self.is_piece_at(pos) and piece.player_id != self.get_piece(pos).player_id:
+                    legal_moves.append(pos)
+                    blocking_piece = self.get_piece(pos)
+                break
+            legal_moves.append(pos)
+
+        return legal_moves, blocking_piece

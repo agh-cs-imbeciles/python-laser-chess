@@ -93,16 +93,14 @@ class Board(obs.PositionObserver, Screen, metaclass=MetaAB):
 
         # piece is moved
 
-        self._board.move_piece_if_possible(self._selected_piece, instance.vector)
+        self._game.move_piece(self._selected_piece, instance.vector)
         self._selected = None
         self._selected_piece = None
 
     def on_show_possible_movements(self, movements: list[Vector2d]):
-        i = 0
-        for m in movements:
+        for i, m in enumerate(movements):
             self._representations[m.y][m.x].add_widget(self._dots[i])
             self._current_dots.append(self._dots[i])
-            i += 1
 
     def on_position_change(self, origin: Vector2d, destination: Vector2d) -> None:
         img = self._representations[origin.y][origin.x].remove_img()
