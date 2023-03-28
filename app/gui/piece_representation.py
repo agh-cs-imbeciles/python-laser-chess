@@ -1,15 +1,13 @@
+from __future__ import annotations
 from kivy.uix.button import Button
 from kivy.uix.image import Image
 from kivy.uix.relativelayout import RelativeLayout
-
 from game.pieces.piece import Piece
-from utils.vector2d import Vector2d
-
 
 
 # 0-white
 class PieceRepresentationLayout(RelativeLayout):
-    def __init__(self, piece: Piece,button: Button):
+    def __init__(self, piece: Piece, button: Button):
         super().__init__()
         self.add_widget(button)
         self._img = None
@@ -42,7 +40,7 @@ class PieceRepresentationLayout(RelativeLayout):
 
         self.add_widget(self._img)
 
-    def remove_img(self) -> Image|None:
+    def remove_img(self) -> Image | None:
         if self._img is None:
             return None
 

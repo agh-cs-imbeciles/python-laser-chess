@@ -21,18 +21,18 @@ class BishopMovement(PieceMovement):
         #
         # Upper right diagonal
         #
-        self.check_squares(p, b, p.position + Vector2d(1, 1), Vector2d(b.width, b.height), (1, 1))
+        self._legal_moves += b.check_squares(p, p.position + Vector2d(1, 1), Vector2d(b.width, b.height), (1, 1))
         #
         # Bottom left diagonal
         #
-        self.check_squares(p, b, p.position + Vector2d(-1, -1), Vector2d(-1, -1), (-1, -1))
+        self._legal_moves += b.check_squares(p, p.position + Vector2d(-1, -1), Vector2d(-1, -1), (-1, -1))
         #
         # Upper left diagonal
         #
-        self.check_squares(p, b, p.position + Vector2d(-1, 1), Vector2d(-1, b.height), (-1, 1))
+        self._legal_moves += b.check_squares(p, p.position + Vector2d(-1, 1), Vector2d(-1, b.height), (-1, 1))
         #
         # Bottom right diagonal
         #
-        self.check_squares(p, b, p.position + Vector2d(1, -1), Vector2d(b.width, -1), (1, -1))
+        self._legal_moves += b.check_squares(p, p.position + Vector2d(1, -1), Vector2d(b.width, -1), (1, -1))
 
         return self._legal_moves

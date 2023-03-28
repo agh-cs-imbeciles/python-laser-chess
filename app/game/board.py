@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import TYPE_CHECKING, Dict, Optional, Tuple
+from typing import TYPE_CHECKING, Optional
 from utils import Vector2d
 from game.observer import PositionObserver
 from game.pieces import Piece
@@ -8,12 +8,14 @@ from game.pieces.move import PieceMoveType, PieceMoveDetector
 if TYPE_CHECKING:
     from game.pieces.movement import PieceMovement
 
+
 class Board(PositionObserver):
     def __init__(self, width: int, height: int):
         self._width: int = width
         self._height: int = height
         self._move_number: int = 0
-        self._pieces: Dict[Vector2d, Tuple[Piece, PieceMovement]] = {}
+        self._pieces: dict[Vector2d, tuple[Piece, PieceMovement]] = {}
+        self._checked_squares: [dict[Vector2d, Piece]] = [{}, {}]
 
     @property
     def width(self) -> int:
@@ -82,11 +84,39 @@ class Board(PositionObserver):
     def is_piece_at(self, vector: Vector2d) -> bool:
         return self.get_piece(vector) is not None
 
-    def add_piece(self, piece: Tuple[Piece, PieceMovement]) -> None:
+    def add_piece(self, piece: tuple[Piece, PieceMovement]) -> None:
         if not self.get_piece(piece[0].position):
             self._pieces[piece[0].position] = piece
             piece[0].add_observer(self)
 
-    def add_pieces(self, pieces: list[Tuple[Piece, PieceMovement]]) -> None:
+    def add_pieces(self, pieces: list[tuple[Piece, PieceMovement]]) -> None:
         for piece in pieces:
             self.add_piece(piece)
+
+    def check_squares(
+        self, piece: Piece, origin: Vector2d, destination: Vector2d, increment: tuple[int, int]
+    ) -> Optional[list[Vector2d]]:
+        if increment[0] == 0 and increment[1] == 0:
+            return
+
+        if increment[0] != 0:
+            xs = [x for x in range(origin.x, destination.x, increment[0])]
+        if increment[1] != 0:
+            ys = [y for y in range(origin.y, destination.y, increment[1])]
+        if increment[0] == 0:
+            xs = [origin.x for _ in ys]
+        if increment[1] == 0:
+            ys = [origin.y for _ in xs]
+
+        legal_moves = []
+        deltas = zip(xs, ys)
+
+        for x, y in deltas:
+            pos = Vector2d(x, y)
+            if not self.can_move_to(pos):
+                if self.is_piece_at(pos) and piece.player_id != self.get_piece(pos).player_id:
+                    legal_moves.append(pos)
+                break
+            legal_moves.append(pos)
+
+        return legal_moves
