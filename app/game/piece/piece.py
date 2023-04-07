@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from utils import Vector2d
 
 if TYPE_CHECKING:
-    from game.pieces import PieceModel
+    from game.piece import PieceModel
     from game.observer import PositionObserver
 
 

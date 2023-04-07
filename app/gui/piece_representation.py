@@ -2,7 +2,7 @@ from __future__ import annotations
 from kivy.uix.button import Button
 from kivy.uix.image import Image
 from kivy.uix.relativelayout import RelativeLayout
-from game.pieces.piece import Piece
+from game.piece.piece import Piece
 
 
 # 0-white

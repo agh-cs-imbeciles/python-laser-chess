@@ -11,7 +11,7 @@ from kivy.uix.screenmanager import Screen
 import gui
 from utils import Vector2d, rgba_int_to_float
 import game as g
-import game.pieces as pcs
+import game.piece as pcs
 import game.observer as obs
 from numpy import empty
 from gui.piece_representation import PieceRepresentationLayout

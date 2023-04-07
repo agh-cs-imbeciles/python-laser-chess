@@ -1,5 +1,5 @@
 from utils import Vector2d
-import game.pieces as pcs
+import game.piece as pcs
 
 
 class PieceMove:

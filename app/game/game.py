@@ -1,9 +1,9 @@
 from typing import Tuple, Any
 from utils import Vector2d
 from game import Board
-from game.pieces import Piece, PieceModel
-from game.pieces.move import PieceMove
-from game.pieces.movement import KingMovement,\
+from game.piece import Piece, PieceModel
+from game.piece.move import PieceMove
+from game.piece.movement import KingMovement,\
                                  QueenMovement,\
                                  PawnMovement,\
                                  BishopMovement,\

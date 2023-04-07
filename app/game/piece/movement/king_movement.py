@@ -1,8 +1,8 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 from utils import Vector2d
-from game.pieces import Piece, PieceModel
-from game.pieces.movement import PieceMovement
+from game.piece import Piece, PieceModel
+from game.piece.movement import PieceMovement
 
 if TYPE_CHECKING:
     from game import Board

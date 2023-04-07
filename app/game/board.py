@@ -2,11 +2,11 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Optional
 from utils import Vector2d
 from game.observer import PositionObserver
-from game.pieces import Piece
-from game.pieces.move import PieceMoveType, PieceMoveDetector
+from game.piece import Piece
+from game.piece.move import PieceMoveType, PieceMoveDetector
 
 if TYPE_CHECKING:
-    from game.pieces.movement import PieceMovement
+    from game.piece.movement import PieceMovement
 
 
 class Board(PositionObserver):
@@ -121,12 +121,12 @@ class Board(PositionObserver):
         self, piece: Piece, origin: Vector2d, destination: Vector2d, increment: tuple[int, int]
     ) -> tuple[list[Vector2d], Piece | None]:
         """
-        Check squares of the board and return legal moves (lm) list and optional blocking piece (p).
+        Check squares of the board and return legal moves (lm) list and possible blocking piece (p).
         :param piece: piece involved
         :param origin: origin vector of ray checking
         :param destination: destination vector of ray checking
         :param increment: x, y increment values
-        :return: tuple of legal moves and optional piece, if is in the way of ray
+        :return: tuple of legal moves and optional piece, if is in the way of the ray
         """
 
         if increment[0] == 0 and increment[1] == 0:

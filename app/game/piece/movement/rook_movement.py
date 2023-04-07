@@ -1,11 +1,11 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 from utils import Vector2d
-from game.pieces.movement import PieceMovement
+from game.piece.movement import PieceMovement
 
 if TYPE_CHECKING:
     from game import Board
-    from game.pieces import Piece
+    from game.piece import Piece
 
 
 class RookMovement(PieceMovement):
