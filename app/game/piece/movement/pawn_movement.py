@@ -22,6 +22,10 @@ class PawnMovement(PieceMovement):
         self._direction: Vector2d = direction
         self._en_passant_position: Vector2d = en_passant_position
         self._promotion_position: Vector2d = promotion_position
+        
+    @property
+    def direction(self):
+        return self._direction
 
     # override
     def get_legal_moves(self) -> list[Vector2d]:

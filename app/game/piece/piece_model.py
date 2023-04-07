@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class PieceModel(Enum):
     KING    = 0
     QUEEN   = 1

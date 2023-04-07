@@ -1,9 +1,9 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 from utils import Vector2d
+from game.piece import PieceModel
 
 if TYPE_CHECKING:
-    from game.piece import PieceModel
     from game.observer import PositionObserver
 
 

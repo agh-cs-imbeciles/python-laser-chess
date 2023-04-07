@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, Optional
 from utils import Vector2d
 from game.observer import PositionObserver
 from game.piece import Piece
+from game.piece.movement import PawnMovement
 from game.piece.move import PieceMoveType, PieceMoveDetector
 
 if TYPE_CHECKING:
@@ -103,14 +104,29 @@ class Board(PositionObserver):
             self.add_piece(piece)
 
     def update_checked_squares(self) -> None:
-        for checked_squares in self.checked_squares:
-            checked_squares.clear()
+        for player_sqrs in self.checked_squares:
+            player_sqrs.clear()
 
         for key, piece_data in self._pieces.items():
+            #
+            # Pawn capture moves
+            #
+            if isinstance(piece_data[1], PawnMovement):
+                pos: Vector2d = piece_data[0].position + piece_data[1].direction
+                for i, checked_squares in enumerate(self.checked_squares):
+                    if piece_data[0].player_id == i: continue
+                    checked_squares[pos + Vector2d(-1, 0)] = True
+                    checked_squares[pos + Vector2d(1, 0)] = True
+                continue
+
+            #
+            # Other pieces moves
+            #
             for move in piece_data[1].get_legal_moves():
                 for i, checked_squares in enumerate(self.checked_squares):
-                    if piece_data[0].player_id != i:
-                        self.checked_squares[i][move] = True
+                    if piece_data[0].player_id == i: continue
+                    checked_squares[move] = True
+        print()
 
     def check_squares(
         self, piece: Piece, origin: Vector2d, destination: Vector2d, increment: tuple[int, int]
