@@ -126,7 +126,6 @@ class Board(PositionObserver):
                 for i, checked_squares in enumerate(self.checked_squares):
                     if piece_data[0].player_id == i: continue
                     checked_squares[move] = True
-        print()
 
     def check_squares(
         self, piece: Piece, origin: Vector2d, destination: Vector2d, increment: tuple[int, int]

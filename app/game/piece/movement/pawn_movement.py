@@ -62,7 +62,7 @@ class PawnMovement(PieceMovement):
         #
         if 0 < enp.x == p.position.x or 0 < enp.y == p.position.y:
             for pos in [p_left, p_right]:
-                p0 = b.get_piece(pos - dir)
+                p0, mvmt = b.get_piece(pos - dir), b.get_piece_movement(pos - dir)
                 if p0 and p0.player_id != p.player_id and p0.model == PieceModel.PAWN and b.can_move_to(pos):
                     self._legal_moves.append(pos)
 
