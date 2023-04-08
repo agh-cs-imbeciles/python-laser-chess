@@ -24,4 +24,8 @@ class KingMovement(PieceMovement):
             if self._board.can_move_to(p, self._piece) and not self._board.checked_squares[self._piece.player_id].get(p):
                 self._legal_moves.append(p)
 
+        # # Castling
+        # if self._piece.position == self._initial_position:
+        #     if self._board.get_piece()
+
         return self._legal_moves

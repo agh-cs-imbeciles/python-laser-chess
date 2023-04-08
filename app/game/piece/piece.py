@@ -10,6 +10,7 @@ if TYPE_CHECKING:
 class Piece:
     def __init__(self, model: PieceModel, position: Vector2d, player_id: int) -> None:
         self._model: PieceModel = model
+        self._initial_position = position.copy()
         self._position: Vector2d = position
         self._player_id: int = player_id
         self._position_observers: [PositionObserver] = []
@@ -34,18 +35,14 @@ class Piece:
     @property
     def model(self) -> PieceModel:
         return self._model
-    
-    @model.setter
-    def model(self, value: PieceModel) -> None:
-        self._model = value
+        
+    @property
+    def initial_position(self):
+        return self._initial_position
 
     @property
     def position(self) -> Vector2d:
         return self._position
-
-    @position.setter
-    def position(self, position: Vector2d) -> None:
-        self._position = position
     
     @property
     def player_id(self) -> int:
@@ -54,6 +51,9 @@ class Piece:
     @player_id.setter
     def player_id(self, player_id: int) -> None:
         self._player_id = player_id
+
+    def moved(self):
+        return self.position != self._initial_position
 
     def add_observer(self, observer: PositionObserver) -> None:
         self._position_observers.append(observer)
