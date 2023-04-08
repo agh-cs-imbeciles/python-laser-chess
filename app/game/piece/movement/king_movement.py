@@ -24,8 +24,23 @@ class KingMovement(PieceMovement):
             if self._board.can_move_to(p, self._piece) and not self._board.checked_squares[self._piece.player_id].get(p):
                 self._legal_moves.append(p)
 
-        # # Castling
-        # if self._piece.position == self._initial_position:
-        #     if self._board.get_piece()
+        #
+        # Castling
+        #
+        if not self._piece.moved():
+            y: int = self._piece.position.y
+
+            #
+            # Queen-side castling
+            #
+            queen_side_rook: Piece | None = self._board.get_piece(Vector2d(0, y))
+            if queen_side_rook and queen_side_rook.model == PieceModel.ROOK and not queen_side_rook.moved():
+                self._legal_moves.append(self._piece.position + Vector2d(-2, 0))
+            #
+            # King-side castling
+            #
+            king_side_rook: Piece | None = self._board.get_piece(Vector2d(self._board.width - 1, y))
+            if king_side_rook and king_side_rook.model == PieceModel.ROOK and not king_side_rook.moved():
+                self._legal_moves.append(self._piece.position + Vector2d(2, 0))
 
         return self._legal_moves
