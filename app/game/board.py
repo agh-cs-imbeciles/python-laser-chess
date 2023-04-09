@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING, Optional
 from utils import Vector2d
 from game.observer import PositionObserver
 from game.piece import Piece
-from game.piece.movement import PawnMovement
+from game.piece.movement import Movement, PawnMovement
 from game.piece.move import PieceMoveType, PieceMoveDetector
 
 if TYPE_CHECKING:
@@ -127,46 +127,30 @@ class Board(PositionObserver):
                     if piece_data[0].player_id == i: continue
                     checked_squares[move] = True
 
-    def check_squares(
-        self, piece: Piece, origin: Vector2d, destination: Vector2d, increment: tuple[int, int]
-    ) -> list[Vector2d]:
-        return self.__check_squares_lmp(piece, origin, destination, increment)[0]
+    def check_squares(self, piece: Piece, origin: Vector2d, movement: Movement) -> list[Vector2d]:
+        return self.__check_squares_lmp(piece, origin, movement)[0]
 
     def __check_squares_lmp(
-        self, piece: Piece, origin: Vector2d, destination: Vector2d, increment: tuple[int, int]
+        self, piece: Piece, origin: Vector2d, movement: Movement
     ) -> tuple[list[Vector2d], Piece | None]:
         """
         Check squares of the board and return legal moves (lm) list and possible blocking piece (p).
         :param piece: piece involved
         :param origin: origin vector of ray checking
-        :param destination: destination vector of ray checking
-        :param increment: x, y increment values
+        :param movement: movement type of piece (rank, file, diagonal)
         :return: tuple of legal moves and optional piece, if is in the way of the ray
         """
 
-        if increment[0] == 0 and increment[1] == 0:
-            raise ValueError("increment tuple must be different than (0, 0)")
-
-        if increment[0] != 0:
-            xs = [x for x in range(origin.x, destination.x, increment[0])]
-        if increment[1] != 0:
-            ys = [y for y in range(origin.y, destination.y, increment[1])]
-        if increment[0] == 0:
-            xs = [origin.x for _ in ys]
-        if increment[1] == 0:
-            ys = [origin.y for _ in xs]
-
         legal_moves = []
         blocking_piece = None
-        deltas = zip(xs, ys)
+        squares = Movement.get_squares(movement, self, origin)
 
-        for x, y in deltas:
-            pos = Vector2d(x, y)
-            if not self.can_move_to(pos):
-                if self.is_piece_at(pos) and piece.player_id != self.get_piece(pos).player_id:
-                    legal_moves.append(pos)
-                    blocking_piece = self.get_piece(pos)
+        for v in squares:
+            if not self.can_move_to(v):
+                if self.is_piece_at(v) and piece.player_id != self.get_piece(v).player_id:
+                    legal_moves.append(v)
+                    blocking_piece = self.get_piece(v)
                 break
-            legal_moves.append(pos)
+            legal_moves.append(v)
 
         return legal_moves, blocking_piece

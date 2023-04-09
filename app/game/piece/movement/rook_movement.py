@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 from utils import Vector2d
-from game.piece.movement import PieceMovement
+from game.piece.movement import Movement, PieceMovement
 
 if TYPE_CHECKING:
     from game import Board
@@ -19,20 +19,20 @@ class RookMovement(PieceMovement):
         p = self._piece
 
         #
-        # Upper line
+        # Upper file
         #
-        self._legal_moves += b.check_squares(p, p.position + Vector2d(0, 1), Vector2d(0, b.height), (0, 1))
+        self._legal_moves += b.check_squares(p, p.position + Vector2d(0, 1), Movement.UPPER_FILE)
         #
-        # Bottom line
+        # Bottom file
         #
-        self._legal_moves += b.check_squares(p, p.position + Vector2d(0, -1), Vector2d(0, -1), (0, -1))
+        self._legal_moves += b.check_squares(p, p.position + Vector2d(0, -1), Movement.BOTTOM_FILE)
         #
-        # Left line
+        # Left rank
         #
-        self._legal_moves += b.check_squares(p, p.position + Vector2d(-1, 0), Vector2d(-1, 0), (-1, 0))
+        self._legal_moves += b.check_squares(p, p.position + Vector2d(-1, 0), Movement.LEFT_RANK)
         #
-        # Right line
+        # Right rank
         #
-        self._legal_moves += b.check_squares(p, p.position + Vector2d(1, 0), Vector2d(b.width, 0), (1, 0))
+        self._legal_moves += b.check_squares(p, p.position + Vector2d(1, 0), Movement.RIGHT_RANK)
 
         return self._legal_moves

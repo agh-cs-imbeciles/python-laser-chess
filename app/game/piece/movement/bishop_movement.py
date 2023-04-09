@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
-from game.piece.movement import PieceMovement
 from utils import Vector2d
+from game.piece.movement import Movement, PieceMovement
 
 if TYPE_CHECKING:
     from game.piece.piece import Piece
@@ -21,18 +21,18 @@ class BishopMovement(PieceMovement):
         #
         # Upper right diagonal
         #
-        self._legal_moves += b.check_squares(p, p.position + Vector2d(1, 1), Vector2d(b.width, b.height), (1, 1))
+        self._legal_moves += b.check_squares(p, p.position + Vector2d(1, 1), Movement.UPPER_RIGHT_DIAGONAL)
         #
         # Bottom left diagonal
         #
-        self._legal_moves += b.check_squares(p, p.position + Vector2d(-1, -1), Vector2d(-1, -1), (-1, -1))
+        self._legal_moves += b.check_squares(p, p.position + Vector2d(-1, -1), Movement.BOTTOM_LEFT_DIAGONAL)
         #
         # Upper left diagonal
         #
-        self._legal_moves += b.check_squares(p, p.position + Vector2d(-1, 1), Vector2d(-1, b.height), (-1, 1))
+        self._legal_moves += b.check_squares(p, p.position + Vector2d(-1, 1), Movement.UPPER_LEFT_DIAGONAL)
         #
         # Bottom right diagonal
         #
-        self._legal_moves += b.check_squares(p, p.position + Vector2d(1, -1), Vector2d(b.width, -1), (1, -1))
+        self._legal_moves += b.check_squares(p, p.position + Vector2d(1, -1), Movement.BOTTOM_RIGHT_DIAGONAL)
 
         return self._legal_moves
