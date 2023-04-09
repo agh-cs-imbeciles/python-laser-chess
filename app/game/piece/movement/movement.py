@@ -8,16 +8,16 @@ if TYPE_CHECKING:
 
 
 class Movement(Enum):
-    RANK                    = 0,
-    FILE                    = 1,
-    DIAGONAL                = 2,
-    LEFT_RANK               = 3,
-    RIGHT_RANK              = 4,
-    UPPER_FILE              = 5,
-    BOTTOM_FILE             = 6,
-    UPPER_LEFT_DIAGONAL     = 7,
-    UPPER_RIGHT_DIAGONAL    = 8,
-    BOTTOM_RIGHT_DIAGONAL   = 9,
+    RANK                    = 0
+    FILE                    = 1
+    DIAGONAL                = 2
+    LEFT_RANK               = 3
+    RIGHT_RANK              = 4
+    UPPER_FILE              = 5
+    BOTTOM_FILE             = 6
+    UPPER_LEFT_DIAGONAL     = 7
+    UPPER_RIGHT_DIAGONAL    = 8
+    BOTTOM_RIGHT_DIAGONAL   = 9
     BOTTOM_LEFT_DIAGONAL    = 10
 
     def to_tuple(self) -> tuple[int, int]:

@@ -89,10 +89,13 @@ class Board(PositionObserver):
         # Move without capturing
         #
         else:
-            return True if not self.get_piece(to) else False
+            return not self.is_piece_at(to)
 
     def is_piece_at(self, vector: Vector2d) -> bool:
         return self.get_piece(vector) is not None
+
+    def is_check_at(self, piece: Piece) -> bool:
+        return self._checked_squares[piece.player_id].get(piece.position) is not None
 
     def add_piece(self, piece: tuple[Piece, PieceMovement]) -> None:
         if not self.get_piece(piece[0].position):
