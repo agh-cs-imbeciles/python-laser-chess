@@ -5,7 +5,7 @@ from utils import Vector2d
 
 if TYPE_CHECKING:
     from game import Board
-    from game.pieces import Piece
+    from game.piece import Piece
 
 
 class PieceMovement(ABC):

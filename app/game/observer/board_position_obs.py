@@ -1,7 +1,7 @@
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from utils import Vector2d
-from game.pieces import Piece
+from game.piece import Piece
 
 
 class BoardPositionObserver(ABC):

@@ -4,8 +4,8 @@ from utils import Vector2d
 
 if TYPE_CHECKING:
     from game import Board
-    from game.pieces import Piece
-    from game.pieces.move import PieceMoveType
+    from game.piece import Piece
+    from game.piece.move import PieceMoveType
 
 
 class PieceMoveDetector:

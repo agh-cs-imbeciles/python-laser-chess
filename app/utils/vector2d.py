@@ -1,4 +1,11 @@
 from __future__ import annotations
+from enum import Enum
+
+
+class Symmetry(Enum):
+    ORIGIN  = 0,
+    X_AXIS  = 1,
+    Y_AXIS  = 2
 
 
 class Vector2d:
@@ -68,10 +75,11 @@ class Vector2d:
     def copy(self) -> Vector2d:
         return Vector2d(self.x, self.y)
 
-    def pivot_symmetry(self, by_x: bool | None) -> Vector2d:
-        if by_x is None:
-            return Vector2d(self.x, self.y)
-        if by_x:
-            return Vector2d(self.x, -self.y)
-        return Vector2d(-self.x, self.y)
-
+    def pivot_symmetry(self, symmetry: Symmetry) -> Vector2d:
+        match symmetry:
+            case Symmetry.ORIGIN:
+                return Vector2d(-self.x, -self.y)
+            case Symmetry.X_AXIS:
+                return Vector2d(self.x, -self.y)
+            case Symmetry.Y_AXIS:
+                return Vector2d(-self.x, self.y)
