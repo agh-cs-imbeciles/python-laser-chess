@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Optional
 from utils import Vector2d
 from game.observer import PositionObserver
-from game.piece import Piece
+from game.piece import Piece, PieceModel
 from game.piece.movement import Movement, PawnMovement
 from game.piece.move import PieceMoveType, PieceMoveDetector
 
@@ -16,6 +16,7 @@ class Board(PositionObserver):
         self._height: int = height
         self._move_number: int = 0
         self._pieces: dict[Vector2d, tuple[Piece, PieceMovement]] = {}
+        self._kings: list[Piece] = []
         self._checked_squares: [dict[Vector2d, bool]] = [{}, {}]
 
     @property
@@ -52,10 +53,11 @@ class Board(PositionObserver):
 
     # override PositionObserver
     def on_position_change(self, origin: Vector2d, destination: Vector2d) -> None:
-        p = self._pieces
-        # moveType = PieceMoveDetector.detect(self, self.get_piece(origin), destination)
-        p[destination] = p.pop(origin, None)
+        mp, op = self.get_piece(origin), self.get_piece(destination)
+        self._pieces[destination] = self._pieces.pop(origin, None)
         self.update_checked_squares()
+        moveType: PieceMoveType = PieceMoveDetector.detect(self, mp, op)
+        pass
 
     def get_size(self) -> tuple[int, int]:
         return self._width, self._height
@@ -102,9 +104,20 @@ class Board(PositionObserver):
             self._pieces[piece[0].position] = piece
             piece[0].add_observer(self)
 
+            if piece[0].model == PieceModel.KING:
+                self._kings.append(piece[0])
+
     def add_pieces(self, pieces: list[tuple[Piece, PieceMovement]]) -> None:
         for piece in pieces:
             self.add_piece(piece)
+
+    def get_player_all_moves(self):
+        pass
+
+    def is_king_under_check(self, player_id: int) -> bool:
+        if not 0 <= player_id < len(self._kings):
+            raise ValueError("Invalid player id")
+        return self._checked_squares[player_id].get(self._kings[player_id].position) is not None
 
     def update_checked_squares(self) -> None:
         for player_sqrs in self.checked_squares:
