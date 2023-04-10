@@ -19,6 +19,7 @@ class Board(PositionObserver):
         self._kings: list[Piece] = []
         self._checked_squares: list[dict[Vector2d, bool]] = [{}, {}]
         self._checking_pieces: list[dict[Vector2d, tuple[Piece, PieceMovement]]] = [{}, {}]
+        self._critical_checked_squares: list[dict[Vector2d, bool]] = [{}, {}]
 
     @property
     def width(self) -> int:
@@ -75,24 +76,32 @@ class Board(PositionObserver):
             return None
         return piece[1]
 
-    def can_move_to(self, to: Vector2d, piece: Optional[Piece] = None) -> bool:
+    def can_move_to(self, destination: Vector2d, piece: Piece, capture: bool = False) -> bool:
         #
         # Check, if position after moving is in bounds of board
         #
-        if to.x < 0 or to.x >= self.width or to.y < 0 or to.y >= self.height:
+        if destination.x < 0 or destination.x >= self.width or destination.y < 0 or destination.y >= self.height:
+            return False
+        #
+        # Check, if player's king is under check - if it is, only covering moves are legal
+        #
+        if (
+            self.is_king_under_check(piece.player_id)
+            and self._critical_checked_squares[piece.player_id].get(destination) is None
+        ):
             return False
 
         #
         # Move with potential capturing
         #
-        if isinstance(piece, Piece):
-            p = self.get_piece(to)
+        if capture:
+            p = self.get_piece(destination)
             return True if not p or p.player_id != piece.player_id else False
         #
         # Move without capturing
         #
         else:
-            return not self.is_piece_at(to)
+            return not self.is_piece_at(destination)
 
     def is_piece_at(self, vector: Vector2d) -> bool:
         return self.get_piece(vector) is not None
@@ -123,6 +132,8 @@ class Board(PositionObserver):
     def update_checked_squares(self) -> None:
         for player_sqrs in self.checked_squares:
             player_sqrs.clear()
+        for player_sqrs in self._critical_checked_squares:
+            player_sqrs.clear()
 
         for key, piece_data in self._pieces.items():
             #
@@ -146,7 +157,13 @@ class Board(PositionObserver):
                         p = self.get_piece(move)
                         if p is not None and p.model == PieceModel.KING and p.player_id != piece_data[0].player_id:
                             self._checking_pieces[p.player_id][move] = piece_data
+                            if piece_data[0].model != PieceModel.PAWN and piece_data[0].model != PieceModel.KNIGHT:
+                                self.add_critical_checked_squares(p.player_id, moves)
                         checked_squares[move] = True
+
+    def add_critical_checked_squares(self, player_id: int, squares: list[Vector2d]):
+        for s in squares:
+            self._critical_checked_squares[player_id][s] = True
 
     def check_squares(self, piece: Piece, origin: Vector2d, movement: Movement) -> list[Vector2d]:
         return self.__check_squares_lmp(piece, origin, movement)[0]
@@ -167,7 +184,7 @@ class Board(PositionObserver):
         squares = Movement.get_squares(movement, self, origin)
 
         for v in squares:
-            if not self.can_move_to(v):
+            if not self.can_move_to(v, piece):
                 if self.is_piece_at(v) and piece.player_id != self.get_piece(v).player_id:
                     legal_moves.append(v)
                     blocking_piece = self.get_piece(v)

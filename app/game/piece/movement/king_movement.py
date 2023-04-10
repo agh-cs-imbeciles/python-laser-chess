@@ -23,7 +23,7 @@ class KingMovement(PieceMovement):
         deltas = filter(lambda x: x != Vector2d(0, 0), [Vector2d(x, y) for y in range(-1, 2) for x in range(-1, 2)])
         for d in deltas:
             p = self._piece.position + d
-            if self._board.can_move_to(p, self._piece) and not self._board.checked_squares[self._piece.player_id].get(p):
+            if self._board.can_move_to(p, self._piece, True) and not self._board.checked_squares[self._piece.player_id].get(p):
                 self._legal_moves[0].append(p)
 
         #
@@ -60,7 +60,7 @@ class KingMovement(PieceMovement):
                 for pos in vs:
                     if self._board.is_check_at(self._piece):
                         return False
-                    if self._piece.position != pos and not self._board.can_move_to(pos):
+                    if self._piece.position != pos and not self._board.can_move_to(pos, self._piece):
                         return False
                 return True
 
@@ -76,7 +76,9 @@ class KingMovement(PieceMovement):
                 and not queen_side_rook.moved()
             ):
                 for pos in vs:
-                    if not self._board.can_move_to(pos) or self._board.is_check_at(self._piece):
+                    if self._board.is_check_at(self._piece):
+                        return False
+                    if self._piece.position != pos and not self._board.can_move_to(pos, self._piece):
                         return False
                 return True
 
