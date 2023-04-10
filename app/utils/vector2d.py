@@ -1,3 +1,13 @@
+from __future__ import annotations
+from enum import Enum
+
+
+class Symmetry(Enum):
+    ORIGIN  = 0,
+    X_AXIS  = 1,
+    Y_AXIS  = 2
+
+
 class Vector2d:
     def __init__(self, x: int = 0, y: int = 0):
         self._x: int = x
@@ -33,16 +43,16 @@ class Vector2d:
     def __ne__(self, other):
         return not self == other
 
-    def __add__(self, other: "Vector2d") -> "Vector2d":
+    def __add__(self, other: Vector2d) -> Vector2d:
         return Vector2d(self.x + other.x, self.y + other.y)
 
-    def __sub__(self, other: "Vector2d") -> "Vector2d":
+    def __sub__(self, other: Vector2d) -> Vector2d:
         return Vector2d(self.x - other.x, self.y - other.y)
 
-    def __mul__(self, other: "Vector2d") -> "Vector2d":
+    def __mul__(self, other: Vector2d) -> Vector2d:
         return Vector2d(self.x * other.x, self.y * other.y)
 
-    def __truediv__(self, other: "Vector2d") -> "Vector2d":
+    def __truediv__(self, other: Vector2d) -> Vector2d:
         if other.x == 0:
             raise ZeroDivisionError("The 2nd argument x is equal 0")
         if other.y == 0:
@@ -50,25 +60,26 @@ class Vector2d:
 
         return Vector2d(self.x // other.x, self.y // other.y)
 
-    def __neg__(self) -> "Vector2d":
+    def __neg__(self) -> Vector2d:
         return Vector2d(-self.x, -self.y)
 
     def __str__(self) -> str:
         return f"({self.x}, {self.y})"
 
-    def multiply_scalar(self, scalar: float) -> "Vector2d":
+    def multiply_scalar(self, scalar: float) -> Vector2d:
         return Vector2d(int(self.x * scalar), int(self.y * scalar))
 
-    def reverse_axis(self) -> "Vector2d":
+    def reverse_axis(self) -> Vector2d:
         return Vector2d(self.y, self.x)
 
-    def copy(self) -> "Vector2d":
+    def copy(self) -> Vector2d:
         return Vector2d(self.x, self.y)
 
-    def pivot_symmetry(self, by_x: bool | None) -> "Vector2d":
-        if by_x is None:
-            return Vector2d(self.x, self.y)
-        if by_x:
-            return Vector2d(self.x, -self.y)
-        return Vector2d(-self.x, self.y)
-
+    def pivot_symmetry(self, symmetry: Symmetry) -> Vector2d:
+        match symmetry:
+            case Symmetry.ORIGIN:
+                return Vector2d(-self.x, -self.y)
+            case Symmetry.X_AXIS:
+                return Vector2d(self.x, -self.y)
+            case Symmetry.Y_AXIS:
+                return Vector2d(-self.x, self.y)

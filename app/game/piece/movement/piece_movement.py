@@ -5,18 +5,18 @@ from utils import Vector2d
 
 if TYPE_CHECKING:
     from game import Board
-    from game.pieces import Piece
+    from game.piece import Piece
 
 
 class PieceMovement(ABC):
     def __init__(self, piece: Piece, board: Board) -> None:
         self._piece: Piece = piece
         self._board: Board = board
-        self._legal_moves: list[Vector2d] = []
+        self._legal_moves: list[list[Vector2d]] = []
         # self._
 
     @abstractmethod
-    def get_legal_moves(self) -> list[Vector2d]:
+    def get_legal_moves(self) -> list[list[Vector2d]]:
         pass
 
     # @abstractmethod

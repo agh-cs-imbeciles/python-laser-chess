@@ -1,9 +1,9 @@
 from typing import Tuple, Any
 from utils import Vector2d
 from game import Board
-from game.pieces import Piece, PieceModel
-from game.pieces.move import PieceMove
-from game.pieces.movement import KingMovement,\
+from game.piece import Piece, PieceModel
+from game.piece.move import PieceMove
+from game.piece.movement import KingMovement,\
                                  QueenMovement,\
                                  PawnMovement,\
                                  BishopMovement,\
@@ -111,12 +111,14 @@ class Game:
             p = Piece(PieceModel.KNIGHT, kd[0], kd[1])
             self.board.add_piece((p, KnightMovement(p, self.board)))
 
-    def move_piece(self, piece: Piece, destination: Vector2d):
+    def move_piece(self, piece: Piece, destination: Vector2d) -> None:
         if self.board.move_number != piece.player_id:
             return
 
         piece_movement = self.board.get_piece_movement(piece.position)
-        legal = piece_movement.get_legal_moves()
-        if destination in legal:
-            piece.move(destination)
-            self.board.move_number = (self.board.move_number + 1) % 2
+        moves = piece_movement.get_legal_moves()
+        for row in moves:
+            if destination in row:
+                piece.move(destination)
+                self.board.move_number = (self.board.move_number + 1) % 2
+                break

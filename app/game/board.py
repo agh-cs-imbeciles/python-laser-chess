@@ -1,12 +1,14 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, Optional
 from utils import Vector2d
+from game import CheckManager
 from game.observer import PositionObserver
-from game.pieces import Piece
-from game.pieces.move import PieceMoveType, PieceMoveDetector
+from game.piece import Piece, PieceModel
+from game.piece.movement import Movement, PawnMovement
+from game.piece.move import PieceMoveType, PieceMoveDetector
 
 if TYPE_CHECKING:
-    from game.pieces.movement import PieceMovement
+    from game.piece.movement import PieceMovement
 
 
 class Board(PositionObserver):
@@ -15,7 +17,11 @@ class Board(PositionObserver):
         self._height: int = height
         self._move_number: int = 0
         self._pieces: dict[Vector2d, tuple[Piece, PieceMovement]] = {}
-        self._checked_squares: [dict[Vector2d, Piece]] = [{}, {}]
+        self._kings: list[Piece] = []
+        self._check_manager = CheckManager(self)
+        # self._checked_squares: list[dict[Vector2d, bool]] = [{}, {}]
+        # self._checking_pieces: list[dict[Vector2d, tuple[Piece, PieceMovement]]] = [{}, {}]
+        # self._critical_checked_squares: list[dict[Vector2d, bool]] = [{}, {}]
 
     @property
     def width(self) -> int:
@@ -41,11 +47,21 @@ class Board(PositionObserver):
     def move_number(self, value: int) -> None:
         self._move_number = value
 
+    @property
+    def pieces(self) -> dict[Vector2d, tuple[Piece, PieceMovement]]:
+        return self._pieces
+
+    @property
+    def kings(self) -> list[Piece]:
+        return self._kings
+
     # override PositionObserver
     def on_position_change(self, origin: Vector2d, destination: Vector2d) -> None:
-        p = self._pieces
-        # moveType = PieceMoveDetector.detect(self, self.get_piece(origin), destination)
-        p[destination] = p.pop(origin, None)
+        mp, op = self.get_piece(origin), self.get_piece(destination)
+        self._pieces[destination] = self._pieces.pop(origin, None)
+        self._check_manager.update_checked_squares()
+        moveType: PieceMoveType = PieceMoveDetector.detect(self, mp, op)
+        pass
 
     def get_size(self) -> tuple[int, int]:
         return self._width, self._height
@@ -62,82 +78,84 @@ class Board(PositionObserver):
             return None
         return piece[1]
 
-    def can_move_to(self, to: Vector2d, piece: Optional[Piece] = None) -> bool:
+    def can_move_to(self, destination: Vector2d, piece: Piece, capture: bool = False) -> bool:
         #
         # Check, if position after moving is in bounds of board
         #
-        if to.x < 0 or to.x >= self.width or to.y < 0 or to.y >= self.height:
+        if destination.x < 0 or destination.x >= self.width or destination.y < 0 or destination.y >= self.height:
+            return False
+        #
+        # Check, if player's king is under check - if it is, only covering moves are legal
+        #
+        if (
+            self.is_king_under_check(piece.player_id)
+            and self._check_manager.get_critical_square(destination, piece.player_id) is None
+        ):
             return False
 
         #
         # Move with potential capturing
         #
-        if isinstance(piece, Piece):
-            p = self.get_piece(to)
+        if capture:
+            p = self.get_piece(destination)
             return True if not p or p.player_id != piece.player_id else False
         #
         # Move without capturing
         #
         else:
-            return True if not self.get_piece(to) else False
+            return not self.is_piece_at(destination)
 
     def is_piece_at(self, vector: Vector2d) -> bool:
         return self.get_piece(vector) is not None
+
+    def is_check_at(self, position: Vector2d, player_id: int) -> bool:
+        return self._check_manager.is_check_at(position, player_id)
 
     def add_piece(self, piece: tuple[Piece, PieceMovement]) -> None:
         if not self.get_piece(piece[0].position):
             self._pieces[piece[0].position] = piece
             piece[0].add_observer(self)
 
+            if piece[0].model == PieceModel.KING:
+                self._kings.append(piece[0])
+
     def add_pieces(self, pieces: list[tuple[Piece, PieceMovement]]) -> None:
         for piece in pieces:
             self.add_piece(piece)
 
-    def update_checked_squares(
-        self, piece: Piece, origin: Vector2d, destination: Vector2d, increment: tuple[int, int]
-    ) -> None:
+    def get_player_all_moves(self):
         pass
 
-    def check_squares(
-        self, piece: Piece, origin: Vector2d, destination: Vector2d, increment: tuple[int, int]
-    ) -> list[Vector2d]:
-        return self.__check_squares_lmp(piece, origin, destination, increment)[0]
+    def is_king_under_check(self, player_id: int) -> bool:
+        return self._check_manager.is_king_under_check(player_id)
+
+    def add_critical_checked_squares(self, player_id: int, squares: list[Vector2d]) -> None:
+        self._check_manager.add_critical_checked_squares(player_id, squares)
+
+    def check_squares(self, piece: Piece, origin: Vector2d, movement: Movement) -> list[Vector2d]:
+        return self.__check_squares_lmp(piece, origin, movement)[0]
 
     def __check_squares_lmp(
-        self, piece: Piece, origin: Vector2d, destination: Vector2d, increment: tuple[int, int]
+        self, piece: Piece, origin: Vector2d, movement: Movement
     ) -> tuple[list[Vector2d], Piece | None]:
         """
-        Check squares of the board and return legal moves (lm) list and optional blocking piece (p).
+        Check squares of the board and return legal moves (lm) list and possible blocking piece (p).
         :param piece: piece involved
         :param origin: origin vector of ray checking
-        :param destination: destination vector of ray checking
-        :param increment: x, y increment values
-        :return: tuple of legal moves and optional piece, if is in the way of ray
+        :param movement: movement type of piece (rank, file, diagonal)
+        :return: tuple of legal moves and optional piece, if is in the way of the ray
         """
-
-        if increment[0] == 0 and increment[1] == 0:
-            raise ValueError("increment tuple must be different than (0, 0)")
-
-        if increment[0] != 0:
-            xs = [x for x in range(origin.x, destination.x, increment[0])]
-        if increment[1] != 0:
-            ys = [y for y in range(origin.y, destination.y, increment[1])]
-        if increment[0] == 0:
-            xs = [origin.x for _ in ys]
-        if increment[1] == 0:
-            ys = [origin.y for _ in xs]
 
         legal_moves = []
         blocking_piece = None
-        deltas = zip(xs, ys)
+        squares = Movement.get_squares(movement, self, origin)
 
-        for x, y in deltas:
-            pos = Vector2d(x, y)
-            if not self.can_move_to(pos):
-                if self.is_piece_at(pos) and piece.player_id != self.get_piece(pos).player_id:
-                    legal_moves.append(pos)
-                    blocking_piece = self.get_piece(pos)
+        for v in squares:
+            if not self.can_move_to(v, piece):
+                if self.is_piece_at(v) and piece.player_id != self.get_piece(v).player_id:
+                    legal_moves.append(v)
+                    blocking_piece = self.get_piece(v)
                 break
-            legal_moves.append(pos)
+            legal_moves.append(v)
 
         return legal_moves, blocking_piece

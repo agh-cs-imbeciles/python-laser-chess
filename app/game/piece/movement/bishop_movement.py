@@ -1,10 +1,10 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
-from game.pieces.movement import PieceMovement
 from utils import Vector2d
+from game.piece.movement import Movement, PieceMovement
 
 if TYPE_CHECKING:
-    from game.pieces.piece import Piece
+    from game.piece.piece import Piece
     from game.board import Board
 
 
@@ -13,7 +13,7 @@ class BishopMovement(PieceMovement):
         super().__init__(bishop, board)
 
     # override
-    def get_legal_moves(self) -> list[Vector2d]:
+    def get_legal_moves(self) -> list[list[Vector2d]]:
         self._legal_moves.clear()
         b = self._board
         p = self._piece
@@ -21,18 +21,18 @@ class BishopMovement(PieceMovement):
         #
         # Upper right diagonal
         #
-        self._legal_moves += b.check_squares(p, p.position + Vector2d(1, 1), Vector2d(b.width, b.height), (1, 1))
+        self._legal_moves.append(b.check_squares(p, p.position + Vector2d(1, 1), Movement.UPPER_RIGHT_DIAGONAL))
         #
         # Bottom left diagonal
         #
-        self._legal_moves += b.check_squares(p, p.position + Vector2d(-1, -1), Vector2d(-1, -1), (-1, -1))
+        self._legal_moves.append(b.check_squares(p, p.position + Vector2d(-1, -1), Movement.BOTTOM_LEFT_DIAGONAL))
         #
         # Upper left diagonal
         #
-        self._legal_moves += b.check_squares(p, p.position + Vector2d(-1, 1), Vector2d(-1, b.height), (-1, 1))
+        self._legal_moves.append(b.check_squares(p, p.position + Vector2d(-1, 1), Movement.UPPER_LEFT_DIAGONAL))
         #
         # Bottom right diagonal
         #
-        self._legal_moves += b.check_squares(p, p.position + Vector2d(1, -1), Vector2d(b.width, -1), (1, -1))
+        self._legal_moves.append(b.check_squares(p, p.position + Vector2d(1, -1), Movement.BOTTOM_RIGHT_DIAGONAL))
 
         return self._legal_moves
