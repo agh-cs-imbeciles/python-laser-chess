@@ -73,26 +73,16 @@ class Board(obs.PositionObserver, Screen, metaclass=MetaAB):
             d.parent.remove_widget(d)
         self._current_dots.clear()
 
-        # no piece selected
+        # other piece
 
-        if self._selected is None:
-            self._selected = self._board.get_piece_movement(instance.vector)
+        piece = self._board.get_piece(instance.vector)
+        if piece is not None and piece.player_id == self._board.move_number:
             self._selected_piece = self._board.get_piece(instance.vector)
-
-            # piece of wrong team or tile without piece clicked
-
-            if self._selected is None or self._selected_piece.player_id != self._board.move_number:
-                self._selected = None
-                self._selected_piece = None
-                return
-
-            # proper piece clicked
-
+            self._selected = self._board.get_piece_movement(instance.vector)
             self.on_show_possible_movements(self._selected.get_legal_moves())
             return
 
-        # piece is moved
-
+        # no piece selected
         self._game.move_piece(self._selected_piece, instance.vector)
         self._selected = None
         self._selected_piece = None
