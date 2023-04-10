@@ -97,10 +97,13 @@ class Board(obs.PositionObserver, Screen, metaclass=MetaAB):
         self._selected = None
         self._selected_piece = None
 
-    def on_show_possible_movements(self, movements: list[Vector2d]):
-        for i, m in enumerate(movements):
-            self._representations[m.y][m.x].add_widget(self._dots[i])
-            self._current_dots.append(self._dots[i])
+    def on_show_possible_movements(self, movements: list[list[Vector2d]]):
+        i = 0
+        for row in movements:
+            for m in row:
+                self._representations[m.y][m.x].add_widget(self._dots[i])
+                self._current_dots.append(self._dots[i])
+                i += 1
 
     def on_position_change(self, origin: Vector2d, destination: Vector2d) -> None:
         for i in range(len(self._representations)):
