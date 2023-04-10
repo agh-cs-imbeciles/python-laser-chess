@@ -28,7 +28,7 @@ class PieceMoveDetector:
         #
         # Check
         #
-        if board.is_king_under_check(moved_piece.player_id):
+        if board.is_king_under_check((moved_piece.player_id + 1) % 2):
             return PieceMoveType.CHECK
         #
         # Castling

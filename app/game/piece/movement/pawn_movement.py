@@ -28,9 +28,10 @@ class PawnMovement(PieceMovement):
         return self._direction
 
     # override
-    def get_legal_moves(self) -> list[Vector2d]:
+    def get_legal_moves(self) -> list[list[Vector2d]]:
         # Clear legal moves
         self._legal_moves.clear()
+        self._legal_moves.append([])
 
         # Aliases
         b = self._board
@@ -45,18 +46,18 @@ class PawnMovement(PieceMovement):
         # Advance 1 square (default move)
         #
         if b.can_move_to(p.position + dir):
-            self._legal_moves.append(p.position + dir)
+            self._legal_moves[0].append(p.position + dir)
         #
         # Advance 2 squares (first move)
         #
         if p.position == self._initial_position and b.can_move_to(p.position + dir.multiply_scalar(2)):
-            self._legal_moves.append(p.position + dir.multiply_scalar(2))
+            self._legal_moves[0].append(p.position + dir.multiply_scalar(2))
         #
         # Capture a piece
         #
         for pos in [p_left, p_right]:
             if b.get_piece(pos) and b.get_piece(pos).player_id != p.player_id:
-                self._legal_moves.append(pos)
+                self._legal_moves[0].append(pos)
         #
         # En passant
         #
@@ -64,6 +65,6 @@ class PawnMovement(PieceMovement):
             for pos in [p_left, p_right]:
                 p0, mvmt = b.get_piece(pos - dir), b.get_piece_movement(pos - dir)
                 if p0 and p0.player_id != p.player_id and p0.model == PieceModel.PAWN and b.can_move_to(pos):
-                    self._legal_moves.append(pos)
+                    self._legal_moves[0].append(pos)
 
         return self._legal_moves

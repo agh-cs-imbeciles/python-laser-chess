@@ -13,7 +13,7 @@ class RookMovement(PieceMovement):
         super().__init__(rook, board)
 
     # override
-    def get_legal_moves(self) -> list[Vector2d]:
+    def get_legal_moves(self) -> list[list[Vector2d]]:
         self._legal_moves.clear()
         b = self._board
         p = self._piece
@@ -21,18 +21,18 @@ class RookMovement(PieceMovement):
         #
         # Upper file
         #
-        self._legal_moves += b.check_squares(p, p.position + Vector2d(0, 1), Movement.UPPER_FILE)
+        self._legal_moves.append(b.check_squares(p, p.position + Vector2d(0, 1), Movement.UPPER_FILE))
         #
         # Bottom file
         #
-        self._legal_moves += b.check_squares(p, p.position + Vector2d(0, -1), Movement.BOTTOM_FILE)
+        self._legal_moves.append(b.check_squares(p, p.position + Vector2d(0, -1), Movement.BOTTOM_FILE))
         #
         # Left rank
         #
-        self._legal_moves += b.check_squares(p, p.position + Vector2d(-1, 0), Movement.LEFT_RANK)
+        self._legal_moves.append(b.check_squares(p, p.position + Vector2d(-1, 0), Movement.LEFT_RANK))
         #
         # Right rank
         #
-        self._legal_moves += b.check_squares(p, p.position + Vector2d(1, 0), Movement.RIGHT_RANK)
+        self._legal_moves.append(b.check_squares(p, p.position + Vector2d(1, 0), Movement.RIGHT_RANK))
 
         return self._legal_moves

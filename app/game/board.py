@@ -17,7 +17,8 @@ class Board(PositionObserver):
         self._move_number: int = 0
         self._pieces: dict[Vector2d, tuple[Piece, PieceMovement]] = {}
         self._kings: list[Piece] = []
-        self._checked_squares: [dict[Vector2d, bool]] = [{}, {}]
+        self._checked_squares: list[dict[Vector2d, bool]] = [{}, {}]
+        self._checking_pieces: list[dict[Vector2d, tuple[Piece, PieceMovement]]] = [{}, {}]
 
     @property
     def width(self) -> int:
@@ -138,10 +139,14 @@ class Board(PositionObserver):
             #
             # Other pieces moves
             #
-            for move in piece_data[1].get_legal_moves():
-                for i, checked_squares in enumerate(self.checked_squares):
-                    if piece_data[0].player_id == i: continue
-                    checked_squares[move] = True
+            for moves in piece_data[1].get_legal_moves():
+                for move in moves:
+                    for i, checked_squares in enumerate(self.checked_squares):
+                        if piece_data[0].player_id == i: continue
+                        p = self.get_piece(move)
+                        if p is not None and p.model == PieceModel.KING and p.player_id != piece_data[0].player_id:
+                            self._checking_pieces[p.player_id][move] = piece_data
+                        checked_squares[move] = True
 
     def check_squares(self, piece: Piece, origin: Vector2d, movement: Movement) -> list[Vector2d]:
         return self.__check_squares_lmp(piece, origin, movement)[0]

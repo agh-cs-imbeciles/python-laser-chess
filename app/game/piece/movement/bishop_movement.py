@@ -13,7 +13,7 @@ class BishopMovement(PieceMovement):
         super().__init__(bishop, board)
 
     # override
-    def get_legal_moves(self) -> list[Vector2d]:
+    def get_legal_moves(self) -> list[list[Vector2d]]:
         self._legal_moves.clear()
         b = self._board
         p = self._piece
@@ -21,18 +21,18 @@ class BishopMovement(PieceMovement):
         #
         # Upper right diagonal
         #
-        self._legal_moves += b.check_squares(p, p.position + Vector2d(1, 1), Movement.UPPER_RIGHT_DIAGONAL)
+        self._legal_moves.append(b.check_squares(p, p.position + Vector2d(1, 1), Movement.UPPER_RIGHT_DIAGONAL))
         #
         # Bottom left diagonal
         #
-        self._legal_moves += b.check_squares(p, p.position + Vector2d(-1, -1), Movement.BOTTOM_LEFT_DIAGONAL)
+        self._legal_moves.append(b.check_squares(p, p.position + Vector2d(-1, -1), Movement.BOTTOM_LEFT_DIAGONAL))
         #
         # Upper left diagonal
         #
-        self._legal_moves += b.check_squares(p, p.position + Vector2d(-1, 1), Movement.UPPER_LEFT_DIAGONAL)
+        self._legal_moves.append(b.check_squares(p, p.position + Vector2d(-1, 1), Movement.UPPER_LEFT_DIAGONAL))
         #
         # Bottom right diagonal
         #
-        self._legal_moves += b.check_squares(p, p.position + Vector2d(1, -1), Movement.BOTTOM_RIGHT_DIAGONAL)
+        self._legal_moves.append(b.check_squares(p, p.position + Vector2d(1, -1), Movement.BOTTOM_RIGHT_DIAGONAL))
 
         return self._legal_moves
