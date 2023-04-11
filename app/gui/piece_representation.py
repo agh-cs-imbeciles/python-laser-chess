@@ -11,10 +11,12 @@ class PieceRepresentationLayout(RelativeLayout):
         super().__init__()
         self.add_widget(button)
         self._img = None
+        self._indicator = None
         if piece is None:
             return
         self.__load(piece)
         self.add_widget(self._img)
+
     def __load(self, piece: Piece):
         if piece is None:
             self._img = None
@@ -44,6 +46,7 @@ class PieceRepresentationLayout(RelativeLayout):
                 self._img = Image(source=f"assets/{color}_mirror.png")
             case _:
                 self._img = None
+
     def remove_img(self) -> Image | None:
         if self._img is None:
             return None
@@ -56,9 +59,25 @@ class PieceRepresentationLayout(RelativeLayout):
         self._img = img
         self.add_widget(img)
 
-    def new_image(self,piece: Piece):
+    def new_image(self, piece: Piece):
         if piece is None:
             return
         self.__load(piece)
         self.add_widget(self._img)
 
+    def add_indicator(self, img: Image):
+        self._indicator = img
+        img.size_hint = (0.5, 0.5)
+        self.add_widget(img)
+
+    def remove_indicator(self):
+        if self._indicator is None:
+            return None
+        img = self._indicator
+        self.remove_widget(self._indicator)
+        self._indicator = None
+        return img
+
+    def replace_indicator(self, img: Image):
+        self.remove_indicator()
+        self.add_indicator(img)

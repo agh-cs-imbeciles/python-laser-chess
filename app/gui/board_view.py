@@ -8,13 +8,13 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.uix.image import Image
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.screenmanager import Screen
-import gui
 from utils import Vector2d, rgba_int_to_float
 import game as g
 import game.piece as pcs
 import game.observer as obs
 from numpy import empty
 from gui.piece_representation import PieceRepresentationLayout
+from game.piece.piece import Piece
 
 
 class MetaAB(type(obs.PositionObserver), type(Screen)):
@@ -65,6 +65,13 @@ class Board(obs.PositionObserver, Screen, metaclass=MetaAB):
                 self._grid.add_widget(piece_layout)
                 self._representations[vector.y][vector.x] = piece_layout
 
+    def _show_checks(self):
+        check = Image(source="assets/this_fire.png")
+        for king in self._board.kings:
+            if self._board.is_king_under_check(king.player_id):
+                vector = king.position
+                self._representations[vector.y][vector.x].add_indicator(check)
+
     def on_tile_click(self, instance: Button):
 
         # clear indicating dots
@@ -89,21 +96,21 @@ class Board(obs.PositionObserver, Screen, metaclass=MetaAB):
 
     def on_show_possible_movements(self, movements: list[list[Vector2d]]):
         i = 0
+        print(movements)
         for row in movements:
             for m in row:
                 self._representations[m.y][m.x].add_widget(self._dots[i])
                 self._current_dots.append(self._dots[i])
                 i += 1
 
+
     def on_position_change(self, origin: Vector2d, destination: Vector2d) -> None:
         for i in range(len(self._representations)):
             for j in range(len(self._representations[i])):
+                self._representations[i][j].remove_indicator()
                 self._representations[i][j].remove_img()
                 self._representations[i][j].new_image(self._board.get_piece(Vector2d(j, i)))
-                # self._representations[i][j].add_img()
-        # img = self._representations[origin.y][origin.x].remove_img()
-        # self._representations[destination.y][destination.x].remove_img()
-        # self._representations[destination.y][destination.x].add_img(img)
+        self._show_checks()
 
     def update_representation(self, from_piece: pcs.Piece, to_piece: pcs.Piece):
         pass
