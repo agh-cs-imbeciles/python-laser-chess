@@ -23,7 +23,7 @@ class KingMovement(PieceMovement):
         deltas = filter(lambda x: x != Vector2d(0, 0), [Vector2d(x, y) for y in range(-1, 2) for x in range(-1, 2)])
         for d in deltas:
             p = self._piece.position + d
-            if self._board.can_move_to(p, self._piece, True) and not self._board.is_check_at(p, self._piece.player_id):
+            if self._board.can_move_to(p, self._piece, capture=True) and not self._board.is_check_at(p, self._piece.player_id):
                 self._legal_moves[0].append(p)
 
         #

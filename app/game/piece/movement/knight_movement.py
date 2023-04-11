@@ -24,7 +24,7 @@ class KnightMovement(PieceMovement):
         positions = [pos + v.pivot_symmetry(s) if s is not None else pos + v for v in base_vectors for s in symmetries]
 
         for p in positions:
-            if self._board.can_move_to(p, self._piece, True):
+            if self._board.can_move_to(p, self._piece, capture=True):
                 self._legal_moves[0].append(p)
 
         return self._legal_moves
