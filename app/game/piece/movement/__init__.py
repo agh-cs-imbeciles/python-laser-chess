@@ -1,5 +1,6 @@
 from .movement import Movement
 from .piece_movement import PieceMovement
+from .range_movement import RangePieceMovement
 from .king_movement import KingMovement
 from .pawn_movement import PawnMovement
 from .bishop_movement import BishopMovement
