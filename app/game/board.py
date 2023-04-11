@@ -85,7 +85,8 @@ class Board(PositionObserver):
         # Check, if player's king is under check - if it is, only covering moves are legal
         #
         if (
-            self.is_king_under_check(piece.player_id)
+            piece.model != PieceModel.KING
+            and self.is_king_under_check(piece.player_id)
             and self._check_manager.get_critical_square(destination, piece.player_id) is None
         ):
             return False

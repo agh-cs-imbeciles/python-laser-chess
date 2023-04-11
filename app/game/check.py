@@ -45,8 +45,8 @@ class CheckManager:
         return self._critical_checked_squares[player_id].get(position)
 
     def update(self) -> None:
-        for player_sqrs in self.checked_squares:
-            player_sqrs.clear()
+        for i in range(len(self._checked_squares)):
+            self._checked_squares[i].clear()
         for player_sqrs in self._critical_checked_squares:
             player_sqrs.clear()
         for pieces in self.pinned_pieces:

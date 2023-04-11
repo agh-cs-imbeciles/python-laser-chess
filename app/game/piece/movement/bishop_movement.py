@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 from utils import Vector2d
-from game.piece.movement import Movement, PieceMovement, RangePieceMovement
+from game.piece.movement import Movement, RangePieceMovement
 
 if TYPE_CHECKING:
     from game.piece.piece import Piece
