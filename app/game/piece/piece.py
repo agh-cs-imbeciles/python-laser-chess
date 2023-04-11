@@ -13,6 +13,7 @@ class Piece:
         self._initial_position = position.copy()
         self._position: Vector2d = position
         self._player_id: int = player_id
+        self._move_count = 0
         self._position_observers: [PositionObserver] = []
 
     def __eq__(self, other):
@@ -66,13 +67,14 @@ class Piece:
         self._player_id = player_id
 
     def moved(self):
-        return self.position != self._initial_position
+        return self._move_count > 0
 
     def add_observer(self, observer: PositionObserver) -> None:
         self._position_observers.append(observer)
 
-    def move(self, to: Vector2d) -> None:
+    def move(self, destination: Vector2d) -> None:
         origin = self._position.copy()
-        self._position = to
+        self._position = destination
+        self._move_count += 1
         for observer in self._position_observers:
-            observer.on_position_change(origin, to)
+            observer.on_position_change(origin, destination)

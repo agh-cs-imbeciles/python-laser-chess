@@ -76,8 +76,10 @@ class Board(PositionObserver):
         return piece[1]
 
     def can_move_to(self, destination: Vector2d, piece: Piece, **kwargs) -> bool:
+        # Aliases
         capture = kwargs.get("capture")
         capture_required = kwargs.get("capture_required")
+        pid = piece.player_id
 
         #
         # Check, if position after moving is in bounds of board
@@ -89,16 +91,25 @@ class Board(PositionObserver):
         #
         if (
             piece.model != PieceModel.KING
-            and self.is_king_under_check(piece.player_id)
-            and self._check_manager.get_critical_square(destination, piece.player_id) is None
+            and self.is_king_under_check(pid)
+            and self._check_manager.get_critical_square(destination, pid) is None
+            and self._check_manager.checking_pieces[(pid + 1) % 2].get(destination) is None
+        ):
+            return False
+        #
+        # Check, if player can capture a checking piece
+        #
+        if (
+            self._check_manager.checking_pieces[(pid + 1) % 2].get(destination) is not None
+            and len(self._check_manager.checking_pieces[(pid + 1) % 2]) > 1
         ):
             return False
         #
         # Check, if piece is not absolute pinned with own king
         #
         if (
-            self._check_manager.pinned_pieces[piece.player_id].get(piece.position)
-            and self._check_manager.pinned_pieces[piece.player_id].get(piece.position)[1] != self.get_piece(destination)
+            self._check_manager.pinned_pieces[pid].get(piece.position)
+            and self._check_manager.pinned_pieces[pid].get(piece.position)[1] != self.get_piece(destination)
         ):
             return False
 
@@ -107,7 +118,7 @@ class Board(PositionObserver):
         #
         if capture and not capture_required:
             p = self.get_piece(destination)
-            return p is None or p.player_id != piece.player_id
+            return p is None or p.player_id != pid
         #
         # Move without capturing
         #
@@ -118,7 +129,7 @@ class Board(PositionObserver):
         #
         elif capture_required:
             p = self.get_piece(destination)
-            return p is not None and p.player_id != piece.player_id
+            return p is not None and p.player_id != pid
 
     def is_piece_at(self, vector: Vector2d) -> bool:
         return self.get_piece(vector) is not None
@@ -146,62 +157,3 @@ class Board(PositionObserver):
 
     def add_critical_checked_squares(self, player_id: int, squares: list[Vector2d]) -> None:
         self._check_manager.add_critical_checked_squares(player_id, squares)
-
-    # def check_squares(self, piece: Piece, origin: Vector2d, movement: Movement) -> list[Vector2d]:
-    #     return self.__iterate_squares(piece, origin, movement)[0]
-    #
-    # def __check_squares_lmp(
-    #     self, piece: Piece, origin: Vector2d, movement: Movement
-    # ) -> tuple[list[Vector2d], Piece | None]:
-    #     """
-    #     Check squares of the board and return legal moves (lm) list and possible blocking piece (p).
-    #     :param piece: piece involved
-    #     :param origin: origin vector of ray checking
-    #     :param movement: movement type of piece (rank, file, diagonal)
-    #     :return: tuple of legal moves and optional piece, if is in the way of the ray
-    #     """
-    #
-    #     legal_moves = []
-    #     blocking_piece = None
-    #     squares = Movement.get_squares(movement, self, origin)
-    #
-    #     for v in squares:
-    #         if not self.can_move_to(v, piece):
-    #             if self.is_piece_at(v) and piece.player_id != self.get_piece(v).player_id:
-    #                 legal_moves.append(v)
-    #                 blocking_piece = self.get_piece(v)
-    #             break
-    #         legal_moves.append(v)
-    #
-    #     return legal_moves, blocking_piece
-    #
-    # def __iterate_squares(self, piece: Piece, origin: Vector2d, movement: Movement) -> tuple[list[Vector2d], list[Piece]]:
-    #     """
-    #     Check squares of the board and return legal moves (lm) list and possible blocking piece (p).
-    #     :param piece: piece involved
-    #     :param origin: origin vector of ray checking
-    #     :param movement: movement type of piece (rank, file, diagonal)
-    #     :return: tuple of legal moves and optional piece, if is in the way of the ray
-    #     """
-    #
-    #     found_player_piece = False
-    #     legal_moves: list[Vector2d] = []
-    #     pieces: list[Piece] = []
-    #     squares = Movement.get_squares(movement, self, origin)
-    #
-    #     for v in squares:
-    #         p = self.get_piece(v)
-    #
-    #         if self.can_move_to(v, piece) and len(pieces) == 0 and not found_player_piece:
-    #             legal_moves.append(v)
-    #         elif p and piece.player_id != p.player_id and not found_player_piece:
-    #             if len(pieces) == 0:
-    #                 legal_moves.append(v)
-    #             pieces.append(self.get_piece(v))
-    #         elif p and piece.player_id == p.player_id:
-    #             found_player_piece = True
-    #
-    #     if len(pieces) >= 2 and pieces[1].model == PieceModel.KING:
-    #         self._check_manager.pinned_pieces[pieces[1].player_id][pieces[0].position] = pieces[0]
-    #
-    #     return legal_moves, pieces
