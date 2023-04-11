@@ -56,7 +56,7 @@ class PawnMovement(PieceMovement):
         # Capture a piece
         #
         for pos in [p_left, p_right]:
-            if b.get_piece(pos) and b.get_piece(pos).player_id != p.player_id:
+            if b.can_move_to(pos, self._piece, capture_required=True):
                 self._legal_moves[0].append(pos)
         #
         # En passant

@@ -75,7 +75,10 @@ class Board(PositionObserver):
             return None
         return piece[1]
 
-    def can_move_to(self, destination: Vector2d, piece: Piece, capture: bool = False) -> bool:
+    def can_move_to(self, destination: Vector2d, piece: Piece, **kwargs) -> bool:
+        capture = kwargs.get("capture")
+        capture_required = kwargs.get("capture_required")
+
         #
         # Check, if position after moving is in bounds of board
         #
@@ -94,14 +97,20 @@ class Board(PositionObserver):
         #
         # Move with potential capturing
         #
-        if capture:
+        if capture and not capture_required:
             p = self.get_piece(destination)
             return p is None or p.player_id != piece.player_id
         #
         # Move without capturing
         #
-        else:
+        elif not capture_required:
             return not self.is_piece_at(destination)
+        #
+        # Move with required capturing (e.g. pawn)
+        #
+        elif capture_required:
+            p = self.get_piece(destination)
+            return p is not None and p.player_id != piece.player_id
 
     def is_piece_at(self, vector: Vector2d) -> bool:
         return self.get_piece(vector) is not None
