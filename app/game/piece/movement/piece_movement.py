@@ -12,13 +12,11 @@ class PieceMovement(ABC):
     def __init__(self, piece: Piece, board: Board) -> None:
         self._piece: Piece = piece
         self._board: Board = board
-        self._legal_moves: list[Vector2d] = []
-        # self._
+        self._legal_moves: list[list[Vector2d]] = []
 
     @abstractmethod
-    def get_legal_moves(self) -> list[Vector2d]:
+    def get_legal_moves(self) -> list[list[Vector2d]]:
         pass
 
-    # @abstractmethod
-    # def get_all_obstructing_pieces(self) -> list[Piece]:
-    #     pass
+    def get_pinned_piece(self) -> Piece | None:
+        return None

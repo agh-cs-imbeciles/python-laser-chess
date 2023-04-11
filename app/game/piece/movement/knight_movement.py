@@ -14,8 +14,9 @@ class KnightMovement(PieceMovement):
         super().__init__(knight, board)
 
     # override
-    def get_legal_moves(self) -> list[Vector2d]:
+    def get_legal_moves(self) -> list[list[Vector2d]]:
         self._legal_moves.clear()
+        self._legal_moves.append([])
 
         base_vectors = [Vector2d(1, 2), Vector2d(2, 1)]
         pos = self._piece.position
@@ -23,7 +24,7 @@ class KnightMovement(PieceMovement):
         positions = [pos + v.pivot_symmetry(s) if s is not None else pos + v for v in base_vectors for s in symmetries]
 
         for p in positions:
-            if self._board.can_move_to(p, self._piece):
-                self._legal_moves.append(p)
+            if self._board.can_move_to(p, self._piece, capture=True):
+                self._legal_moves[0].append(p)
 
         return self._legal_moves

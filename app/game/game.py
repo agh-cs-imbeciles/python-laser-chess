@@ -116,7 +116,9 @@ class Game:
             return
 
         piece_movement = self.board.get_piece_movement(piece.position)
-        legal = piece_movement.get_legal_moves()
-        if destination in legal:
-            piece.move(destination)
-            self.board.move_number = (self.board.move_number + 1) % 2
+        moves = piece_movement.get_legal_moves()
+        for row in moves:
+            if destination in row:
+                piece.move(destination)
+                self.board.move_number = (self.board.move_number + 1) % 2
+                break

@@ -15,15 +15,16 @@ class KingMovement(PieceMovement):
         self._initial_position: Vector2d = king.position.copy()
 
     # override
-    def get_legal_moves(self) -> list[Vector2d]:
+    def get_legal_moves(self) -> list[list[Vector2d]]:
         # Clear legal moves
         self._legal_moves.clear()
+        self._legal_moves.append([])
 
         deltas = filter(lambda x: x != Vector2d(0, 0), [Vector2d(x, y) for y in range(-1, 2) for x in range(-1, 2)])
         for d in deltas:
             p = self._piece.position + d
-            if self._board.can_move_to(p, self._piece) and not self._board.checked_squares[self._piece.player_id].get(p):
-                self._legal_moves.append(p)
+            if self._board.can_move_to(p, self._piece, capture=True) and not self._board.is_check_at(p, self._piece.player_id):
+                self._legal_moves[0].append(p)
 
         #
         # Castling
@@ -33,16 +34,16 @@ class KingMovement(PieceMovement):
             # King-side castling
             #
             if self.is_castling_legal(PieceMoveType.KING_SIDE_CASTLING):
-                self._legal_moves.append(self._piece.position + Vector2d(2, 0))
+                self._legal_moves[0].append(self._piece.position + Vector2d(2, 0))
             #
             # Queen-side castling
             #
             if self.is_castling_legal(PieceMoveType.QUEEN_SIDE_CASTLING):
-                self._legal_moves.append(self._piece.position + Vector2d(-2, 0))
+                self._legal_moves[0].append(self._piece.position + Vector2d(-2, 0))
 
         return self._legal_moves
 
-    def is_castling_legal(self, castling: PieceMoveType.KING_SIDE_CASTLING | PieceMoveType.QUEEN_SIDE_CASTLING) -> bool:
+    def is_castling_legal(self, castling: PieceMoveType) -> bool:
         y: int = self._piece.position.y
 
         #
@@ -57,9 +58,9 @@ class KingMovement(PieceMovement):
                 and not king_side_rook.moved()
             ):
                 for pos in vs:
-                    if self._board.is_check_at(self._piece):
+                    if self._board.is_check_at(self._piece.position, self._piece.player_id):
                         return False
-                    if self._piece.position != pos and not self._board.can_move_to(pos):
+                    if self._piece.position != pos and not self._board.can_move_to(pos, self._piece):
                         return False
                 return True
 
@@ -75,7 +76,9 @@ class KingMovement(PieceMovement):
                 and not queen_side_rook.moved()
             ):
                 for pos in vs:
-                    if not self._board.can_move_to(pos) or self._board.is_check_at(self._piece):
+                    if self._board.is_check_at(self._piece.position, self._piece.player_id):
+                        return False
+                    if self._piece.position != pos and not self._board.can_move_to(pos, self._piece):
                         return False
                 return True
 
