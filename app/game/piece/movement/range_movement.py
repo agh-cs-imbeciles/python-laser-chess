@@ -64,7 +64,8 @@ class RangePieceMovement(PieceMovement):
             elif b.can_move_to(v, piece, capture=True):
                 if len(pieces) == 0:
                     legal_moves.append(v)
-                pieces.append(b.get_piece(v))
+                if b.get_piece(v):
+                    pieces.append(b.get_piece(v))
             elif p and piece.player_id == p.player_id:
                 return legal_moves, pieces
 

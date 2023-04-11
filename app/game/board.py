@@ -93,6 +93,11 @@ class Board(PositionObserver):
             and self._check_manager.get_critical_square(destination, piece.player_id) is None
         ):
             return False
+        #
+        # Check, if piece is not absolute pinned with own king
+        #
+        if self._check_manager.pinned_pieces[piece.player_id].get(piece.position):
+            return False
 
         #
         # Move with potential capturing

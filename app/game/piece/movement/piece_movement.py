@@ -13,7 +13,6 @@ class PieceMovement(ABC):
         self._piece: Piece = piece
         self._board: Board = board
         self._legal_moves: list[list[Vector2d]] = []
-        # self._
 
     @abstractmethod
     def get_legal_moves(self) -> list[list[Vector2d]]:

@@ -78,6 +78,10 @@ class CheckManager:
                                 self.add_critical_checked_squares(p.player_id, moves)
                         checked_squares[move] = True
 
+            pinned = piece_data[1].get_pinned_piece()
+            if pinned:
+                self.pinned_pieces[pinned.player_id][pinned.position] = pinned
+
     def add_critical_checked_squares(self, player_id: int, squares: list[Vector2d]):
         for s in squares:
             self._critical_checked_squares[player_id][s] = True
