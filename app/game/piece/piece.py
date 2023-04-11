@@ -15,6 +15,19 @@ class Piece:
         self._player_id: int = player_id
         self._position_observers: [PositionObserver] = []
 
+    def __eq__(self, other):
+        if not isinstance(other, Piece):
+            return False
+        return (
+            self.model == other.model
+            and self.initial_position == other.initial_position
+            and self.position == other.position
+            and self.player_id == other.player_id
+        )
+
+    def __ne__(self, other):
+        return not self == other
+
     def __str__(self) -> str:
         match self._model:
             case PieceModel.KING:
