@@ -43,7 +43,7 @@ class Game:
         self.__init_hetmanice()
         # Pawns
         self.__init_pawns()
-        # Bishops 2137
+        # Bishops 2137 666
         self.__init_bishops()
         # Rooks
         self.__init_rooks()

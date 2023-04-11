@@ -1,22 +1,17 @@
-from typing import Any, Optional, Tuple
+import copy
+
 from kivy.graphics import Rectangle, Color
-from kivy.graphics.instructions import Callback
-from kivy.properties import ColorProperty, NumericProperty
 from kivy.uix.button import Button
-from kivy.uix.floatlayout import FloatLayout
-from kivy.uix.gridlayout import GridLayout
 from kivy.uix.image import Image
-from kivy.uix.relativelayout import RelativeLayout
+from kivy.uix.label import Label
 from kivy.uix.screenmanager import Screen
+from utils.background_label import BackgroundLabel
 from utils import Vector2d, rgba_int_to_float
 import game as g
 import game.piece as pcs
 import game.observer as obs
 from numpy import empty
 from gui.piece_representation import PieceRepresentationLayout
-from game.piece.piece import Piece
-
-
 class MetaAB(type(obs.PositionObserver), type(Screen)):
     pass
 
@@ -38,6 +33,7 @@ class Board(obs.PositionObserver, Screen, metaclass=MetaAB):
         board = self._game.board
         for i in range(len(self._dots)):
             self._dots[i] = Image(source="assets/dot.png")
+        self._add_coordinates()
         for i in range(8):
             for j in range(8):
                 vector = Vector2d(j, 7 - i)
@@ -65,12 +61,24 @@ class Board(obs.PositionObserver, Screen, metaclass=MetaAB):
                 self._grid.add_widget(piece_layout)
                 self._representations[vector.y][vector.x] = piece_layout
 
+    def _add_coordinates(self):
+        boxes = [self.ids.top, self.ids.left, self.ids.bot, self.ids.right]
+        for i in range(8):
+            for j in range(4):
+                label = Label()
+                if j % 2 == 1:
+                    label.text = str(i+1)
+                else:
+                    label.text = chr(i+65)
+                label.bold = True
+                boxes[j].add_widget(label)
     def _show_checks(self):
         check = Image(source="assets/this_fire.png")
         for king in self._board.kings:
             if self._board.is_king_under_check(king.player_id):
                 vector = king.position
                 self._representations[vector.y][vector.x].add_indicator(check)
+
 
     def on_tile_click(self, instance: Button):
 
