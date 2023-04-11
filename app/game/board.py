@@ -96,7 +96,10 @@ class Board(PositionObserver):
         #
         # Check, if piece is not absolute pinned with own king
         #
-        if self._check_manager.pinned_pieces[piece.player_id].get(piece.position):
+        if (
+            self._check_manager.pinned_pieces[piece.player_id].get(piece.position)
+            and self._check_manager.pinned_pieces[piece.player_id].get(piece.position)[1] != self.get_piece(destination)
+        ):
             return False
 
         #
