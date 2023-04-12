@@ -1,4 +1,6 @@
 from __future__ import annotations
+
+from builtins import list
 from typing import TYPE_CHECKING, Optional
 from utils import Vector2d
 from game import CheckManager
@@ -71,6 +73,14 @@ class Board(PositionObserver):
         if piece is None:
             return None
         return piece[0]
+
+    def get_player_pieces_movements(self,player_id: int) -> list[tuple[Piece,PieceMovement]]:
+        out = []
+        for pie,mov in self._pieces.values():
+            if pie.player_id == player_id:
+                out.append((pie,mov))
+        return out
+
 
     def get_piece_movement(self, position: Vector2d) -> Optional[PieceMovement]:
         piece = self._pieces.get(position)
@@ -157,6 +167,13 @@ class Board(PositionObserver):
 
     def is_king_under_check(self, player_id: int) -> bool:
         return self._check_manager.is_king_under_check(player_id)
+    def is_end(self) -> tuple[int,PieceMoveType] | None:
+        mn = (self._move_number+1) % 2
+        if self._check_manager.is_checkmate(mn):
+            return self.move_number, PieceMoveType.CHECKMATE
+        if self._check_manager.is_stalemate(mn):
+            return self.move_number, PieceMoveType.STALEMATE
+        return None
 
     def add_critical_checked_squares(self, player_id: int, squares: list[Vector2d]) -> None:
         self._check_manager.add_critical_checked_squares(player_id, squares)

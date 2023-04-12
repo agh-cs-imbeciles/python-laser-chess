@@ -41,6 +41,41 @@ class CheckManager:
             raise ValueError("Invalid player id")
         return self._checked_squares[player_id].get(self._board.kings[player_id].position) is not None
 
+    def is_checkmate(self, player_id: int) -> bool:
+        #
+        # Check if king is under check
+        #
+
+        if not self.is_king_under_check(player_id):
+            return False
+        return self.can_player_move(player_id)
+
+    def is_stalemate(self, player_id: int) -> bool:
+        #
+        # If king is under check it is not stalemate
+        #
+
+        if self.is_king_under_check(player_id):
+            return False
+        return self.can_player_move(player_id)
+
+    def can_player_move(self,player_id: int) -> bool:
+        #
+        # Go through player's all pieces movement
+        #
+        pieces = self._board.get_player_pieces_movements(player_id)
+        for pie, mov in pieces:
+            ll = mov.get_legal_moves()
+            all_moves = []
+            for l in ll:
+                all_moves.extend(l)
+            #
+            # If there are possible movements then it is not a stalemate
+            #
+            if len(all_moves) != 0:
+                return False
+        return True
+
     def get_critical_square(self, position: Vector2d, player_id: int) -> bool | None:
         return self._critical_checked_squares[player_id].get(position)
 

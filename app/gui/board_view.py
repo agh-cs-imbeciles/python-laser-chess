@@ -1,22 +1,21 @@
-import copy
-
-from kivy.graphics import Rectangle, Color
 from kivy.uix.button import Button
 from kivy.uix.image import Image
 from kivy.uix.label import Label
 from kivy.uix.screenmanager import Screen
 from utils.background_label import BackgroundLabel
+from game.piece.move import PieceMoveType
 from utils import Vector2d, rgba_int_to_float
 import game as g
 import game.piece as pcs
 import game.observer as obs
+from game.observer.game_end_obs import GameEndObserver
 from numpy import empty
 from gui.piece_representation import PieceRepresentationLayout
 class MetaAB(type(obs.PositionObserver), type(Screen)):
     pass
 
 
-class Board(obs.PositionObserver, Screen, metaclass=MetaAB):
+class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
     def __init__(self, **kwargs):
         super().__init__()
         self._game = g.Game()
@@ -31,6 +30,10 @@ class Board(obs.PositionObserver, Screen, metaclass=MetaAB):
 
     def _init_board(self):
         board = self._game.board
+
+        # assiging observer to game
+        self._game.add_observer(self)
+
         for i in range(len(self._dots)):
             self._dots[i] = Image(source="assets/dot.png")
         self._add_coordinates()
@@ -55,11 +58,16 @@ class Board(obs.PositionObserver, Screen, metaclass=MetaAB):
                 if piece is not None:
                     piece.add_observer(self)
 
+
+
+
+
                 # adding piece and button to board
 
                 piece_layout = PieceRepresentationLayout(piece, button)
                 self._grid.add_widget(piece_layout)
                 self._representations[vector.y][vector.x] = piece_layout
+
 
     def _add_coordinates(self):
         boxes = [self.ids.top, self.ids.left, self.ids.bot, self.ids.right]
@@ -104,13 +112,13 @@ class Board(obs.PositionObserver, Screen, metaclass=MetaAB):
 
     def on_show_possible_movements(self, movements: list[list[Vector2d]]):
         i = 0
-        print(movements)
         for row in movements:
             for m in row:
                 self._representations[m.y][m.x].add_widget(self._dots[i])
                 self._current_dots.append(self._dots[i])
                 i += 1
 
+    # override
     def on_position_change(self, origin: Vector2d, destination: Vector2d) -> None:
         for i in range(len(self._representations)):
             for j in range(len(self._representations[i])):
@@ -119,5 +127,9 @@ class Board(obs.PositionObserver, Screen, metaclass=MetaAB):
                 self._representations[i][j].new_image(self._board.get_piece(Vector2d(j, i)))
         self._show_checks()
 
+    #override
+    def on_end(self, winner: int, type: PieceMoveType) -> None:
+        print("Koniec")
+        pass
     def update_representation(self, from_piece: pcs.Piece, to_piece: pcs.Piece):
         pass

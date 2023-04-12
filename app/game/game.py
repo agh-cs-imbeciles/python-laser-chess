@@ -4,7 +4,7 @@ from game import Board
 from game.piece import Piece, PieceModel, PieceFactory
 from game.piece.move import PieceMove, PieceMoveType, PieceMoveDetector
 from game.piece.movement import PieceMovement
-from game.observer import PositionObserver
+from game.observer.game_end_obs import GameEndObserver
 
 
 class Game:
@@ -14,12 +14,13 @@ class Game:
         self._players: list[int] = []
         self._moves_history: list[Tuple[PieceMove, PieceMove]] = []
         self._piece_factory = PieceFactory(self._board)
-
+        self._observers: list[GameEndObserver] = []
         self.__init_board()
 
     # override
     def on_position_change(self, piece: Piece, move_type: PieceMoveType) -> None:
-        print(move_type)
+        # print(move_type)
+
         if move_type == PieceMoveType.KING_SIDE_CASTLING:
             self.move_piece(
                 self._board.get_piece(Vector2d(self.__BOARD_SIZE - 1, piece.position.y)),
@@ -30,8 +31,15 @@ class Game:
                 self._board.get_piece(Vector2d(0, piece.position.y)),
                 piece.position + Vector2d(1, 0)
             )
+        self.end_game()
         pass
-
+    def end_game(self) -> None:
+        tup = self._board.is_end()
+        if tup is not None:
+            for obs in self._observers:
+                obs.on_end((tup[0]+1) % 2, tup[1])
+    def add_observer(self,observer: GameEndObserver):
+        self._observers.append(observer)
     @property
     def board(self) -> Board:
         return self._board
@@ -117,6 +125,7 @@ class Game:
         ]
         for pos, color in knight_data:
             self.__add_piece(self._piece_factory.create_piece(PieceModel.KNIGHT, pos, color))
+
 
     def move_piece(self, piece: Piece, destination: Vector2d) -> None:
         piece.move(destination)

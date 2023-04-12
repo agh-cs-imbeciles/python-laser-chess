@@ -56,6 +56,8 @@ class PieceRepresentationLayout(RelativeLayout):
         return img
 
     def add_img(self, img: Image):
+        if self._img is not None:
+            return
         self._img = img
         self.add_widget(img)
 
@@ -66,6 +68,8 @@ class PieceRepresentationLayout(RelativeLayout):
         self.add_widget(self._img)
 
     def add_indicator(self, img: Image):
+        if self._indicator is not None:
+            return
         self._indicator = img
         img.size_hint = (0.5, 0.5)
         self.add_widget(img)
