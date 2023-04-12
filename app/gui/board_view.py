@@ -99,6 +99,8 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
         # other piece
 
         piece = self._board.get_piece(instance.vector)
+        if piece is None or piece.player_id != self._board.move_number:
+            return
         if piece is not None and piece.player_id == self._board.move_number:
             self._selected_piece = self._board.get_piece(instance.vector)
             self._selected = self._board.get_piece_movement(instance.vector)
