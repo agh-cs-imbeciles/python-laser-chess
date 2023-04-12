@@ -57,7 +57,7 @@ class Board(PositionObserver):
         mp, op = self.get_piece(origin), self.get_piece(destination)
         self._pieces[destination] = self._pieces.pop(origin, None)
         self._check_manager.update()
-        moveType: PieceMoveType = PieceMoveDetector.detect(self, mp, op)
+        moveType: PieceMoveType = PieceMoveDetector.detect(self, mp, op, destination)
         pass
 
     def get_size(self) -> tuple[int, int]:

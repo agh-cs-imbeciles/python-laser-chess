@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from utils import Vector2d
 from game.piece import PieceModel
-from game.piece.movement import PieceMovement, PawnMovement
+from game.piece.movement import PawnMovement
 
 if TYPE_CHECKING:
     from game import Board

@@ -14,7 +14,7 @@ class Piece:
         self._position: Vector2d = position
         self._player_id: int = player_id
         self._move_count = 0
-        self._position_observers: [PositionObserver] = []
+        self._position_observers: list[PositionObserver] = []
 
     def __eq__(self, other):
         if not isinstance(other, Piece):
