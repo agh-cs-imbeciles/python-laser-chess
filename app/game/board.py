@@ -167,12 +167,12 @@ class Board(PositionObserver):
 
     def is_king_under_check(self, player_id: int) -> bool:
         return self._check_manager.is_king_under_check(player_id)
-    def is_end(self) -> tuple[int,PieceMoveType] | None:
-        mn = (self._move_number+1) % 2
+    def get_ending_move(self) -> tuple[int,PieceMoveType] | None:
+        mn = (self._move_number+1)%2
         if self._check_manager.is_checkmate(mn):
-            return self.move_number, PieceMoveType.CHECKMATE
+            return PieceMoveType.CHECKMATE
         if self._check_manager.is_stalemate(mn):
-            return self.move_number, PieceMoveType.STALEMATE
+            return PieceMoveType.STALEMATE
         return None
 
     def add_critical_checked_squares(self, player_id: int, squares: list[Vector2d]) -> None:
