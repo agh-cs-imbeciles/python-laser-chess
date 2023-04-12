@@ -8,17 +8,19 @@ from game.piece.movement import Movement, PawnMovement
 from game.piece.move import PieceMoveType, PieceMoveDetector
 
 if TYPE_CHECKING:
+    from game import Game
     from game.piece.movement import PieceMovement
 
 
 class Board(PositionObserver):
-    def __init__(self, width: int, height: int):
+    def __init__(self, game: Game, width: int, height: int):
         self._width: int = width
         self._height: int = height
         self._move_number: int = 0
         self._pieces: dict[Vector2d, tuple[Piece, PieceMovement]] = {}
         self._kings: list[Piece] = []
-        self._check_manager = CheckManager(self)
+        self._check_manager: CheckManager = CheckManager(self)
+        self._game: Game = game
 
     @property
     def width(self) -> int:
@@ -57,7 +59,8 @@ class Board(PositionObserver):
         mp, op = self.get_piece(origin), self.get_piece(destination)
         self._pieces[destination] = self._pieces.pop(origin, None)
         self._check_manager.update()
-        moveType: PieceMoveType = PieceMoveDetector.detect(self, mp, op, destination)
+        move_type: PieceMoveType = PieceMoveDetector.detect(self, mp, op, destination)
+        self._game.on_position_change(mp, move_type)
         pass
 
     def get_size(self) -> tuple[int, int]:

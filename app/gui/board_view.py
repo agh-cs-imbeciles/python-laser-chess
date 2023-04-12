@@ -72,13 +72,13 @@ class Board(obs.PositionObserver, Screen, metaclass=MetaAB):
                     label.text = chr(i+65)
                 label.bold = True
                 boxes[j].add_widget(label)
+
     def _show_checks(self):
         check = Image(source="assets/this_fire.png")
         for king in self._board.kings:
             if self._board.is_king_under_check(king.player_id):
                 vector = king.position
                 self._representations[vector.y][vector.x].add_indicator(check)
-
 
     def on_tile_click(self, instance: Button):
 
@@ -110,7 +110,6 @@ class Board(obs.PositionObserver, Screen, metaclass=MetaAB):
                 self._representations[m.y][m.x].add_widget(self._dots[i])
                 self._current_dots.append(self._dots[i])
                 i += 1
-
 
     def on_position_change(self, origin: Vector2d, destination: Vector2d) -> None:
         for i in range(len(self._representations)):

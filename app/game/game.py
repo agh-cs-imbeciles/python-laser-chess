@@ -2,21 +2,15 @@ from typing import Tuple, Any
 from utils import Vector2d
 from game import Board
 from game.piece import Piece, PieceModel, PieceFactory
-from game.piece.move import PieceMove
-from game.piece.movement import PieceMovement, \
-                                KingMovement, \
-                                QueenMovement, \
-                                PawnMovement, \
-                                BishopMovement, \
-                                RookMovement, \
-                                KnightMovement
+from game.piece.move import PieceMove, PieceMoveType, PieceMoveDetector
+from game.piece.movement import PieceMovement
 from game.observer import PositionObserver
 
 
-class Game(PositionObserver):
+class Game:
     def __init__(self) -> None:
         self.__BOARD_SIZE: int = 8
-        self._board: Board = Board(self.__BOARD_SIZE, self.__BOARD_SIZE)
+        self._board: Board = Board(self, self.__BOARD_SIZE, self.__BOARD_SIZE)
         self._players: list[int] = []
         self._moves_history: list[Tuple[PieceMove, PieceMove]] = []
         self._piece_factory = PieceFactory(self._board)
@@ -24,7 +18,18 @@ class Game(PositionObserver):
         self.__init_board()
 
     # override
-    def on_position_change(self, origin: Vector2d, destination: Vector2d) -> None:
+    def on_position_change(self, piece: Piece, move_type: PieceMoveType) -> None:
+        print(move_type)
+        if move_type == PieceMoveType.KING_SIDE_CASTLING:
+            self.move_piece(
+                self._board.get_piece(Vector2d(self.__BOARD_SIZE - 1, piece.position.y)),
+                piece.position + Vector2d(-1, 0)
+            )
+        elif move_type == PieceMoveType.QUEEN_SIDE_CASTLING:
+            self.move_piece(
+                self._board.get_piece(Vector2d(0, piece.position.y)),
+                piece.position + Vector2d(1, 0)
+            )
         pass
 
     @property
@@ -44,6 +49,7 @@ class Game(PositionObserver):
         return self._moves_history
 
     def __add_piece(self, piece_data: tuple[Piece, PieceMovement]):
+        # piece_data[0].add_observer(self)
         self.board.add_piece(piece_data)
 
     def __init_board(self) -> None:
@@ -113,13 +119,15 @@ class Game(PositionObserver):
             self.__add_piece(self._piece_factory.create_piece(PieceModel.KNIGHT, pos, color))
 
     def move_piece(self, piece: Piece, destination: Vector2d) -> None:
-        if self.board.move_number != piece.player_id:
-            return
-
-        piece_movement = self.board.get_piece_movement(piece.position)
-        moves = piece_movement.get_legal_moves()
-        for row in moves:
-            if destination in row:
-                piece.move(destination)
-                self.board.move_number = (self.board.move_number + 1) % 2
-                break
+        piece.move(destination)
+        self.board.move_number = (self.board.move_number + 1) % 2
+        # if self.board.move_number != piece.player_id:
+        #     return
+        #
+        # piece_movement = self.board.get_piece_movement(piece.position)
+        # moves = piece_movement.get_legal_moves()
+        # for row in moves:
+        #     if destination in row:
+        #         piece.move(destination)
+        #         self.board.move_number = (self.board.move_number + 1) % 2
+        #         break
