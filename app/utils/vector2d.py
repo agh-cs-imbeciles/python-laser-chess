@@ -64,7 +64,8 @@ class Vector2d:
         return Vector2d(-self.x, -self.y)
 
     def __str__(self) -> str:
-        return f"({self.x}, {self.y})"
+        # return f"({self.x}, {self.y})"
+        return f"{chr(self.x + 97)}{self.y + 1}"
 
     def multiply_scalar(self, scalar: float) -> Vector2d:
         return Vector2d(int(self.x * scalar), int(self.y * scalar))
