@@ -100,22 +100,37 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
 
         # other piece
         piece = self._board.get_piece(instance.vector)
-        if piece is not None and piece.player_id == self._board.move_number:
-            self._selected_piece = self._board.get_piece(instance.vector)
-            self._selected = self._board.get_piece_movement(instance.vector)
-            self._possible_movements = list(itertools.chain.from_iterable(self._selected.get_legal_moves()))
-            self.on_show_possible_movements(self._possible_movements)
-            return
+        if self._selected is None:
+            if piece is not None and piece.player_id == self._board.move_number:
+                self._selected_piece = self._board.get_piece(instance.vector)
+                self._selected = self._board.get_piece_movement(instance.vector)
+                self._possible_movements = list(itertools.chain.from_iterable(self._selected.get_legal_moves()))
+                self.on_show_possible_movements(self._possible_movements)
+                return
+        else:
+            if  piece is not None and piece.player_id == self._board.move_number:
+                self._selected_piece = self._board.get_piece(instance.vector)
+                self._selected = self._board.get_piece_movement(instance.vector)
+                self._possible_movements = list(itertools.chain.from_iterable(self._selected.get_legal_moves()))
+                self.on_show_possible_movements(self._possible_movements)
+            elif instance.vector in self._possible_movements:
+                self._possible_movements = []
+                self._game.move_piece(self._selected_piece, instance.vector)
+                self._selected = None
+                self._selected_piece = None
+            else:
+                self._possible_movements = []
+                self._selected = None
+                self._selected_piece = None
 
 
 
-        # no piece selected
-        if instance.vector in self._possible_movements:
-            self._game.move_piece(self._selected_piece, instance.vector)
-            self._selected = None
-            self._selected_piece = None
 
-    def on_show_possible_movements(self, movements: list[list[Vector2d]]):
+        # move if possible
+
+
+
+    def on_show_possible_movements(self, movements: list[Vector2d]):
         i = 0
         for m in movements:
             self._representations[m.y][m.x].add_widget(self._dots[i])
