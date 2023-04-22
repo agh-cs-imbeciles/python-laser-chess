@@ -11,6 +11,7 @@ import game.observer as obs
 from game.observer.game_end_obs import GameEndObserver
 from numpy import empty
 from gui.piece_representation import PieceRepresentationLayout
+import itertools
 class MetaAB(type(obs.PositionObserver), type(Screen)):
     pass
 
@@ -27,6 +28,7 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
         self._selected = None
         self._selected_piece = None
         self._board = self._game.board
+        self._possible_movements = [];
 
     def _init_board(self):
         board = self._game.board
@@ -75,9 +77,9 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
             for j in range(4):
                 label = Label()
                 if j % 2 == 1:
-                    label.text = str(i+1)
+                    label.text = str(8-i)
                 else:
-                    label.text = chr(i+65)
+                    label.text = chr(i+97)
                 label.bold = True
                 boxes[j].add_widget(label)
 
@@ -97,28 +99,28 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
         self._current_dots.clear()
 
         # other piece
-
         piece = self._board.get_piece(instance.vector)
-        if piece is None or piece.player_id != self._board.move_number:
-            return
         if piece is not None and piece.player_id == self._board.move_number:
             self._selected_piece = self._board.get_piece(instance.vector)
             self._selected = self._board.get_piece_movement(instance.vector)
-            self.on_show_possible_movements(self._selected.get_legal_moves())
+            self._possible_movements = list(itertools.chain.from_iterable(self._selected.get_legal_moves()))
+            self.on_show_possible_movements(self._possible_movements)
             return
 
+
+
         # no piece selected
-        self._game.move_piece(self._selected_piece, instance.vector)
-        self._selected = None
-        self._selected_piece = None
+        if instance.vector in self._possible_movements:
+            self._game.move_piece(self._selected_piece, instance.vector)
+            self._selected = None
+            self._selected_piece = None
 
     def on_show_possible_movements(self, movements: list[list[Vector2d]]):
         i = 0
-        for row in movements:
-            for m in row:
-                self._representations[m.y][m.x].add_widget(self._dots[i])
-                self._current_dots.append(self._dots[i])
-                i += 1
+        for m in movements:
+            self._representations[m.y][m.x].add_widget(self._dots[i])
+            self._current_dots.append(self._dots[i])
+            i += 1
 
     # override
     def on_position_change(self, origin: Vector2d, destination: Vector2d) -> None:
