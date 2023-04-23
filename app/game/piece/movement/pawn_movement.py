@@ -45,12 +45,14 @@ class PawnMovement(PieceMovement):
         #
         # Advance 1 square (default move)
         #
+        advance_1 = False
         if b.can_move_to(p.position + dir, self._piece):
             self._legal_moves[0].append(p.position + dir)
+            advance_1 = True
         #
         # Advance 2 squares (first move)
         #
-        if p.position == self._initial_position and b.can_move_to(p.position + dir.multiply_scalar(2), self._piece):
+        if p.position == self._initial_position and b.can_move_to(p.position + dir.multiply_scalar(2), self._piece) and advance_1:
             self._legal_moves[0].append(p.position + dir.multiply_scalar(2))
         #
         # Capture a piece
