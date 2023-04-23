@@ -18,15 +18,11 @@ class PieceMoveDetector:
         if other_piece is not None:
             return PieceMoveType.CAPTURE
         #
-        # Mate
+        # Mate and Stalemate
         #
-        if False:
-            return PieceMoveType.CHECKMATE
-        #
-        # Stalemate
-        #
-        if False:
-            return PieceMoveType.STALEMATE
+        player_move = board.get_ending_move()
+        if player_move is not None:
+            return player_move
         #
         # Check
         #

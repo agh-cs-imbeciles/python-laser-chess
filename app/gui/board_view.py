@@ -11,6 +11,8 @@ import game.observer as obs
 from game.observer.game_end_obs import GameEndObserver
 from numpy import empty
 from gui.piece_representation import PieceRepresentationLayout
+from gui.window_updater import WindowUpdater
+import itertools
 class MetaAB(type(obs.PositionObserver), type(Screen)):
     pass
 
@@ -20,13 +22,21 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
         super().__init__()
         self._game = g.Game()
         self._grid = self.ids.board
+        self._indicator_label:Label = self.ids.indicator_lab
         self._dots = empty(shape=27, dtype=Image)
         self._representations = empty(shape=(8, 8), dtype=PieceRepresentationLayout)
         self._current_dots = []
-        self._init_board()
         self._selected = None
         self._selected_piece = None
         self._board = self._game.board
+        self._possible_movements = []
+        self._window_updater = WindowUpdater(self.ids)
+        self._init_board()
+        self._elements_dict = dict()
+        for id in self.ids:
+            t = self.ids.get(id)
+            self._elements_dict.update({id:t})
+        self._window_updater = WindowUpdater(self._elements_dict)
 
     def _init_board(self):
         board = self._game.board
@@ -34,9 +44,13 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
         # assiging observer to game
         self._game.add_observer(self)
 
+        # creation of indicator dots
         for i in range(len(self._dots)):
             self._dots[i] = Image(source="assets/dot.png")
         self._add_coordinates()
+
+
+        self.update_indicator_label("Tura gracza "+str(self._board.move_number))
         for i in range(8):
             for j in range(8):
                 vector = Vector2d(j, 7 - i)
@@ -58,10 +72,6 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
                 if piece is not None:
                     piece.add_observer(self)
 
-
-
-
-
                 # adding piece and button to board
 
                 piece_layout = PieceRepresentationLayout(piece, button)
@@ -75,9 +85,9 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
             for j in range(4):
                 label = Label()
                 if j % 2 == 1:
-                    label.text = str(i+1)
+                    label.text = str(8-i)
                 else:
-                    label.text = chr(i+65)
+                    label.text = chr(i+97)
                 label.bold = True
                 boxes[j].add_widget(label)
 
@@ -89,34 +99,52 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
                 self._representations[vector.y][vector.x].add_indicator(check)
 
     def on_tile_click(self, instance: Button):
-
         # clear indicating dots
 
         for d in self._current_dots:
             d.parent.remove_widget(d)
         self._current_dots.clear()
 
-        # other piece
-
         piece = self._board.get_piece(instance.vector)
-        if piece is not None and piece.player_id == self._board.move_number:
-            self._selected_piece = self._board.get_piece(instance.vector)
-            self._selected = self._board.get_piece_movement(instance.vector)
-            self.on_show_possible_movements(self._selected.get_legal_moves())
-            return
+        if self._selected is None:
 
-        # no piece selected
-        self._game.move_piece(self._selected_piece, instance.vector)
-        self._selected = None
-        self._selected_piece = None
+            # select piece
 
-    def on_show_possible_movements(self, movements: list[list[Vector2d]]):
+            if piece is not None and piece.player_id == self._board.move_number:
+                self._selected_piece = self._board.get_piece(instance.vector)
+                self._selected = self._board.get_piece_movement(instance.vector)
+                self._possible_movements = list(itertools.chain.from_iterable(self._selected.get_legal_moves()))
+                self.on_show_possible_movements(self._possible_movements)
+                return
+        else:
+
+            # select other piece
+
+            if  piece is not None and piece.player_id == self._board.move_number:
+                self._selected_piece = self._board.get_piece(instance.vector)
+                self._selected = self._board.get_piece_movement(instance.vector)
+                self._possible_movements = list(itertools.chain.from_iterable(self._selected.get_legal_moves()))
+                self.on_show_possible_movements(self._possible_movements)
+
+            # move piece
+
+            elif instance.vector in self._possible_movements:
+                self.update_indicator_label("Tura gracza " + str(self._board.move_number))
+                self._game.move_piece(self._selected_piece, instance.vector)
+
+
+            # reset
+
+            self._possible_movements = []
+            self._selected = None
+            self._selected_piece = None
+
+    def on_show_possible_movements(self, movements: list[Vector2d]):
         i = 0
-        for row in movements:
-            for m in row:
-                self._representations[m.y][m.x].add_widget(self._dots[i])
-                self._current_dots.append(self._dots[i])
-                i += 1
+        for m in movements:
+            self._representations[m.y][m.x].add_widget(self._dots[i])
+            self._current_dots.append(self._dots[i])
+            i += 1
 
     # override
     def on_position_change(self, origin: Vector2d, destination: Vector2d) -> None:
@@ -129,7 +157,8 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
 
     #override
     def on_end(self, winner: int, type: PieceMoveType) -> None:
-        print("Koniec")
-        pass
-    def update_representation(self, from_piece: pcs.Piece, to_piece: pcs.Piece):
+        self.update_indicator_label("Szach mat. Wygrywa "+str(winner))
+
+    def update_indicator_label(self, text: str):
+        self._indicator_label.text = text
         pass

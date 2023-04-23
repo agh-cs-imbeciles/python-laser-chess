@@ -31,13 +31,13 @@ class Game:
                 self._board.get_piece(Vector2d(0, piece.position.y)),
                 piece.position + Vector2d(1, 0)
             )
-        self.end_game()
+        self.end_if_conditions_fulfiled()
         pass
-    def end_game(self) -> None:
-        tup = self._board.is_end()
-        if tup is not None:
+    def end_if_conditions_fulfiled(self) -> None:
+        mov = self._board.get_ending_move()
+        if mov is not None:
             for obs in self._observers:
-                obs.on_end((tup[0]+1) % 2, tup[1])
+                obs.on_end(self._board.move_number, mov)
     def add_observer(self,observer: GameEndObserver):
         self._observers.append(observer)
     @property

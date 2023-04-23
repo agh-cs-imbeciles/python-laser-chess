@@ -16,6 +16,7 @@ class CheckManager:
         self._checking_pieces: list[dict[Vector2d, Piece]] = [{}, {}]
         self._critical_checked_squares: list[dict[Vector2d, bool]] = [{}, {}]
         self._pinned_pieces: list[dict[Vector2d, tuple[Piece, Piece]]] = [{}, {}]
+        self._can_move: bool = True
 
     @property
     def checked_squares(self) -> list[dict[Vector2d, bool]]:
@@ -42,22 +43,14 @@ class CheckManager:
         return self._checked_squares[player_id].get(self._board.kings[player_id].position) is not None
 
     def is_checkmate(self, player_id: int) -> bool:
-        #
-        # Check if king is under check
-        #
-
-        if not self.is_king_under_check(player_id):
+        if self._can_move:
             return False
-        return self.can_player_move(player_id)
+        return self.is_king_under_check(player_id)
 
     def is_stalemate(self, player_id: int) -> bool:
-        #
-        # If king is under check it is not stalemate
-        #
-
-        if self.is_king_under_check(player_id):
+        if self._can_move:
             return False
-        return self.can_player_move(player_id)
+        return not self.is_king_under_check(player_id)
 
     def can_player_move(self,player_id: int) -> bool:
         #
@@ -73,8 +66,8 @@ class CheckManager:
             # If there are possible movements then it is not a stalemate
             #
             if len(all_moves) != 0:
-                return False
-        return True
+                return True
+        return False
 
     def get_critical_square(self, position: Vector2d, player_id: int) -> bool | None:
         return self._critical_checked_squares[player_id].get(position)
@@ -85,7 +78,6 @@ class CheckManager:
             self._checking_pieces[i].clear()
             self._critical_checked_squares[i].clear()
             self._pinned_pieces[i].clear()
-        
         for key, piece_data in self._board.pieces.items():
             piece, movement = piece_data
             
@@ -119,6 +111,7 @@ class CheckManager:
             pinned = movement.get_pinned_piece()
             if pinned:
                 self.pinned_pieces[pinned.player_id][pinned.position] = (pinned, piece)
+        self._can_move = self.can_player_move((self._board.move_number + 1) % 2)
 
     def add_critical_checked_squares(self, player_id: int, squares: list[Vector2d]):
         for s in squares:
