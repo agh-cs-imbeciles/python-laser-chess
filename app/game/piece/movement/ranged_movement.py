@@ -7,10 +7,9 @@ from game.piece.movement import Movement, PieceMovement
 if TYPE_CHECKING:
     from game import Board
     from game.piece import Piece
-    from game.piece.movement import Movement
 
 
-class RangePieceMovement(PieceMovement):
+class RangedPieceMovement(PieceMovement):
     def __init__(self, bishop: Piece, board: Board) -> None:
         super().__init__(bishop, board)
         self._movements: list[tuple[Movement, Vector2d]] = []

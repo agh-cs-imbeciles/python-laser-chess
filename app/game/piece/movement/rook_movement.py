@@ -1,15 +1,14 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 from utils import Vector2d
-from game.piece import PieceModel
-from game.piece.movement import Movement, RangePieceMovement
+from game.piece.movement import Movement, RangedPieceMovement
 
 if TYPE_CHECKING:
     from game import Board
     from game.piece import Piece
 
 
-class RookMovement(RangePieceMovement):
+class RookMovement(RangedPieceMovement):
     # Movement types, (movement, delta)
     # movement: movement type
     # delta: delta position of the piece, position + delta is the origin of iteration
