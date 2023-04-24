@@ -66,7 +66,7 @@ class RangePieceMovement(PieceMovement):
                     legal_moves.append(v)
                 if b.get_piece(v):
                     pieces.append(b.get_piece(v))
-            elif p and piece.player_id == p.player_id:
+            elif p and piece.is_same_color(p):
                 return legal_moves, pieces
 
         return legal_moves, pieces

@@ -87,7 +87,7 @@ class CheckManager:
             if isinstance(movement, PawnMovement):
                 pos: Vector2d = piece.position + movement.direction
                 for i, checked_squares in enumerate(self.checked_squares):
-                    if piece.player_id == i: continue
+                    if piece.is_same_color(i): continue
                     checked_squares[pos + Vector2d(-1, 0)] = True
                     checked_squares[pos + Vector2d(1, 0)] = True
                 continue
@@ -98,11 +98,11 @@ class CheckManager:
             for moves in movement.get_legal_moves():
                 for move in moves:
                     for i, checked_squares in enumerate(self.checked_squares):
-                        if piece.player_id == i: continue
+                        if piece.is_same_color(i): continue
                         p = self._board.get_piece(move)
 
                         # Check occurrence
-                        if p is not None and p.model == PieceModel.KING and p.player_id != piece.player_id:
+                        if p is not None and p.model == PieceModel.KING and not p.is_same_color(piece):
                             self._checking_pieces[piece.player_id][piece.position] = piece
                             if piece.model != PieceModel.PAWN and piece.model != PieceModel.KNIGHT:
                                 self.add_critical_checked_squares(p.player_id, moves)

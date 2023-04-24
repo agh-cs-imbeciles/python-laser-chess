@@ -23,7 +23,7 @@ class Piece:
             self.model == other.model
             and self.initial_position == other.initial_position
             and self.position == other.position
-            and self.player_id == other.player_id
+            and self.is_same_color(other)
         )
 
     def __ne__(self, other):
@@ -68,6 +68,13 @@ class Piece:
 
     def moved(self):
         return self._move_count > 0
+
+    def is_same_color(self, other: Piece | int | None) -> bool:
+        if other is None:
+            return False
+        if isinstance(other, Piece):
+            return self.player_id == other.player_id
+        return self.player_id == other
 
     def add_observer(self, observer: PositionObserver) -> None:
         self._position_observers.append(observer)

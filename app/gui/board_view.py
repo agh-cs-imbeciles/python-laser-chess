@@ -107,20 +107,20 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
 
         piece = self._board.get_piece(instance.vector)
         if self._selected is None:
-
+            #
             # select piece
-
-            if piece is not None and piece.player_id == self._board.move_number:
+            #
+            if piece is not None and piece.is_same_color(self._board.move_number):
                 self._selected_piece = self._board.get_piece(instance.vector)
                 self._selected = self._board.get_piece_movement(instance.vector)
                 self._possible_movements = list(itertools.chain.from_iterable(self._selected.get_legal_moves()))
                 self.on_show_possible_movements(self._possible_movements)
                 return
         else:
-
+            #
             # select other piece
-
-            if  piece is not None and piece.player_id == self._board.move_number:
+            #
+            if piece is not None and piece.is_same_color(self._board.move_number):
                 self._selected_piece = self._board.get_piece(instance.vector)
                 self._selected = self._board.get_piece_movement(instance.vector)
                 self._possible_movements = list(itertools.chain.from_iterable(self._selected.get_legal_moves()))

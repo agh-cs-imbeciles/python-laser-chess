@@ -74,13 +74,12 @@ class Board(PositionObserver):
             return None
         return piece[0]
 
-    def get_player_pieces_movements(self,player_id: int) -> list[tuple[Piece,PieceMovement]]:
-        out = []
-        for pie,mov in self._pieces.values():
-            if pie.player_id == player_id:
-                out.append((pie,mov))
-        return out
-
+    def get_player_pieces_movements(self, player_id: int) -> list[tuple[Piece, PieceMovement]]:
+        movements = []
+        for piece, mov in self._pieces.values():
+            if piece.is_same_color(player_id):
+                movements.append((piece, mov))
+        return movements
 
     def get_piece_movement(self, position: Vector2d) -> Optional[PieceMovement]:
         piece = self._pieces.get(position)
@@ -88,16 +87,19 @@ class Board(PositionObserver):
             return None
         return piece[1]
 
+    def is_out_of_bounds(self, destination: Vector2d) -> bool:
+        return destination.x < 0 or destination.x >= self.width or destination.y < 0 or destination.y >= self.height
+
     def can_move_to(self, destination: Vector2d, piece: Piece, **kwargs) -> bool:
         # Aliases
-        capture = kwargs.get("capture")
-        capture_required = kwargs.get("capture_required")
-        pid = piece.player_id
+        capture: bool = bool(kwargs.get("capture"))
+        capture_required: bool = bool(kwargs.get("capture_required"))
+        pid: int = piece.player_id
 
         #
         # Check, if position after moving is in bounds of board
         #
-        if destination.x < 0 or destination.x >= self.width or destination.y < 0 or destination.y >= self.height:
+        if self.is_out_of_bounds(destination):
             return False
         #
         # Check, if player's king is under check - if it is, only covering moves are legal
@@ -131,7 +133,7 @@ class Board(PositionObserver):
         #
         if capture and not capture_required:
             p = self.get_piece(destination)
-            return p is None or p.player_id != pid
+            return p is None or p.is_same_color(pid)
         #
         # Move without capturing
         #
@@ -142,7 +144,7 @@ class Board(PositionObserver):
         #
         elif capture_required:
             p = self.get_piece(destination)
-            return p is not None and p.player_id != pid
+            return p is not None and p.is_same_color(pid)
 
     def is_piece_at(self, vector: Vector2d) -> bool:
         return self.get_piece(vector) is not None
