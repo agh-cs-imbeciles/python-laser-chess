@@ -67,7 +67,7 @@ class PawnMovement(PieceMovement):
             for pos in [p_left, p_right]:
                 p0, mvmt = b.get_piece(pos - dir), b.get_piece_movement(pos - dir)
                 if p0 and p0.is_same_color(p) and p0.model == PieceModel.PAWN and b.can_move_to(pos, self._piece):
-                    self._legal_moves[0].append(pos)
+                    moves[0].append(pos)
 
         return moves
 

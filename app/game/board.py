@@ -91,6 +91,21 @@ class Board(PositionObserver):
         return destination.x < 0 or destination.x >= self.width or destination.y < 0 or destination.y >= self.height
 
     def can_move_to(self, destination: Vector2d, piece: Piece, **kwargs) -> bool:
+        """
+        Verify, whether piece can move to the destination square.
+
+        Options:
+            Empty square.
+            Empty square or enemy's piece.
+            Enemy's piece obligatory.
+
+        :param destination: ``Vector2d`` of desired destination square.
+        :param piece: ``Piece`` which would change position.
+        :param kwargs:
+            capture: ``Boolean`` which defines optional capture.
+            capture_required: ``Boolean`` which defines capture requirement (e.g. pawn capture).
+        :return: ``Boolean`` of making a move.
+        """
         # Aliases
         capture: bool = bool(kwargs.get("capture"))
         capture_required: bool = bool(kwargs.get("capture_required"))
@@ -133,7 +148,7 @@ class Board(PositionObserver):
         #
         if capture and not capture_required:
             p = self.get_piece(destination)
-            return p is None or p.is_same_color(pid)
+            return p is None or not p.is_same_color(pid)
         #
         # Move without capturing
         #
@@ -144,7 +159,7 @@ class Board(PositionObserver):
         #
         elif capture_required:
             p = self.get_piece(destination)
-            return p is not None and p.is_same_color(pid)
+            return p is not None and not p.is_same_color(pid)
 
     def is_piece_at(self, vector: Vector2d) -> bool:
         return self.get_piece(vector) is not None
