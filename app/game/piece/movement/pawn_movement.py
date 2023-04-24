@@ -27,6 +27,10 @@ class PawnMovement(PieceMovement):
     def direction(self):
         return self._direction
 
+    @property
+    def promotion_position(self):
+        return self._promotion_position
+
     # override
     def get_legal_moves(self) -> list[list[Vector2d]]:
         # Clear legal moves
@@ -70,3 +74,5 @@ class PawnMovement(PieceMovement):
                     self._legal_moves[0].append(pos)
 
         return self._legal_moves
+
+

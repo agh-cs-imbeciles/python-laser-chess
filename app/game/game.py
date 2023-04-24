@@ -31,6 +31,7 @@ class Game:
                 self._board.get_piece(Vector2d(0, piece.position.y)),
                 piece.position + Vector2d(1, 0)
             )
+
         self.end_if_conditions_fulfiled()
         pass
     def end_if_conditions_fulfiled(self) -> None:
