@@ -60,6 +60,12 @@ class Board(PositionObserver):
     def on_position_change(self, origin: Vector2d, destination: Vector2d) -> None:
         mp, op = self.get_piece(origin), self.get_piece(destination)
         self._pieces[destination] = self._pieces.pop(origin, None)
+
+        if mp is not None and mp.model == PieceModel.PAWN:
+            pos = destination - self.get_piece_movement(destination).direction
+            if self.is_piece_at(pos):
+                self._pieces.pop(pos)
+
         self._check_manager.update()
         move_type: PieceMoveType = PieceMoveDetector.detect(self, mp, op, destination)
         self._game.on_position_change(mp, move_type)

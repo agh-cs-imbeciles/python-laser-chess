@@ -29,8 +29,8 @@ class PieceFactory:
             case PieceModel.PAWN:
                 p = Piece(PieceModel.PAWN, position, color)
                 dir = Vector2d(0, 1) if color == 0 else Vector2d(0, -1)
-                enp = Vector2d(0, self._board.height - 4) if color == 0 else Vector2d(0, 3)
-                pro = Vector2d(0, self._board.height - 1) if color == 0 else Vector2d(0, 0)
+                enp = Vector2d(position.x, self._board.height - 4) if color == 0 else Vector2d(position.x, 3)
+                pro = Vector2d(position.x, self._board.height - 1) if color == 0 else Vector2d(position.x, 0)
                 return p, PawnMovement(p, self._board, dir, enp, pro)
             case PieceModel.BISHOP:
                 p = Piece(PieceModel.BISHOP, position, color)

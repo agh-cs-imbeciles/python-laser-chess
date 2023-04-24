@@ -15,6 +15,10 @@ class KingMovement(PieceMovement):
         self._initial_position: Vector2d = king.position.copy()
 
     # override
+    def get_all_moves(self) -> list[list[Vector2d]]:
+        pass
+
+    # override
     def get_legal_moves(self) -> list[list[Vector2d]]:
         # Clear legal moves
         self._legal_moves.clear()

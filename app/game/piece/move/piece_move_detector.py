@@ -16,6 +16,7 @@ class PieceMoveDetector:
         # Capture
         #
         if other_piece is not None:
+            # TODO: Pawns
             return PieceMoveType.CAPTURE
         #
         # Mate and Stalemate

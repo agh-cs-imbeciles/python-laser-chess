@@ -20,6 +20,10 @@ class RangePieceMovement(PieceMovement):
         return self._movements
 
     # override
+    def get_all_moves(self) -> list[list[Vector2d]]:
+        pass
+
+    # override
     def get_legal_moves(self) -> list[list[Vector2d]]:
         self._legal_moves.clear()
         p = self._piece

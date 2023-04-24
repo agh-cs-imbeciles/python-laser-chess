@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+from copy import deepcopy
 from utils import Vector2d
 from game.piece import Piece, PieceModel
 from game.piece.movement import PieceMovement
@@ -22,10 +23,23 @@ class PawnMovement(PieceMovement):
         self._direction: Vector2d = direction
         self._en_passant_position: Vector2d = en_passant_position
         self._promotion_position: Vector2d = promotion_position
+        self._capture_deltas: list[Vector2d] = [
+            self.direction.reverse_axis() + self.direction,    # Left capture delta
+            self.direction.reverse_axis() + self.direction     # Right capture delta
+        ]
         
     @property
-    def direction(self):
+    def direction(self) -> Vector2d:
         return self._direction
+
+    @property
+    def capture_deltas(self) -> list[Vector2d]:
+        return self._capture_deltas
+
+    def __is_en_passant_legal(self, destination: Vector2d) -> bool:
+        p, b = self._piece, self._board
+        other = b.get_piece(destination - self.direction)
+        return other and not other.is_same_color(p) and other.model == PieceModel.PAWN and b.can_move_to(destination, p)
 
     #override
     def get_all_moves(self) -> list[list[Vector2d]]:
@@ -37,8 +51,8 @@ class PawnMovement(PieceMovement):
         dir = self._direction
         enp = self._en_passant_position
 
-        p_left = p.position - dir.reverse_axis() + dir  # Left capture position
-        p_right = p.position + dir.reverse_axis() + dir  # Right capture position
+        p_left = p.position - dir.reverse_axis() + dir      # Left capture position
+        p_right = p.position + dir.reverse_axis() + dir     # Right capture position
 
         #
         # Advance 1 square (default move)
@@ -57,17 +71,18 @@ class PawnMovement(PieceMovement):
         #
         # Capture a piece
         #
-        for pos in [p_left, p_right]:
+        for pos in [p.position + d for d in self.capture_deltas]:
             if not b.is_out_of_bounds(pos):
                 moves[0].append(pos)
         #
         # En passant
         #
-        if 0 < enp.x == p.position.x or 0 < enp.y == p.position.y:
-            for pos in [p_left, p_right]:
-                p0, mvmt = b.get_piece(pos - dir), b.get_piece_movement(pos - dir)
-                if p0 and p0.is_same_color(p) and p0.model == PieceModel.PAWN and b.can_move_to(pos, self._piece):
-                    moves[0].append(pos)
+        if p.position == enp:
+            for pos in [p.position + d for d in self.capture_deltas]:
+                p0, _ = b.get_piece(pos - dir), b.get_piece_movement(pos - dir)
+                if self.__is_en_passant_legal(pos):
+                    if pos not in moves[0]:
+                        moves[0].append(pos)
 
         return moves
 
@@ -80,37 +95,23 @@ class PawnMovement(PieceMovement):
         # Aliases
         b = self._board
         p = self._piece
-        dir = self._direction
         enp = self._en_passant_position
 
-        p_left = p.position - dir.reverse_axis() + dir      # Left capture position
-        p_right = p.position + dir.reverse_axis() + dir     # Right capture position
+        moves = self.get_all_moves()
 
-        #
-        # Advance 1 square (default move)
-        #
-        advance_1 = False
-        if b.can_move_to(p.position + dir, self._piece):
-            self._legal_moves[0].append(p.position + dir)
-            advance_1 = True
-        #
-        # Advance 2 squares (first move)
-        #
-        if p.position == self._initial_position and b.can_move_to(p.position + dir.multiply_scalar(2), self._piece) and advance_1:
-            self._legal_moves[0].append(p.position + dir.multiply_scalar(2))
-        #
-        # Capture a piece
-        #
-        for pos in [p_left, p_right]:
-            if b.can_move_to(pos, self._piece, capture_required=True):
-                self._legal_moves[0].append(pos)
-        #
-        # En passant
-        #
-        if 0 < enp.x == p.position.x or 0 < enp.y == p.position.y:
-            for pos in [p_left, p_right]:
-                p0, mvmt = b.get_piece(pos - dir), b.get_piece_movement(pos - dir)
-                if p0 and not p0.is_same_color(p) and p0.model == PieceModel.PAWN and b.can_move_to(pos, self._piece):
-                    self._legal_moves[0].append(pos)
+        capture_moves = [p.position + d for d in self.capture_deltas]
+        for m in moves[0]:
+            #
+            # Capture
+            #
+            if m in capture_moves and p.position != enp and not b.can_move_to(m, p, capture_required=True):
+                continue
+            #
+            # En passant
+            #
+            if m in capture_moves and p.position == enp and not self.__is_en_passant_legal(m):
+                continue
+
+            self._legal_moves[0].append(m)
 
         return self._legal_moves

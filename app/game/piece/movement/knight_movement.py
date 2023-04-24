@@ -13,6 +13,10 @@ class KnightMovement(PieceMovement):
     def __init__(self, knight: Piece, board: Board) -> None:
         super().__init__(knight, board)
 
+    #override
+    def get_all_moves(self) -> list[list[Vector2d]]:
+        pass
+
     # override
     def get_legal_moves(self) -> list[list[Vector2d]]:
         self._legal_moves.clear()
