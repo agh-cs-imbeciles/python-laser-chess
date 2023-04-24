@@ -17,10 +17,12 @@ class PieceMovement(ABC):
     @abstractmethod
     def get_all_moves(self) -> list[list[Vector2d]]:
         """
-        Get all possible moves, which are legal or any piece is on the square
-        and if it's enemy's, it must be capturable.\n
+        Get all possible capture moves, which are legal or any piece is on the square (only first occurrence)
+        and if it's enemy's, it must be capturable.
+
         For example,
         ranged pieces' list of moves ends on a first occurred piece (including) or boundary of the chessboard.
+
         :return: List of lists containing all possible moves.
         """
         pass
