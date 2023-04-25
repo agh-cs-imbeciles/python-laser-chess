@@ -11,7 +11,12 @@ if TYPE_CHECKING:
 
 class PieceMoveDetector:
     @staticmethod
-    def detect(board: Board, moved_piece: Piece, other_piece: Piece | None, destination: Vector2d) -> PieceMoveType:
+    def detect(board: Board | None, moved_piece: Piece, other_piece: Piece | None, destination: Vector2d) -> PieceMoveType:
+        #
+        # If board is None, then it is a draw
+        #
+        if board is None:
+            return PieceMoveType.DRAW
         #
         # Capture
         #
@@ -23,7 +28,7 @@ class PieceMoveDetector:
         #
         player_move = board.get_ending_move()
         if player_move is not None:
-            return player_move
+            return player_move[1]
         #
         # Check
         #
@@ -44,5 +49,10 @@ class PieceMoveDetector:
                 raise ValueError("Castling is not allowed")
 
             return castling
+        #
+        # Promotion
+        #
+        if board.get_to_promote() is not None:
+            return PieceMoveType.PROMOTION
 
         return PieceMoveType.MOVE

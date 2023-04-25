@@ -31,9 +31,35 @@ class Game:
                 self._board.get_piece(Vector2d(0, piece.position.y)),
                 piece.position + Vector2d(1, 0)
             )
-
         self.end_if_conditions_fulfilled()
         pass
+
+    def add_move_to_history(self, piece_move: PieceMove | None, promoted: Piece = None, move_type: PieceMoveType = None):
+
+        # If there is promotion, last move is altered
+
+        if piece_move is None:
+            mh = self._moves_history
+            last = mh[len(mh) - 1]
+            if last[1] is None:
+                flast = last[0]
+                flast.promotion = promoted
+                flast.move_type = move_type
+                mh[len(mh)-1] = (flast, None)
+            else:
+                llast = last[1]
+                llast.promotion = promoted
+                llast.move_type = move_type
+                mh[len(mh)-1] = (last[0], llast)
+            return
+
+        # Adding move to self._move_history
+
+        if piece_move.move == 0:
+            self._moves_history.append((piece_move, None))
+        else:
+            mh = self._moves_history
+            mh[len(mh)-1] = ((mh[len(mh)-1][0], piece_move))
 
     def end_if_conditions_fulfilled(self) -> None:
         mov = self._board.get_ending_move()

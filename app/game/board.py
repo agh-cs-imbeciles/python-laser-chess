@@ -9,6 +9,8 @@ from game.piece import Piece, PieceModel
 from game.piece.movement import Movement, PawnMovement
 from game.piece.move import PieceMoveType, PieceMoveDetector
 from game.promotion import PromotionManager
+from game.piece.move.piece_move import PieceMove
+
 if TYPE_CHECKING:
     from game import Game
     from game.piece.movement import PieceMovement
@@ -73,7 +75,8 @@ class Board(PositionObserver):
         self._promotion_manager.check_promotion(mp)
         move_type: PieceMoveType = PieceMoveDetector.detect(self, mp, op, destination)
         self._game.on_position_change(mp, move_type)
-        pass
+        piece_move: PieceMove = PieceMove(mp, origin, destination, None, move_type)
+        self._game.add_move_to_history(piece_move)
 
     def get_size(self) -> tuple[int, int]:
         return self._width, self._height
@@ -194,14 +197,17 @@ class Board(PositionObserver):
     def get_to_promote(self) -> Piece | None:
         return self._promotion_manager.get_promotion_piece()
 
-    def promote(self, model: PieceModel):
+    def promote(self, model: PieceModel) -> tuple[Piece, PieceMovement] | None:
         new = self._promotion_manager.try_to_promote(model)
-
+        if new is None:
+            return
         self.add_piece(new)
+        self._game.add_move_to_history(None, new[0], PieceMoveType.PROMOTION)
         return new
 
     def get_possible_promotions(self) -> list[PieceModel]:
         return self._promotion_manager.get_possible_types()
+
     def get_player_all_moves(self):
         pass
 
