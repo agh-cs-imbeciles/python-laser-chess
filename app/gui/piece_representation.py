@@ -2,27 +2,31 @@ from __future__ import annotations
 from kivy.uix.button import Button
 from kivy.uix.image import Image
 from kivy.uix.relativelayout import RelativeLayout
+from multipledispatch import dispatch
+from game.piece import PieceModel
 from game.piece.piece import Piece
 
 
 # 0-white
 class PieceRepresentationLayout(RelativeLayout):
-    def __init__(self, piece: Piece, button: Button):
+    def __init__(self, piece: Piece, button: Button,opacity=None,promotion=None):
         super().__init__()
+        self._button = button
         self.add_widget(button)
         self._img = None
         self._indicator = None
+        if opacity is not None:
+            self.opacity = opacity
         if piece is None:
             return
-        self.__load(piece)
+        self.__load(piece.model,piece.player_id)
         self.add_widget(self._img)
 
-    def __load(self, piece: Piece):
-        if piece is None:
+
+    def __load(self, piece_type: PieceModel, player: int):
+        if piece_type is None or player is None:
             self._img = None
             return
-        piece_type = piece.model
-        player = piece.player_id
         color = ""
         match player:
             case 0:
@@ -47,6 +51,9 @@ class PieceRepresentationLayout(RelativeLayout):
             case _:
                 self._img = None
 
+    def add_value_to_button(self,value):
+        self._button.value = value
+
     def remove_img(self) -> Image | None:
         if self._img is None:
             return None
@@ -61,11 +68,19 @@ class PieceRepresentationLayout(RelativeLayout):
         self._img = img
         self.add_widget(img)
 
-    def new_image(self, piece: Piece):
+
+    def new_image_piece(self, piece: Piece):
         if piece is None:
             return
-        self.__load(piece)
+        self.__load(piece.model, piece.player_id)
         self.add_widget(self._img)
+
+    def new_image(self, model: PieceModel, player: int):
+        if model is None or player is None:
+            return
+        self.__load(model, player)
+        self.add_widget(self._img)
+        pass
 
     def add_indicator(self, img: Image):
         if self._indicator is not None:

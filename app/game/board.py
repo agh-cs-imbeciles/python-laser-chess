@@ -8,7 +8,7 @@ from game.observer import PositionObserver
 from game.piece import Piece, PieceModel
 from game.piece.movement import Movement, PawnMovement
 from game.piece.move import PieceMoveType, PieceMoveDetector
-
+from game.promotion import PromotionManager
 if TYPE_CHECKING:
     from game import Game
     from game.piece.movement import PieceMovement
@@ -23,6 +23,7 @@ class Board(PositionObserver):
         self._kings: list[Piece] = []
         self._check_manager: CheckManager = CheckManager(self)
         self._game: Game = game
+        self._promotion_manager = PromotionManager(self)
         self.last_move: tuple[Piece, Vector2d] | None = None
 
     @property
@@ -69,6 +70,7 @@ class Board(PositionObserver):
                 self._pieces.pop(pos)
 
         self._check_manager.update()
+        self._promotion_manager.check_promotion(mp)
         move_type: PieceMoveType = PieceMoveDetector.detect(self, mp, op, destination)
         self._game.on_position_change(mp, move_type)
         pass
@@ -182,11 +184,24 @@ class Board(PositionObserver):
 
             if piece[0].model == PieceModel.KING:
                 self._kings.append(piece[0])
+    def destroy_piece(self,piece: Piece):
+        self._pieces.pop(piece.position,None)
 
     def add_pieces(self, pieces: list[tuple[Piece, PieceMovement]]) -> None:
         for piece in pieces:
             self.add_piece(piece)
 
+    def get_to_promote(self) -> Piece | None:
+        return self._promotion_manager.get_promotion_piece()
+
+    def promote(self, model: PieceModel):
+        new = self._promotion_manager.try_to_promote(model)
+
+        self.add_piece(new)
+        return new
+
+    def get_possible_promotions(self) -> list[PieceModel]:
+        return self._promotion_manager.get_possible_types()
     def get_player_all_moves(self):
         pass
 
@@ -202,3 +217,4 @@ class Board(PositionObserver):
 
     def add_critical_checked_squares(self, player_id: int, squares: list[Vector2d]) -> None:
         self._check_manager.add_critical_checked_squares(player_id, squares)
+

@@ -33,6 +33,7 @@ class PawnMovement(PieceMovement):
         return self._direction
 
     @property
+<<<<<<< HEAD
     def capture_deltas(self) -> list[Vector2d]:
         return self._capture_deltas
 
@@ -57,6 +58,10 @@ class PawnMovement(PieceMovement):
                 moves[0].append(pos)
 
         return moves
+=======
+    def promotion_position(self):
+        return self._promotion_position
+>>>>>>> @kpiotr6/application
 
     # override
     def get_legal_moves(self) -> list[list[Vector2d]]:
@@ -105,3 +110,5 @@ class PawnMovement(PieceMovement):
         self._legal_moves.append(moves)
 
         return self._legal_moves
+
+
