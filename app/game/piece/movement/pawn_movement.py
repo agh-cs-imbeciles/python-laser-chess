@@ -33,9 +33,12 @@ class PawnMovement(PieceMovement):
         return self._direction
 
     @property
-<<<<<<< HEAD
     def capture_deltas(self) -> list[Vector2d]:
         return self._capture_deltas
+
+    @property
+    def promotion_position(self):
+        return self._promotion_position
 
     def __is_en_passant_legal(self, destination: Vector2d) -> bool:
         p, b = self._piece, self._board
@@ -58,10 +61,6 @@ class PawnMovement(PieceMovement):
                 moves[0].append(pos)
 
         return moves
-=======
-    def promotion_position(self):
-        return self._promotion_position
->>>>>>> @kpiotr6/application
 
     # override
     def get_legal_moves(self) -> list[list[Vector2d]]:
@@ -86,9 +85,9 @@ class PawnMovement(PieceMovement):
         # Advance 2 squares (first move)
         #
         if (
-            p.position == self._initial_position
-            and b.can_move_to(p.position + dir.multiply_scalar(2), self._piece)
-            and len(moves) > 0
+                p.position == self._initial_position
+                and b.can_move_to(p.position + dir.multiply_scalar(2), self._piece)
+                and len(moves) > 0
         ):
             moves.append(p.position + dir.multiply_scalar(2))
         #
@@ -110,5 +109,3 @@ class PawnMovement(PieceMovement):
         self._legal_moves.append(moves)
 
         return self._legal_moves
-
-
