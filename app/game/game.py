@@ -33,13 +33,16 @@ class Game:
             )
         self.end_if_conditions_fulfiled()
         pass
+
     def end_if_conditions_fulfiled(self) -> None:
         mov = self._board.get_ending_move()
         if mov is not None:
             for obs in self._observers:
                 obs.on_end(self._board.move_number, mov)
+
     def add_observer(self,observer: GameEndObserver):
         self._observers.append(observer)
+
     @property
     def board(self) -> Board:
         return self._board

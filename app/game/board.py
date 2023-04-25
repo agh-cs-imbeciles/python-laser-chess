@@ -23,6 +23,7 @@ class Board(PositionObserver):
         self._kings: list[Piece] = []
         self._check_manager: CheckManager = CheckManager(self)
         self._game: Game = game
+        self.last_move: tuple[Piece, Vector2d] | None = None
 
     @property
     def width(self) -> int:
@@ -60,6 +61,7 @@ class Board(PositionObserver):
     def on_position_change(self, origin: Vector2d, destination: Vector2d) -> None:
         mp, op = self.get_piece(origin), self.get_piece(destination)
         self._pieces[destination] = self._pieces.pop(origin, None)
+        self.last_move = (mp, origin)
 
         if mp is not None and mp.model == PieceModel.PAWN:
             pos = destination - self.get_piece_movement(destination).direction

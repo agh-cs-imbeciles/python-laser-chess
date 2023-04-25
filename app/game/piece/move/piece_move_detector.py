@@ -32,8 +32,8 @@ class PieceMoveDetector:
         #
         # Castling
         #
-        if moved_piece.model == PieceModel.KING and abs(destination.x - moved_piece.initial_position.x) == 2:
-            dx = destination.x - moved_piece.initial_position.x
+        if moved_piece.model == PieceModel.KING and board.last_move[0] and abs((destination - board.last_move[1]).x) == 2:
+            dx = (destination - board.last_move[1]).x
             castling = PieceMoveType.KING_SIDE_CASTLING if dx > 0 else PieceMoveType.QUEEN_SIDE_CASTLING
 
             rook_pos = Vector2d(
