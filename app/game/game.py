@@ -12,15 +12,15 @@ class Game:
         self.__BOARD_SIZE: int = 8
         self._board: Board = Board(self, self.__BOARD_SIZE, self.__BOARD_SIZE)
         self._players: list[int] = []
-        self._moves_history: list[Tuple[PieceMove, PieceMove]] = []
+        fill = PieceMove(move_type=PieceMoveType.MOVE)
+        self._moves_history: list[list[PieceMove]] = [[fill], [fill]]
+        self._last_move_index: tuple[int, int] = (0, 0)
         self._piece_factory = PieceFactory(self._board)
         self._observers: list[GameEndObserver] = []
         self.__init_board()
 
     # override
     def on_position_change(self, piece: Piece, move_type: PieceMoveType) -> None:
-        # print(move_type)
-
         if move_type == PieceMoveType.KING_SIDE_CASTLING:
             self.move_piece(
                 self._board.get_piece(Vector2d(self.__BOARD_SIZE - 1, piece.position.y)),
@@ -32,34 +32,27 @@ class Game:
                 piece.position + Vector2d(1, 0)
             )
         self.end_if_conditions_fulfilled()
-        pass
 
-    def add_move_to_history(self, piece_move: PieceMove | None, promoted: Piece = None, move_type: PieceMoveType = None):
+    def add_move_to_history(self, piece_move: PieceMove) -> None:
+        mh = self._moves_history
+        pid = piece_move.piece.player_id
+        mh[pid].append(piece_move)
+        self._last_move_index = piece_move.piece.player_id, len(mh[pid]) - 1
 
-        # If there is promotion, last move is altered
+    def modify_last_move(self, piece: Piece = None, origin: Vector2d = None, destination: Vector2d = None,
+                         promotion: Piece = None, move_type: PieceMoveType = None, move: int = None) -> None:
+        given = locals()
+        given.pop('self')
+        mh = self._moves_history
+        lm = self._last_move_index
+        last_move: PieceMove = mh[lm[0]][lm[1]]
+        for key, val in given.items():
+            if val is not None:
+                setattr(last_move, key, val)
 
-        if piece_move is None:
-            mh = self._moves_history
-            last = mh[len(mh) - 1]
-            if last[1] is None:
-                flast = last[0]
-                flast.promotion = promoted
-                flast.move_type = move_type
-                mh[len(mh)-1] = (flast, None)
-            else:
-                llast = last[1]
-                llast.promotion = promoted
-                llast.move_type = move_type
-                mh[len(mh)-1] = (last[0], llast)
-            return
-
-        # Adding move to self._move_history
-
-        if piece_move.move == 0:
-            self._moves_history.append((piece_move, None))
-        else:
-            mh = self._moves_history
-            mh[len(mh)-1] = ((mh[len(mh)-1][0], piece_move))
+    def get_last_move(self):
+        lmi = self._last_move_index
+        return self._moves_history[lmi[0]][lmi[1]]
 
     def end_if_conditions_fulfilled(self) -> None:
         mov = self._board.get_ending_move()
@@ -67,7 +60,7 @@ class Game:
             for obs in self._observers:
                 obs.on_end(self._board.move_number, mov)
 
-    def add_observer(self,observer: GameEndObserver):
+    def add_observer(self, observer: GameEndObserver):
         self._observers.append(observer)
 
     @property
@@ -156,11 +149,9 @@ class Game:
         for pos, color in knight_data:
             self.__add_piece(self._piece_factory.create_piece(PieceModel.KNIGHT, pos, color))
 
-
     def move_piece(self, piece: Piece, destination: Vector2d) -> None:
         piece.move(destination)
         self.board.move_number = (self.board.move_number + 1) % 2
-        # if self.board.move_number != piece.player_id:
         #     return
         #
         # piece_movement = self.board.get_piece_movement(piece.position)

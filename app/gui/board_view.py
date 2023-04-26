@@ -112,6 +112,7 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
 
     def get_to_promote(self):
         return self._promotion.get_promotion_piece()
+
     def on_promotion_click(self, instance: Button):
         new = self._board.promote(instance.value)
         new[0].add_observer(self)
@@ -162,7 +163,6 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
                 self._selected = None
                 self._selected_piece = None
             # reset
-
 
     def on_show_possible_movements(self, movements: list[Vector2d]):
         i = 0
