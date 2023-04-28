@@ -26,6 +26,7 @@ class Board(PositionObserver):
         self._check_manager: CheckManager = CheckManager(self)
         self._game: Game = game
         self._promotion_manager = PromotionManager(self)
+
     @property
     def width(self) -> int:
         return self._width
@@ -60,7 +61,6 @@ class Board(PositionObserver):
 
     # override PositionObserver
     def on_position_change(self, origin: Vector2d, destination: Vector2d) -> None:
-
         mp, op = self.get_piece(origin), self.get_piece(destination)
         self._pieces[destination] = self._pieces.pop(origin, None)
 
@@ -71,15 +71,19 @@ class Board(PositionObserver):
 
         self._check_manager.update()
         self._promotion_manager.check_promotion(mp)
+
         lm = self._game.get_last_move()
         if lm.move_type == PieceMoveType.QUEEN_SIDE_CASTLING or lm.move_type == PieceMoveType.KING_SIDE_CASTLING:
             self.move_number = (self.move_number + 1) % 2
             return
+
         piece_move: PieceMove = PieceMove(mp, origin, destination, None, None)
         self._game.add_move_to_history(piece_move)
         move_type: PieceMoveType = PieceMoveDetector.detect(self, mp, op, destination)
         self._game.modify_last_move(move_type=move_type)
         self._game.on_position_change(mp, move_type)
+        if mp.model == PieceModel.QUEEN and mp.position == Vector2d(4, 4):
+            pass
 
     def get_size(self) -> tuple[int, int]:
         return self._width, self._height
@@ -133,30 +137,35 @@ class Board(PositionObserver):
         if self.is_out_of_bounds(destination):
             return False
         #
-        # Check, if player's king is under check - if it is, only covering moves are legal
+        # Check, if player's king is under check - if it's, only covering moves are legal
         #
         if (
-                piece.model != PieceModel.KING
-                and self.is_king_under_check(pid)
-                and self._check_manager.get_critical_square(destination, pid) is None
-                and self._check_manager.checking_pieces[(pid + 1) % 2].get(destination) is None
+            piece.model != PieceModel.KING
+            and self.is_king_under_check(pid)
+            and self._check_manager.get_critical_square(destination, pid) is None
+            and self._check_manager.checking_pieces[(pid + 1) % 2].get(destination) is None
         ):
             return False
         #
         # Check, if player can capture a checking piece
         #
         if (
-                self._check_manager.checking_pieces[(pid + 1) % 2].get(destination) is not None
-                and len(self._check_manager.checking_pieces[(pid + 1) % 2]) > 1
+            self._check_manager.checking_pieces[(pid + 1) % 2].get(destination) is not None
+            and len(self._check_manager.checking_pieces[(pid + 1) % 2]) > 1
         ):
             return False
         #
-        # Check, if piece is not absolute pinned with own king
+        # Check, if piece isn't absolute pinned with own king
         #
         if (
-                self._check_manager.pinned_pieces[pid].get(piece.position)
-                and self._check_manager.pinned_pieces[pid].get(piece.position)[1] != self.get_piece(destination)
+            self._check_manager.pinned_pieces[pid].get(piece.position)
+            and self._check_manager.pinned_pieces[pid].get(piece.position)[1] != self.get_piece(destination)
         ):
+            return False
+        #
+        # If it's a king, then check whether move destination isn't checked squares
+        #
+        if piece.model == PieceModel.KING and self.is_check_at(destination, piece.player_id):
             return False
 
         #
@@ -177,8 +186,8 @@ class Board(PositionObserver):
             p = self.get_piece(destination)
             return p is not None and not p.is_same_color(pid)
 
-    def is_piece_at(self, vector: Vector2d) -> bool:
-        return self.get_piece(vector) is not None
+    def is_piece_at(self, position: Vector2d) -> bool:
+        return self.get_piece(position) is not None
 
     def is_check_at(self, position: Vector2d, player_id: int) -> bool:
         return self._check_manager.is_check_at(position, player_id)
