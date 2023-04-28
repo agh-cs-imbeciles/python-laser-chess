@@ -1,13 +1,16 @@
 from kivy.core.window import Window
 
-class WindowUpdater():
+
+class WindowUpdater:
     def __init__(self, ids: dict):
         self.elements = ids
         Window.bind(on_resize=self.on_resize)
 
+        self.on_resize(None, 800, 600)
+
     def on_resize(self, window, width, height):
         e = self.elements
-        main_y = min(height,width / 1.2)
+        main_y = min(height, width / 1.2)
         main_x = 1.2*main_y
 
         # every element of board view is located in whole
