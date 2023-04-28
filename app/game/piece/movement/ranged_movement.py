@@ -24,7 +24,7 @@ class RangedPieceMovement(PieceMovement):
         p = self._piece
 
         for movement, delta in self.movements:
-            moves.append(self.iterate_squares(p.position + delta, movement)[0])
+            moves.append(self.iterate_squares(p.position + delta, movement))
 
         return moves
 
