@@ -43,7 +43,8 @@ class PawnMovement(PieceMovement):
     def __is_en_passant_legal(self, destination: Vector2d) -> bool:
         p, b = self._piece, self._board
         other = b.get_piece(destination - self.direction)
-        return other and not other.is_same_color(p) and other.model == PieceModel.PAWN and b.can_move_to(destination, p)
+        return other and not other.is_same_color(p) and other.model == PieceModel.PAWN and b.can_move_to(destination, p) \
+            and b.get_last_move().piece == other
 
     #override
     def get_all_moves(self) -> list[list[Vector2d]]:
