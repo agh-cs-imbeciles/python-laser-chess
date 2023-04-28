@@ -55,11 +55,14 @@ class CheckManager:
         if len(moves) <= 1:
             return None
 
+        pieces: list[Piece] = []
         for moves_row in moves:
             for move in moves_row:
                 p = b.get_piece(move)
-                if p and p.model == PieceModel.KING and not p.is_same_color(piece):
-                    return p
+                if p:
+                    pieces.append(p)
+                if len(pieces) == 2 and pieces[1].model == PieceModel.KING and not pieces[1].is_same_color(piece):
+                    return pieces[0]
 
         return None
 
