@@ -31,17 +31,23 @@ class RangedPieceMovement(PieceMovement):
     # override
     def get_legal_moves(self) -> list[list[Vector2d]]:
         self._legal_moves.clear()
-        p = self._piece
-        b = self._board
+
+        # Aliases
+        p, b = self._get_aliases()
 
         for moves in self.get_all_moves():
             if len(moves) <= 0:
                 continue
 
-            last_move = moves[len(moves) - 1]
-            if b.is_piece_at(last_move) and b.get_piece(last_move).is_same_color(p):
-                moves.pop()
-            self._legal_moves.append(moves)
+            moves_row = []
+            for i, position in enumerate(moves):
+                _p = b.get_piece(position)
+                if _p and _p.is_same_color(): break
+                moves_row.append(position)
+                if _p and not _p.is_same_color(): break
+
+            if len(moves_row) > 0:
+                self._legal_moves.append(moves_row)
 
         return self._legal_moves
 

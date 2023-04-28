@@ -73,24 +73,27 @@ class KingMovement(PieceMovement):
         self._legal_moves.clear()
         self._legal_moves.append([])
 
+        # Aliases
+        p, b = self._get_aliases()
+
         for m in self.get_all_moves()[0]:
-            if self._board.can_move_to(m, self._piece, capture=True):
+            if b.can_move_to(m, p, capture=True):
                 self._legal_moves[0].append(m)
 
         #
         # Castling
         #
-        if not self._piece.moved():
+        if not p.moved():
             #
             # King-side castling
             #
             if self.is_castling_legal(PieceMoveType.KING_SIDE_CASTLING):
-                self._legal_moves[0].append(self._piece.position + Vector2d(2, 0))
+                self._legal_moves[0].append(p.position + Vector2d(2, 0))
             #
             # Queen-side castling
             #
             if self.is_castling_legal(PieceMoveType.QUEEN_SIDE_CASTLING):
-                self._legal_moves[0].append(self._piece.position + Vector2d(-2, 0))
+                self._legal_moves[0].append(p.position + Vector2d(-2, 0))
 
         return self._legal_moves
 
