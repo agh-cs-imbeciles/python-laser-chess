@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from utils import Vector2d
 from game.piece import PieceModel
-from game.piece.movement import PawnMovement
+from game.piece.movement import PieceMovement, PawnMovement
 
 if TYPE_CHECKING:
     from game import Board
@@ -33,6 +33,21 @@ class CheckManager:
     @property
     def pinned_pieces(self) -> list[dict[Vector2d, tuple[Piece, Piece]]]:
         return self._pinned_pieces
+
+    def get_pinned_piece(self, piece: Piece, piece_movement: PieceMovement) -> Piece | None:
+        moves = piece_movement.get_all_moves()
+        b = self._board
+
+        if len(moves) <= 1:
+            return None
+
+        for moves_row in moves:
+            for move in moves_row:
+                p = b.get_piece(move)
+                if p and p.model == PieceModel.KING and not p.is_same_color(piece):
+                    return p
+
+        return None
 
     def is_check_at(self, position: Vector2d, player_id: int) -> bool:
         return self._checked_squares[player_id].get(position) is not None
@@ -109,9 +124,10 @@ class CheckManager:
                                 self.add_critical_checked_squares(p.player_id, moves)
                         checked_squares[move] = True
 
-            pinned = movement.get_pinned_piece()
+            pinned = self.get_pinned_piece(piece, movement)
             if pinned:
                 self.pinned_pieces[pinned.player_id][pinned.position] = (pinned, piece)
+
         self._can_move = self.can_player_move((self._board.move_number + 1) % 2)
 
     def add_critical_checked_squares(self, player_id: int, squares: list[Vector2d]):

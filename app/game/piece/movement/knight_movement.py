@@ -39,6 +39,3 @@ class KnightMovement(PieceMovement):
 
         return self._legal_moves
 
-    # override
-    def get_capturable_moves(self) -> list[list[Vector2d]]:
-        pass

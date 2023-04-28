@@ -45,7 +45,7 @@ class PawnMovement(PieceMovement):
         other = b.get_piece(destination - self.direction)
         return other and not other.is_same_color(p) and other.model == PieceModel.PAWN and b.can_move_to(destination, p)
 
-    #override
+    # override
     def get_all_moves(self) -> list[list[Vector2d]]:
         moves: list[list[Vector2d]] = [[]]
 
@@ -67,7 +67,7 @@ class PawnMovement(PieceMovement):
         #
         # Capture
         #
-        for pos in [p.position + d for d in self.capture_deltas]:
+        for pos in self.get_capturable_moves()[0]:
             if not b.is_out_of_bounds(pos):
                 moves[0].append(pos)
         #
@@ -103,7 +103,7 @@ class PawnMovement(PieceMovement):
         # Advance 2 squares (first move)
         #
         if (
-                p.position == self._initial_position
+                not p.moved()
                 and b.can_move_to(p.position + dir.multiply_scalar(2), self._piece)
                 and len(moves) > 0
         ):
@@ -111,7 +111,7 @@ class PawnMovement(PieceMovement):
         #
         # Capture
         #
-        for m in self.get_all_moves()[0]:
+        for m in self.get_capturable_moves()[0]:
             if b.can_move_to(m, p, capture_required=True):
                 moves.append(m)
         #

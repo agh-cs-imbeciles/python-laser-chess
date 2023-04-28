@@ -36,7 +36,6 @@ class PieceMovement(ABC):
         """
         pass
 
-    @abstractmethod
     def get_capturable_moves(self) -> list[list[Vector2d]]:
         """
         Get moves only that are potentially capturable, excluding out of bound ones.
@@ -48,6 +47,8 @@ class PieceMovement(ABC):
 
         :return: List of lists containing all moves described above.
         """
+
+        return self.get_all_moves()
 
     # def get_pinned_piece(self) -> Piece | None:
     #     return None

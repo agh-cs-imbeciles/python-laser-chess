@@ -96,7 +96,3 @@ class KingMovement(PieceMovement):
                 self._legal_moves[0].append(p.position + Vector2d(-2, 0))
 
         return self._legal_moves
-
-    # override
-    def get_capturable_moves(self) -> list[list[Vector2d]]:
-        pass

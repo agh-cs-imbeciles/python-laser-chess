@@ -42,18 +42,14 @@ class RangedPieceMovement(PieceMovement):
             moves_row = []
             for i, position in enumerate(moves):
                 _p = b.get_piece(position)
-                if _p and _p.is_same_color(): break
+                if _p and _p.is_same_color(p): break
                 moves_row.append(position)
-                if _p and not _p.is_same_color(): break
+                if _p and not _p.is_same_color(p): break
 
             if len(moves_row) > 0:
                 self._legal_moves.append(moves_row)
 
         return self._legal_moves
-
-    # override
-    def get_capturable_moves(self) -> list[list[Vector2d]]:
-        pass
 
     # override
     # def get_pinned_piece(self) -> Piece | None:
