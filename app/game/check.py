@@ -58,9 +58,8 @@ class CheckManager:
         pieces: list[Piece] = []
         for moves_row in moves:
             for move in moves_row:
-                p = b.get_piece(move)
-                if p:
-                    pieces.append(p)
+                if b.is_piece_at(move):
+                    pieces.append(b.get_piece(move))
                 if len(pieces) == 2 and pieces[1].model == PieceModel.KING and not pieces[1].is_same_color(piece):
                     return pieces[0]
 
@@ -132,21 +131,21 @@ class CheckManager:
                 if isinstance(movement, RangedPieceMovement) \
                 else movement.get_legal_moves()
             for moves_row in moves:
-                for move in moves_row:
-                    for i, checked_squares in enumerate(self.checked_squares):
-                        if piece.is_same_color(i): continue
+                for i, move in enumerate(moves_row):
+                    for j, checked_squares in enumerate(self.checked_squares):
+                        if piece.is_same_color(j): continue
                         p = self._board.get_piece(move)
 
                         # Check occurrence
                         if p and p.model == PieceModel.KING and not p.is_same_color(piece):
                             self._checking_pieces[piece.player_id][piece.position] = piece
                             if piece.model != PieceModel.PAWN and piece.model != PieceModel.KNIGHT:
-                                self.add_critical_checked_squares(p.player_id, moves_row)
+                                self.add_critical_checked_squares(p.player_id, moves_row[:i])
                         checked_squares[move] = True
 
-                pinned = self.get_pinned_piece(piece, movement)
-                if pinned:
-                    self.pinned_pieces[pinned.player_id][pinned.position] = (pinned, piece)
+            pinned = self.get_pinned_piece(piece, movement)
+            if pinned:
+                self.pinned_pieces[pinned.player_id][pinned.position] = (pinned, piece)
 
         self._can_move = self.can_player_move((self._board.move_number + 1) % 2)
 
