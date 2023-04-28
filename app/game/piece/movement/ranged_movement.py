@@ -46,56 +46,41 @@ class RangedPieceMovement(PieceMovement):
         return self._legal_moves
 
     # override
-    def get_pinned_piece(self) -> Piece | None:
-        p = self._piece
+    def get_capturable_moves(self) -> list[list[Vector2d]]:
+        pass
 
-        for movement, delta in self._movements:
-            pieces = self.iterate_squares(p.position + delta, movement)[1]
-            if len(pieces) >= 2 and pieces[1].model == PieceModel.KING:
-                return pieces[0]
+    # override
+    # def get_pinned_piece(self) -> Piece | None:
+    #     p = self._piece
+    #
+    #     for movement, delta in self._movements:
+    #         pieces = self.iterate_squares(p.position + delta, movement)[1]
+    #         if len(pieces) >= 2 and pieces[1].model == PieceModel.KING:
+    #             return pieces[0]
+    #
+    #     return None
 
-        return None
-
-    def iterate_squares(self, origin: Vector2d, movement: Movement) -> tuple[list[Vector2d], list[Piece]]:
+    def iterate_squares(self, origin: Vector2d, movement: Movement) -> list[Vector2d]:
         """
-        Check squares of the board and return moves list and possible blocking piece (p). If the player's piece is
-        the last one in iteration, that square is included in returned list.
+        Iterate through every square of the board, based on passed argument movement and return list of moves.
 
         :param origin: origin vector of ray checking
         :param movement: movement type of piece (rank, file, diagonal)
 
-        :return: tuple of list of moves and optional piece, if is in the way of the ray
+        :return: List of moves
         """
 
         # Aliases
-        b = self._board
-        piece = self._piece
+        p, b = self._get_aliases()
 
         moves: list[Vector2d] = []
-        pieces: list[Piece] = []
         squares = Movement.get_squares(movement, b, origin)
 
-        for v in squares:
-            p = b.get_piece(v)
+        for sqr in squares:
+            #
+            # Add position sqr, if square is not out of bounds
+            #
+            if not b.is_out_of_bounds(sqr):
+                moves.append(sqr)
 
-            #
-            # Add position v, if square is empty
-            #
-            if b.can_move_to(v, piece) and len(pieces) == 0:
-                moves.append(v)
-            #
-            #
-            #
-            elif b.can_move_to(v, piece, capture=True):
-                if len(pieces) == 0:
-                    moves.append(v)
-                if p:
-                    pieces.append(p)
-            #
-            # Add position v, if the player's piece is on the square
-            #
-            elif p and piece.is_same_color(p):
-                moves.append(v)
-                return moves, pieces
-
-        return moves, pieces
+        return moves

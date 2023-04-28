@@ -41,7 +41,7 @@ class PawnMovement(PieceMovement):
         return self._promotion_position
 
     def __is_en_passant_legal(self, destination: Vector2d) -> bool:
-        p, b = self._piece, self._board
+        p, b = self._get_aliases()
         other = b.get_piece(destination - self.direction)
         return other and not other.is_same_color(p) and other.model == PieceModel.PAWN and b.can_move_to(destination, p)
 
@@ -50,14 +50,33 @@ class PawnMovement(PieceMovement):
         moves: list[list[Vector2d]] = [[]]
 
         # Aliases
-        b = self._board
-        p = self._piece
+        p, b = self._get_aliases()
+        dir = self.direction
+        enp = self._en_passant_position
 
         #
-        # Capture a piece
+        # Advance 1 square (default move)
+        #
+        if not b.is_out_of_bounds(p.position + dir):
+            moves[0].append(p.position + dir)
+        #
+        # Advance 2 squares (first move)
+        #
+        if not b.is_out_of_bounds(p.position + dir.multiply_scalar(2)):
+            moves[0].append(p.position + dir.multiply_scalar(2))
+        #
+        # Capture
         #
         for pos in [p.position + d for d in self.capture_deltas]:
             if not b.is_out_of_bounds(pos):
+                moves[0].append(pos)
+        #
+        # En passant
+        #
+        if p.position != enp:
+            return moves
+        for pos in [p.position + d for d in self.capture_deltas]:
+            if self.__is_en_passant_legal(pos):
                 moves[0].append(pos)
 
         return moves
@@ -69,8 +88,7 @@ class PawnMovement(PieceMovement):
         self._legal_moves.append([])
 
         # Aliases
-        b = self._board
-        p = self._piece
+        p, b = self._get_aliases()
         dir = self.direction
         enp = self._en_passant_position
 
@@ -99,13 +117,19 @@ class PawnMovement(PieceMovement):
         #
         # En passant
         #
-        if p.position == enp:
-            for pos in [p.position + d for d in self.capture_deltas]:
-                p0, _ = b.get_piece(pos - dir), b.get_piece_movement(pos - dir)
-                if self.__is_en_passant_legal(pos):
-                    if pos not in moves:
-                        moves.append(pos)
+        if p.position != enp:
+            self._legal_moves.append(moves)
+            return self._legal_moves
+        for pos in [p.position + d for d in self.capture_deltas]:
+            if self.__is_en_passant_legal(pos):
+                moves.append(pos)
 
         self._legal_moves.append(moves)
-
         return self._legal_moves
+
+    # override
+    def get_capturable_moves(self) -> list[list[Vector2d]]:
+        p, b = self._get_aliases()
+        capture_positions = [p.position + d for d in self._capture_deltas]
+
+        return [capture_positions]

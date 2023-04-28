@@ -14,45 +14,6 @@ class KingMovement(PieceMovement):
         super().__init__(king, board)
         self._initial_position: Vector2d = king.position.copy()
 
-    # override
-    def get_all_moves(self) -> list[list[Vector2d]]:
-        moves = [[]]
-
-        deltas = filter(lambda x: x != Vector2d(0, 0), [Vector2d(x, y) for y in range(-1, 2) for x in range(-1, 2)])
-        for d in deltas:
-            p = self._piece.position + d
-            if not self._board.is_check_at(p, self._piece.player_id):
-                moves[0].append(p)
-
-        return moves
-
-    # override
-    def get_legal_moves(self) -> list[list[Vector2d]]:
-        # Clear legal moves
-        self._legal_moves.clear()
-        self._legal_moves.append([])
-
-        for m in self.get_all_moves()[0]:
-            if self._board.can_move_to(m, self._piece, capture=True):
-                self._legal_moves[0].append(m)
-
-        #
-        # Castling
-        #
-        if not self._piece.moved():
-            #
-            # King-side castling
-            #
-            if self.is_castling_legal(PieceMoveType.KING_SIDE_CASTLING):
-                self._legal_moves[0].append(self._piece.position + Vector2d(2, 0))
-            #
-            # Queen-side castling
-            #
-            if self.is_castling_legal(PieceMoveType.QUEEN_SIDE_CASTLING):
-                self._legal_moves[0].append(self._piece.position + Vector2d(-2, 0))
-
-        return self._legal_moves
-
     def is_castling_legal(self, castling: PieceMoveType) -> bool:
         y: int = self._piece.position.y
 
@@ -93,3 +54,46 @@ class KingMovement(PieceMovement):
                 return True
 
         return False
+
+    # override
+    def get_all_moves(self) -> list[list[Vector2d]]:
+        p, b = self._get_aliases()
+        moves = [[]]
+
+        deltas = filter(lambda x: x != Vector2d(0, 0), [Vector2d(x, y) for y in range(-1, 2) for x in range(-1, 2)])
+        for d in deltas:
+            if not b.is_out_of_bounds(p.position + d):
+                moves[0].append(p.position + d)
+
+        return moves
+
+    # override
+    def get_legal_moves(self) -> list[list[Vector2d]]:
+        # Clear legal moves
+        self._legal_moves.clear()
+        self._legal_moves.append([])
+
+        for m in self.get_all_moves()[0]:
+            if self._board.can_move_to(m, self._piece, capture=True):
+                self._legal_moves[0].append(m)
+
+        #
+        # Castling
+        #
+        if not self._piece.moved():
+            #
+            # King-side castling
+            #
+            if self.is_castling_legal(PieceMoveType.KING_SIDE_CASTLING):
+                self._legal_moves[0].append(self._piece.position + Vector2d(2, 0))
+            #
+            # Queen-side castling
+            #
+            if self.is_castling_legal(PieceMoveType.QUEEN_SIDE_CASTLING):
+                self._legal_moves[0].append(self._piece.position + Vector2d(-2, 0))
+
+        return self._legal_moves
+
+    # override
+    def get_capturable_moves(self) -> list[list[Vector2d]]:
+        pass

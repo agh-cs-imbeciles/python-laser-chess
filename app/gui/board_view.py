@@ -38,7 +38,8 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
         self._is_promotion = False
         self._window_updater = WindowUpdater(self.ids)
         self._promotion_representation: list[PieceRepresentationLayout] = [
-            PieceRepresentationLayout(None, Button(on_press=self.on_promotion_click), opacity=0) for _ in self._board.get_possible_promotions()]
+            PieceRepresentationLayout(None, Button(on_press=self.on_promotion_click), opacity=0) for _ in self._board.get_possible_promotions()
+        ]
         self._init_board()
         self._elements_dict = dict()
 
@@ -110,6 +111,7 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
 
     def get_to_promote(self):
         return self._promotion.get_promotion_piece()
+
     def on_promotion_click(self, instance: Button):
         new = self._board.promote(instance.value)
         new[0].add_observer(self)

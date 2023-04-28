@@ -29,7 +29,7 @@ class CheckManager:
     @checked_squares.setter
     def checked_squares(self, value: [dict[Vector2d, bool]]) -> None:
         self._checked_squares = value
-        
+
     @property
     def pinned_pieces(self) -> list[dict[Vector2d, tuple[Piece, Piece]]]:
         return self._pinned_pieces
@@ -52,7 +52,7 @@ class CheckManager:
             return False
         return not self.is_king_under_check(player_id)
 
-    def can_player_move(self,player_id: int) -> bool:
+    def can_player_move(self, player_id: int) -> bool:
         #
         # Go through player's all pieces movement
         #
@@ -78,9 +78,10 @@ class CheckManager:
             self._checking_pieces[i].clear()
             self._critical_checked_squares[i].clear()
             self._pinned_pieces[i].clear()
+
         for key, piece_data in self._board.pieces.items():
             piece, movement = piece_data
-            
+
             #
             # Pawn capture moves
             #
