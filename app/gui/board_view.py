@@ -38,7 +38,8 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
         self._is_promotion = False
         self._window_updater = WindowUpdater(self.ids)
         self._promotion_representation: list[PieceRepresentationLayout] = [
-            PieceRepresentationLayout(None, Button(on_press=self.on_promotion_click), opacity=0) for _ in self._board.get_possible_promotions()
+            PieceRepresentationLayout(None, Button(on_press=self.on_promotion_click), opacity=0) for _ in self._board
+            .get_possible_promotions()
         ]
         self._init_board()
         self._elements_dict = dict()
@@ -158,12 +159,10 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
                 self.update_indicator_label("Tura gracza " + str(self._board.move_number))
                 self._game.move_piece(self._selected_piece, instance.vector)
                 self.show_promotion_menu(self._board.get_to_promote())
-
+                self._possible_movements = []
+                self._selected = None
+                self._selected_piece = None
             # reset
-
-            self._possible_movements = []
-            self._selected = None
-            self._selected_piece = None
 
     def on_show_possible_movements(self, movements: list[Vector2d]):
         i = 0

@@ -2,26 +2,27 @@ from __future__ import annotations
 from kivy.uix.button import Button
 from kivy.uix.image import Image
 from kivy.uix.relativelayout import RelativeLayout
-from multipledispatch import dispatch
+
 from game.piece import PieceModel
 from game.piece.piece import Piece
 
 
 # 0-white
 class PieceRepresentationLayout(RelativeLayout):
-    def __init__(self, piece: Piece, button: Button,opacity=None,promotion=None):
+    def __init__(self, piece: Piece | None, button: Button, opacity=None, promotion=None):
         super().__init__()
         self._button = button
         self.add_widget(button)
         self._img = None
         self._indicator = None
+
         if opacity is not None:
             self.opacity = opacity
         if piece is None:
             return
+
         self.__load(piece.model,piece.player_id)
         self.add_widget(self._img)
-
 
     def __load(self, piece_type: PieceModel, player: int):
         if piece_type is None or player is None:
@@ -67,7 +68,6 @@ class PieceRepresentationLayout(RelativeLayout):
             return
         self._img = img
         self.add_widget(img)
-
 
     def new_image_piece(self, piece: Piece):
         if piece is None:

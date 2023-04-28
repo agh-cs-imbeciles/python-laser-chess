@@ -11,7 +11,12 @@ if TYPE_CHECKING:
 
 class PieceMoveDetector:
     @staticmethod
-    def detect(board: Board, moved_piece: Piece, other_piece: Piece | None, destination: Vector2d) -> PieceMoveType:
+    def detect(board: Board | None, moved_piece: Piece, other_piece: Piece | None, destination: Vector2d) -> PieceMoveType:
+        #
+        # If board is None, then it is a draw
+        #
+        if board is None:
+            return PieceMoveType.DRAW
         #
         # Capture
         #
@@ -23,7 +28,7 @@ class PieceMoveDetector:
         #
         player_move = board.get_ending_move()
         if player_move is not None:
-            return player_move
+            return player_move[1]
         #
         # Check
         #
@@ -32,8 +37,28 @@ class PieceMoveDetector:
         #
         # Castling
         #
-        if moved_piece.model == PieceModel.KING and board.last_move[0] and abs((destination - board.last_move[1]).x) == 2:
-            dx = (destination - board.last_move[1]).x
+        # lm = board.get_last_move()
+        # if lm.origin is not None:
+        #     dx = (destination - lm.origin).x
+        # else:
+        #     dx = None
+        # if moved_piece.model == PieceModel.KING and dx is not None and abs(dx) == 2:
+        #     castling = PieceMoveType.KING_SIDE_CASTLING if dx > 0 else PieceMoveType.QUEEN_SIDE_CASTLING
+        #
+        #     rook_pos = Vector2d(
+        #         board.width - 1 if castling == PieceMoveType.KING_SIDE_CASTLING else 0,
+        #         moved_piece.position.y
+        #     )
+        #     if not board.is_piece_at(rook_pos) or board.get_piece(rook_pos).model != PieceModel.ROOK:
+        #         raise ValueError("Castling is not allowed")
+        #
+        #     return castling
+        lm = board.get_last_move()
+        if lm.origin is not None:
+            dx = (destination - lm.origin).x
+        else:
+            dx = None
+        if moved_piece.model == PieceModel.KING and dx is not None and abs(dx) == 2:
             castling = PieceMoveType.KING_SIDE_CASTLING if dx > 0 else PieceMoveType.QUEEN_SIDE_CASTLING
 
             rook_pos = Vector2d(
@@ -44,5 +69,10 @@ class PieceMoveDetector:
                 raise ValueError("Castling is not allowed")
 
             return castling
+        #
+        # Promotion
+        #
+        if board.get_to_promote() is not None:
+            return PieceMoveType.PROMOTION
 
         return PieceMoveType.MOVE
