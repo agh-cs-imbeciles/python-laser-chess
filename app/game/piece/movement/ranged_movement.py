@@ -41,9 +41,10 @@ class RangedPieceMovement(PieceMovement):
 
             moves_row = []
             for i, position in enumerate(moves):
+
                 _p = b.get_piece(position)
                 if _p and _p.is_same_color(p): break
-                moves_row.append(position)
+                if b.can_move_to(position, p, capture=True): moves_row.append(position)
                 if _p and not _p.is_same_color(p): break
 
             if len(moves_row) > 0:
