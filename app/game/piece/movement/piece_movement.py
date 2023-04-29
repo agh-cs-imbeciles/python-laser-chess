@@ -29,7 +29,7 @@ class PieceMovement(ABC):
     @abstractmethod
     def get_legal_moves(self) -> list[list[Vector2d]]:
         """
-        Get moves only that are legal - that's mean, player is able move the piece on a square
+        Get moves only that are legal - that's mean, player is able to move the piece on a square
         without violating the rules.
 
         :return: List of lists containing all legal moves.

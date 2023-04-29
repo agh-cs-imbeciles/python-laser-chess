@@ -55,12 +55,17 @@ class CheckManager:
         if len(moves) <= 1:
             return None
 
-        pieces: list[Piece] = []
         for moves_row in moves:
+            pieces: list[Piece] = []
             for move in moves_row:
                 if b.is_piece_at(move):
                     pieces.append(b.get_piece(move))
-                if len(pieces) == 2 and pieces[1].model == PieceModel.KING and not pieces[1].is_same_color(piece):
+                if (
+                    len(pieces) == 2
+                    and pieces[1].model == PieceModel.KING
+                    and not pieces[1].is_same_color(piece)
+                    and pieces[0].is_same_color(pieces[1])
+                ):
                     return pieces[0]
 
         return None
@@ -139,7 +144,7 @@ class CheckManager:
                         # Check occurrence
                         if p and p.model == PieceModel.KING and not p.is_same_color(piece):
                             self._checking_pieces[piece.player_id][piece.position] = piece
-                            if piece.model != PieceModel.PAWN and piece.model != PieceModel.KNIGHT:
+                            if piece.model not in [PieceModel.PAWN, PieceModel.KNIGHT]:
                                 self.add_critical_checked_squares(p.player_id, moves_row[:i])
                         checked_squares[move] = True
 

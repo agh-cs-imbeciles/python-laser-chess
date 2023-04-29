@@ -100,6 +100,8 @@ class Board(PositionObserver):
             if piece.is_same_color(player_id):
                 movements.append((piece, mov))
         return movements
+    def get_pieces_of(self, model: PieceModel, player_id: int) -> list[Piece]:
+        pass
 
     def get_piece_movement(self, position: Vector2d) -> Optional[PieceMovement]:
         piece = self._pieces.get(position)
