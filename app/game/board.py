@@ -100,6 +100,7 @@ class Board(PositionObserver):
             if piece.is_same_color(player_id):
                 movements.append((piece, mov))
         return movements
+
     def get_pieces_of(self, model: PieceModel, player_id: int) -> list[Piece]:
         pass
 
@@ -162,6 +163,7 @@ class Board(PositionObserver):
         if (
             self._check_manager.pinned_pieces[pid].get(piece.position)
             and self._check_manager.pinned_pieces[pid].get(piece.position)[1] != self.get_piece(destination)
+            and not self._check_manager.is_pinned_square(destination, pid)
         ):
             return False
         #
@@ -229,7 +231,7 @@ class Board(PositionObserver):
     def is_king_under_check(self, player_id: int) -> bool:
         return self._check_manager.is_king_under_check(player_id)
 
-    def get_ending_move(self) ->  PieceMoveType | None:
+    def get_ending_move(self) -> PieceMoveType | None:
         mn = (self._move_number + 1) % 2
         if self._check_manager.is_checkmate(mn):
             return PieceMoveType.CHECKMATE

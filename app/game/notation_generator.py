@@ -13,6 +13,7 @@ class NotationGenerator:
     def __get_pieces(self, model: PieceModel, player_id: int):
         # self._board.
         pass
+
     def generate_last_move_string(self) -> str:
         lm = self._board.get_last_move()
         gen_str: str = ""
