@@ -1,12 +1,11 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 from game.piece.movement import PieceMovement
-from utils.vector2d import Vector2d, Symmetry
+from utils import BoardVector2d, Symmetry
 
 if TYPE_CHECKING:
     from game.piece.piece import Piece
     from game.board import Board
-    from utils.vector2d import Vector2d
 
 
 class KnightMovement(PieceMovement):
@@ -14,10 +13,10 @@ class KnightMovement(PieceMovement):
         super().__init__(knight, board)
 
     # override
-    def get_all_moves(self) -> list[list[Vector2d]]:
-        moves: list[[Vector2d]] = [[]]
+    def get_all_moves(self) -> list[list[BoardVector2d]]:
+        moves: list[[BoardVector2d]] = [[]]
 
-        base_vectors = [Vector2d(1, 2), Vector2d(2, 1)]
+        base_vectors = [BoardVector2d(1, 2), BoardVector2d(2, 1)]
         pos = self._piece.position
         symmetries = [None, Symmetry.X_AXIS, Symmetry.ORIGIN, Symmetry.Y_AXIS]
         positions = [pos + v.pivot_symmetry(s) if s is not None else pos + v for v in base_vectors for s in symmetries]
@@ -29,7 +28,7 @@ class KnightMovement(PieceMovement):
         return moves
 
     # override
-    def get_legal_moves(self) -> list[list[Vector2d]]:
+    def get_legal_moves(self) -> list[list[BoardVector2d]]:
         self._legal_moves.clear()
         self._legal_moves.append([])
 

@@ -6,7 +6,7 @@ from kivy.uix.screenmanager import Screen
 from game.piece import PieceModel
 from utils.background_label import BackgroundLabel
 from game.piece.move import PieceMoveType
-from utils import Vector2d, rgba_int_to_float
+from utils import BoardVector2d, rgba_int_to_float
 import game as g
 import game.piece as pcs
 import game.observer as obs
@@ -52,7 +52,7 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
     def _init_board(self):
         board = self._game.board
 
-        # assiging observer to game
+        # assigning observer to game
         self._game.add_observer(self)
 
         # creation of indicator dots
@@ -63,7 +63,7 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
         self.update_indicator_label("Tura gracza " + str(self._board.move_number))
         for i in range(8):
             for j in range(8):
-                vector = Vector2d(j, 7 - i)
+                vector = BoardVector2d(j, 7 - i)
 
                 # preparation of every button on board
 
@@ -87,6 +87,7 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
                 piece_layout = PieceRepresentationLayout(piece, button)
                 self._grid.add_widget(piece_layout)
                 self._representations[vector.y][vector.x] = piece_layout
+
         # creation of promotion tab
         for rep in self._promotion_representation:
             self.ids.promotion_tab.add_widget(rep)
@@ -120,7 +121,7 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
             rep.remove_img()
             rep.opacity = 0
         self._is_promotion = False
-        self.on_position_change(None,None)
+        self.on_position_change(None, None)
 
     def on_tile_click(self, instance: Button):
         if self._is_promotion:
@@ -164,7 +165,7 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
                 self._selected_piece = None
             # reset
 
-    def on_show_possible_movements(self, movements: list[Vector2d]):
+    def on_show_possible_movements(self, movements: list[BoardVector2d]):
         i = 0
         for m in movements:
             self._representations[m.y][m.x].add_widget(self._dots[i])
@@ -172,13 +173,12 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
             i += 1
 
     # override
-    def on_position_change(self, origin: Vector2d, destination: Vector2d) -> None:
-
+    def on_position_change(self, origin: BoardVector2d, destination: BoardVector2d) -> None:
         for i in range(len(self._representations)):
             for j in range(len(self._representations[i])):
                 self._representations[i][j].remove_indicator()
                 self._representations[i][j].remove_img()
-                self._representations[i][j].new_image_piece(self._board.get_piece(Vector2d(j, i)))
+                self._representations[i][j].new_image_piece(self._board.get_piece(BoardVector2d(j, i)))
         self._show_checks()
 
     # override

@@ -1,6 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
-from utils import Vector2d
+from utils import BoardVector2d
 from game.piece import PieceModel
 from game.piece.movement import Movement, PieceMovement
 
@@ -12,15 +12,15 @@ if TYPE_CHECKING:
 class RangedPieceMovement(PieceMovement):
     def __init__(self, bishop: Piece, board: Board) -> None:
         super().__init__(bishop, board)
-        self._movements: list[tuple[Movement, Vector2d]] = []
+        self._movements: list[tuple[Movement, BoardVector2d]] = []
         
     @property
-    def movements(self) -> list[tuple[Movement, Vector2d]]:
+    def movements(self) -> list[tuple[Movement, BoardVector2d]]:
         return self._movements
 
     # override
-    def get_all_moves(self) -> list[list[Vector2d]]:
-        moves: list[list[Vector2d]] = []
+    def get_all_moves(self) -> list[list[BoardVector2d]]:
+        moves: list[list[BoardVector2d]] = []
         p = self._piece
 
         for movement, delta in self.movements:
@@ -29,7 +29,7 @@ class RangedPieceMovement(PieceMovement):
         return moves
 
     # override
-    def get_legal_moves(self) -> list[list[Vector2d]]:
+    def get_legal_moves(self) -> list[list[BoardVector2d]]:
         self._legal_moves.clear()
 
         # Aliases
@@ -63,7 +63,7 @@ class RangedPieceMovement(PieceMovement):
     #
     #     return None
 
-    def iterate_squares(self, origin: Vector2d, movement: Movement) -> list[Vector2d]:
+    def iterate_squares(self, origin: BoardVector2d, movement: Movement) -> list[BoardVector2d]:
         """
         Iterate through every square of the board, based on passed argument movement and return list of moves.
 
@@ -76,7 +76,7 @@ class RangedPieceMovement(PieceMovement):
         # Aliases
         p, b = self._get_aliases()
 
-        moves: list[Vector2d] = []
+        moves: list[BoardVector2d] = []
         squares = Movement.get_squares(movement, b, origin)
 
         for sqr in squares:

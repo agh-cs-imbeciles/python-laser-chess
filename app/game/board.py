@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from builtins import list
 from typing import TYPE_CHECKING, Optional
-from utils import Vector2d
+from utils import BoardVector2d
 from game import CheckManager
 from game.observer import PositionObserver
 from game.piece import Piece, PieceModel
@@ -21,7 +21,7 @@ class Board(PositionObserver):
         self._width: int = width
         self._height: int = height
         self._move_number: int = 0
-        self._pieces: dict[Vector2d, tuple[Piece, PieceMovement]] = {}
+        self._pieces: dict[BoardVector2d, tuple[Piece, PieceMovement]] = {}
         self._kings: list[Piece] = []
         self._check_manager: CheckManager = CheckManager(self)
         self._game: Game = game
@@ -52,7 +52,7 @@ class Board(PositionObserver):
         self._move_number = value
 
     @property
-    def pieces(self) -> dict[Vector2d, tuple[Piece, PieceMovement]]:
+    def pieces(self) -> dict[BoardVector2d, tuple[Piece, PieceMovement]]:
         return self._pieces
 
     @property
@@ -60,7 +60,7 @@ class Board(PositionObserver):
         return self._kings
 
     # override PositionObserver
-    def on_position_change(self, origin: Vector2d, destination: Vector2d) -> None:
+    def on_position_change(self, origin: BoardVector2d, destination: BoardVector2d) -> None:
         mp, op = self.get_piece(origin), self.get_piece(destination)
         self._pieces[destination] = self._pieces.pop(origin, None)
 
@@ -82,13 +82,13 @@ class Board(PositionObserver):
         move_type: PieceMoveType = PieceMoveDetector.detect(self, mp, op, destination)
         self._game.modify_last_move(move_type=move_type)
         self._game.on_position_change(mp, move_type)
-        if mp.model == PieceModel.QUEEN and mp.position == Vector2d(4, 4):
+        if mp.model == PieceModel.QUEEN and mp.position == BoardVector2d(4, 4):
             pass
 
     def get_size(self) -> tuple[int, int]:
         return self._width, self._height
 
-    def get_piece(self, position: Vector2d) -> Optional[Piece]:
+    def get_piece(self, position: BoardVector2d) -> Optional[Piece]:
         piece = self._pieces.get(position)
         if piece is None:
             return None
@@ -104,16 +104,16 @@ class Board(PositionObserver):
     def get_pieces_of(self, model: PieceModel, player_id: int) -> list[Piece]:
         pass
 
-    def get_piece_movement(self, position: Vector2d) -> Optional[PieceMovement]:
+    def get_piece_movement(self, position: BoardVector2d) -> Optional[PieceMovement]:
         piece = self._pieces.get(position)
         if piece is None:
             return None
         return piece[1]
 
-    def is_out_of_bounds(self, destination: Vector2d) -> bool:
+    def is_out_of_bounds(self, destination: BoardVector2d) -> bool:
         return destination.x < 0 or destination.x >= self.width or destination.y < 0 or destination.y >= self.height
 
-    def can_move_to(self, destination: Vector2d, piece: Piece, **kwargs) -> bool:
+    def can_move_to(self, destination: BoardVector2d, piece: Piece, **kwargs) -> bool:
         """
         Verify, whether piece can move to the destination square.
 
@@ -122,7 +122,7 @@ class Board(PositionObserver):
             Empty square or enemy's piece.
             Enemy's piece obligatory.
 
-        :param destination: ``Vector2d`` of desired destination square.
+        :param destination: ``BoardVector2d`` of desired destination square.
         :param piece: ``Piece`` which would change position.
         :param kwargs:
             capture: ``Boolean`` which defines optional capture.
@@ -190,10 +190,10 @@ class Board(PositionObserver):
             p = self.get_piece(destination)
             return p is not None and not p.is_same_color(pid)
 
-    def is_piece_at(self, position: Vector2d) -> bool:
+    def is_piece_at(self, position: BoardVector2d) -> bool:
         return self.get_piece(position) is not None
 
-    def is_check_at(self, position: Vector2d, player_id: int) -> bool:
+    def is_check_at(self, position: BoardVector2d, player_id: int) -> bool:
         return self._check_manager.is_check_at(position, player_id)
 
     def add_piece(self, piece: tuple[Piece, PieceMovement]) -> None:
@@ -242,5 +242,5 @@ class Board(PositionObserver):
     def get_last_move(self):
         return self._game.get_last_move()
 
-    def add_critical_checked_squares(self, player_id: int, squares: list[Vector2d]) -> None:
+    def add_critical_checked_squares(self, player_id: int, squares: list[BoardVector2d]) -> None:
         self._check_manager.add_critical_checked_squares(player_id, squares)
