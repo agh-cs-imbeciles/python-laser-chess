@@ -142,7 +142,7 @@ class IntVector2d:
     def __mul__(self, other: IntVector2d) -> IntVector2d:
         return IntVector2d(self.x * other.x, self.y * other.y)
 
-    def __floordiv__(self, other) -> IntVector2d:
+    def __floordiv__(self, other: IntVector2d) -> IntVector2d:
         if other.x == 0:
             raise ZeroDivisionError("The x of other vector is equal 0")
         if other.y == 0:
@@ -184,9 +184,53 @@ class IntVector2d:
 
 
 class BoardVector2d(IntVector2d):
+    @staticmethod
+    def from_int_v2d(vector: IntVector2d) -> BoardVector2d:
+        return BoardVector2d(vector.x, vector.y)
+
     # override
     def __str__(self) -> str:
         return self.x_to_str() + self.y_to_str()
+
+    # override
+    def __add__(self, other: IntVector2d) -> IntVector2d:
+        return BoardVector2d.from_int_v2d(super().__add__(other))
+
+    # override
+    def __sub__(self, other: IntVector2d) -> IntVector2d:
+        return BoardVector2d.from_int_v2d(super().__sub__(other))
+
+    # override
+    def __mul__(self, other: IntVector2d) -> IntVector2d:
+        return BoardVector2d.from_int_v2d(super().__mul__(other))
+
+    # override
+    def __floordiv__(self, other: IntVector2d) -> IntVector2d:
+        return BoardVector2d.from_int_v2d(super().__floordiv__(other))
+
+    # override
+    def __truediv__(self, other: IntVector2d) -> IntVector2d:
+        return BoardVector2d.from_int_v2d(super().__truediv__(other))
+
+    # override
+    def __neg__(self) -> IntVector2d:
+        return BoardVector2d.from_int_v2d(super().__neg__())
+
+    # override
+    def multiply_scalar(self, scalar: float) -> IntVector2d:
+        return BoardVector2d.from_int_v2d(super().multiply_scalar(scalar))
+
+    # override
+    def reverse_axis(self) -> IntVector2d:
+        return BoardVector2d.from_int_v2d(super().reverse_axis())
+
+    # override
+    def copy(self) -> IntVector2d:
+        return BoardVector2d(self.x, self.y)
+
+    # override
+    def pivot_symmetry(self, symmetry: Symmetry) -> IntVector2d:
+        return BoardVector2d.from_int_v2d(super().pivot_symmetry(symmetry))
 
     def x_to_str(self) -> str:
         return chr(self.x + 97)
