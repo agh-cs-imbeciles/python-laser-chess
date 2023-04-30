@@ -5,6 +5,7 @@ from game.piece import Piece, PieceModel, PieceFactory
 from game.piece.move import PieceMove, PieceMoveType, PieceMoveDetector
 from game.piece.movement import PieceMovement
 from game.observer.game_end_obs import GameEndObserver
+from game.notation_generator import  NotationGenerator
 
 
 class Game:
@@ -18,6 +19,8 @@ class Game:
         self._piece_factory = PieceFactory(self._board)
         self._observers: list[GameEndObserver] = []
         self.__init_board()
+        self._notation_generator = NotationGenerator(self._board)
+        self.add_observer(self._notation_generator)
 
     # override
     def on_position_change(self, piece: Piece, move_type: PieceMoveType) -> None:
@@ -31,6 +34,7 @@ class Game:
                 self._board.get_piece(Vector2d(0, piece.position.y)),
                 piece.position + Vector2d(1, 0)
             )
+        print(self._notation_generator.generate_last_move_string())
         self.end_if_conditions_fulfilled()
 
     def add_move_to_history(self, piece_move: PieceMove) -> None:

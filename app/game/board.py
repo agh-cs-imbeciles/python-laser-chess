@@ -96,8 +96,13 @@ class Board(PositionObserver):
             if piece.is_same_color(player_id):
                 movements.append((piece, mov))
         return movements
+
     def get_pieces_of(self, model: PieceModel, player_id: int) -> list[Piece]:
-        pass
+        pieces = []
+        for _, pie in self._pieces.items():
+            if pie[0].model == model and pie[0].player_id == player_id:
+                pieces.append(pie[0])
+        return pieces
 
     def get_piece_movement(self, position: Vector2d) -> Optional[PieceMovement]:
         piece = self._pieces.get(position)

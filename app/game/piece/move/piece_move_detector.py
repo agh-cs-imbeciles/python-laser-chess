@@ -28,7 +28,7 @@ class PieceMoveDetector:
         #
         player_move = board.get_ending_move()
         if player_move is not None:
-            return player_move[1]
+            return player_move
         #
         # Check
         #

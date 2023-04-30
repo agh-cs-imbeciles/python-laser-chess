@@ -11,3 +11,5 @@ class PieceMoveType(Enum):
     CHECKMATE           = 6
     STALEMATE           = 7
     DRAW                = 8
+
+
