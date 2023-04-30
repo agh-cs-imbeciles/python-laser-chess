@@ -3,7 +3,8 @@ from enum import Enum
 from typing import TypeVar, Generic
 
 
-T = TypeVar('T')
+X = TypeVar('X')
+Y = TypeVar('Y')
 
 
 class Symmetry(Enum):
@@ -12,31 +13,31 @@ class Symmetry(Enum):
     Y_AXIS  = 2
 
 
-class Vector2d(Generic[T]):
-    def __init__(self, x: T = 0, y: T = 0):
-        self._x: T = x
-        self._y: T = y
+class Vector2d(Generic[X, Y]):
+    def __init__(self, x: X, y: Y):
+        self._x: X = x
+        self._y: Y = y
 
     @property
-    def x(self) -> T:
+    def x(self) -> X:
         return self._x
 
     @x.setter
-    def x(self, x: T) -> None:
+    def x(self, x: X) -> None:
         self._x = x
 
     @property
-    def y(self) -> T:
+    def y(self) -> Y:
         return self._y
 
     @y.setter
-    def y(self, y: T) -> None:
+    def y(self, y: Y) -> None:
         self._y = y
 
     def __hash__(self) -> int:
         return hash((self.x, self.y))
 
-    def __iter__(self):
+    def __iter__(self) -> tuple[X, Y]:
         return self.x, self.y
 
     def __eq__(self, other) -> bool:
@@ -44,7 +45,7 @@ class Vector2d(Generic[T]):
             return False
         return self.x == other.x and self.y == other.y
 
-    def __ne__(self, other):
+    def __ne__(self, other) -> bool:
         return not self == other
 
     def __add__(self, other: Vector2d) -> Vector2d:
@@ -72,7 +73,7 @@ class Vector2d(Generic[T]):
         return f"{chr(self.x + 97)}{self.y + 1}"
 
     def multiply_scalar(self, scalar: float) -> Vector2d:
-        return Vector2d(T(self.x * scalar), T(self.y * scalar))
+        return Vector2d(X(self.x * scalar), Y(self.y * scalar))
 
     def reverse_axis(self) -> Vector2d:
         return Vector2d(self.y, self.x)
