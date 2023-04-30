@@ -19,29 +19,22 @@ class NotationGenerator:
         self._move_number += 1
         lm = self._board.get_last_move()
         gen_str: str = ""
-
         if lm.move_type == PieceMoveType.DRAW or lm.move_type == PieceMoveType.QUEEN_SIDE_CASTLING \
                 or lm.move_type == PieceMoveType.KING_SIDE_CASTLING:
             return str(lm.move_type)
-
         gen_str += str(lm.piece)
-
         if lm.piece.model == PieceModel.PAWN and lm.move_type == PieceMoveType.CAPTURE:
             gen_str += lm.origin.x_to_str()
         else:
             same_pieces = self._board.get_pieces_of(lm.piece.model, lm.piece.player_id)
             if len(same_pieces) > 1:
                 pass
-
         if lm.move_type == PieceMoveType.CAPTURE:
             gen_str += str(lm)
-
         gen_str += lm.destination.x_to_str() + lm.destination.y_to_str()
-
         if lm.move_type == PieceMoveType.CHECK or lm.move_type == PieceMoveType.PROMOTION\
                 or lm.move_type == PieceMoveType.CHECKMATE or lm.move_type == PieceMoveType.STALEMATE:
             gen_str += str(lm)
-
         return gen_str
 
     # override
