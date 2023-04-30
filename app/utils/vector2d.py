@@ -1,5 +1,9 @@
 from __future__ import annotations
 from enum import Enum
+from typing import TypeVar, Generic
+
+
+T = TypeVar('T')
 
 
 class Symmetry(Enum):
@@ -8,25 +12,25 @@ class Symmetry(Enum):
     Y_AXIS  = 2
 
 
-class Vector2d:
-    def __init__(self, x: int = 0, y: int = 0):
-        self._x: int = x
-        self._y: int = y
+class Vector2d(Generic[T]):
+    def __init__(self, x: T = 0, y: T = 0):
+        self._x: T = x
+        self._y: T = y
 
     @property
-    def x(self) -> int:
+    def x(self) -> T:
         return self._x
 
     @x.setter
-    def x(self, x: int) -> None:
+    def x(self, x: T) -> None:
         self._x = x
 
     @property
-    def y(self) -> int:
+    def y(self) -> T:
         return self._y
 
     @y.setter
-    def y(self, y: int) -> None:
+    def y(self, y: T) -> None:
         self._y = y
 
     def __hash__(self) -> int:
@@ -68,7 +72,7 @@ class Vector2d:
         return f"{chr(self.x + 97)}{self.y + 1}"
 
     def multiply_scalar(self, scalar: float) -> Vector2d:
-        return Vector2d(int(self.x * scalar), int(self.y * scalar))
+        return Vector2d(T(self.x * scalar), T(self.y * scalar))
 
     def reverse_axis(self) -> Vector2d:
         return Vector2d(self.y, self.x)
