@@ -1,7 +1,7 @@
 from __future__ import annotations
 from copy import deepcopy
 from typing import TYPE_CHECKING
-from utils import Vector2d
+from utils import BoardVector2d
 from game.piece.movement import BishopMovement, RookMovement, RangedPieceMovement
 
 if TYPE_CHECKING:

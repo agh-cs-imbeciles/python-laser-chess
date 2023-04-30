@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from builtins import list
 from typing import TYPE_CHECKING, Optional
-from utils import Vector2d
+from utils import BoardVector2d
 from game import CheckManager
 from game.observer import PositionObserver
 from game.piece import Piece, PieceModel
@@ -21,11 +21,12 @@ class Board(PositionObserver):
         self._width: int = width
         self._height: int = height
         self._move_number: int = 0
-        self._pieces: dict[Vector2d, tuple[Piece, PieceMovement]] = {}
+        self._pieces: dict[BoardVector2d, tuple[Piece, PieceMovement]] = {}
         self._kings: list[Piece] = []
         self._check_manager: CheckManager = CheckManager(self)
         self._game: Game = game
         self._promotion_manager = PromotionManager(self)
+
     @property
     def width(self) -> int:
         return self._width
@@ -51,7 +52,7 @@ class Board(PositionObserver):
         self._move_number = value
 
     @property
-    def pieces(self) -> dict[Vector2d, tuple[Piece, PieceMovement]]:
+    def pieces(self) -> dict[BoardVector2d, tuple[Piece, PieceMovement]]:
         return self._pieces
 
     @property
@@ -59,8 +60,7 @@ class Board(PositionObserver):
         return self._kings
 
     # override PositionObserver
-    def on_position_change(self, origin: Vector2d, destination: Vector2d) -> None:
-
+    def on_position_change(self, origin: BoardVector2d, destination: BoardVector2d) -> None:
         mp, op = self.get_piece(origin), self.get_piece(destination)
         self._pieces[destination] = self._pieces.pop(origin, None)
 
@@ -71,20 +71,24 @@ class Board(PositionObserver):
 
         self._check_manager.update()
         self._promotion_manager.check_promotion(mp)
+
         lm = self._game.get_last_move()
         if lm.move_type == PieceMoveType.QUEEN_SIDE_CASTLING or lm.move_type == PieceMoveType.KING_SIDE_CASTLING:
             self.move_number = (self.move_number + 1) % 2
             return
+
         piece_move: PieceMove = PieceMove(mp, origin, destination, None, None)
         self._game.add_move_to_history(piece_move)
         move_type: PieceMoveType = PieceMoveDetector.detect(self, mp, op, destination)
         self._game.modify_last_move(move_type=move_type)
         self._game.on_position_change(mp, move_type)
+        if mp.model == PieceModel.QUEEN and mp.position == BoardVector2d(4, 4):
+            pass
 
     def get_size(self) -> tuple[int, int]:
         return self._width, self._height
 
-    def get_piece(self, position: Vector2d) -> Optional[Piece]:
+    def get_piece(self, position: BoardVector2d) -> Optional[Piece]:
         piece = self._pieces.get(position)
         if piece is None:
             return None
@@ -104,16 +108,16 @@ class Board(PositionObserver):
                 pieces.append(pie[0])
         return pieces
 
-    def get_piece_movement(self, position: Vector2d) -> Optional[PieceMovement]:
+    def get_piece_movement(self, position: BoardVector2d) -> Optional[PieceMovement]:
         piece = self._pieces.get(position)
         if piece is None:
             return None
         return piece[1]
 
-    def is_out_of_bounds(self, destination: Vector2d) -> bool:
+    def is_out_of_bounds(self, destination: BoardVector2d) -> bool:
         return destination.x < 0 or destination.x >= self.width or destination.y < 0 or destination.y >= self.height
 
-    def can_move_to(self, destination: Vector2d, piece: Piece, **kwargs) -> bool:
+    def can_move_to(self, destination: BoardVector2d, piece: Piece, **kwargs) -> bool:
         """
         Verify, whether piece can move to the destination square.
 
@@ -122,7 +126,7 @@ class Board(PositionObserver):
             Empty square or enemy's piece.
             Enemy's piece obligatory.
 
-        :param destination: ``Vector2d`` of desired destination square.
+        :param destination: ``BoardVector2d`` of desired destination square.
         :param piece: ``Piece`` which would change position.
         :param kwargs:
             capture: ``Boolean`` which defines optional capture.
@@ -140,30 +144,36 @@ class Board(PositionObserver):
         if self.is_out_of_bounds(destination):
             return False
         #
-        # Check, if player's king is under check - if it is, only covering moves are legal
+        # Check, if player's king is under check - if it's, only covering moves are legal
         #
         if (
-                piece.model != PieceModel.KING
-                and self.is_king_under_check(pid)
-                and self._check_manager.get_critical_square(destination, pid) is None
-                and self._check_manager.checking_pieces[(pid + 1) % 2].get(destination) is None
+            piece.model != PieceModel.KING
+            and self.is_king_under_check(pid)
+            and self._check_manager.get_critical_square(destination, pid) is None
+            and self._check_manager.checking_pieces[(pid + 1) % 2].get(destination) is None
         ):
             return False
         #
         # Check, if player can capture a checking piece
         #
         if (
-                self._check_manager.checking_pieces[(pid + 1) % 2].get(destination) is not None
-                and len(self._check_manager.checking_pieces[(pid + 1) % 2]) > 1
+            self._check_manager.checking_pieces[(pid + 1) % 2].get(destination) is not None
+            and len(self._check_manager.checking_pieces[(pid + 1) % 2]) > 1
         ):
             return False
         #
-        # Check, if piece is not absolute pinned with own king
+        # Check, if piece isn't absolute pinned with own king
         #
         if (
-                self._check_manager.pinned_pieces[pid].get(piece.position)
-                and self._check_manager.pinned_pieces[pid].get(piece.position)[1] != self.get_piece(destination)
+            self._check_manager.pinned_pieces[pid].get(piece.position)
+            and self._check_manager.pinned_pieces[pid].get(piece.position)[1] != self.get_piece(destination)
+            and not self._check_manager.is_pinned_square(destination, pid)
         ):
+            return False
+        #
+        # If it's a king, then check whether move destination isn't checked squares
+        #
+        if piece.model == PieceModel.KING and self.is_check_at(destination, piece.player_id):
             return False
 
         #
@@ -184,10 +194,10 @@ class Board(PositionObserver):
             p = self.get_piece(destination)
             return p is not None and not p.is_same_color(pid)
 
-    def is_piece_at(self, vector: Vector2d) -> bool:
-        return self.get_piece(vector) is not None
+    def is_piece_at(self, position: BoardVector2d) -> bool:
+        return self.get_piece(position) is not None
 
-    def is_check_at(self, position: Vector2d, player_id: int) -> bool:
+    def is_check_at(self, position: BoardVector2d, player_id: int) -> bool:
         return self._check_manager.is_check_at(position, player_id)
 
     def add_piece(self, piece: tuple[Piece, PieceMovement]) -> None:
@@ -225,7 +235,7 @@ class Board(PositionObserver):
     def is_king_under_check(self, player_id: int) -> bool:
         return self._check_manager.is_king_under_check(player_id)
 
-    def get_ending_move(self) ->  PieceMoveType | None:
+    def get_ending_move(self) -> PieceMoveType | None:
         mn = (self._move_number + 1) % 2
         if self._check_manager.is_checkmate(mn):
             return PieceMoveType.CHECKMATE
@@ -236,5 +246,5 @@ class Board(PositionObserver):
     def get_last_move(self):
         return self._game.get_last_move()
 
-    def add_critical_checked_squares(self, player_id: int, squares: list[Vector2d]) -> None:
+    def add_critical_checked_squares(self, player_id: int, squares: list[BoardVector2d]) -> None:
         self._check_manager.add_critical_checked_squares(player_id, squares)

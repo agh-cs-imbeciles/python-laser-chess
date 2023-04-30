@@ -1,8 +1,8 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
-from utils import Vector2d
+from utils import BoardVector2d
 from game.piece import PieceModel
-from game.piece.movement import PawnMovement
+from game.piece.movement import PieceMovement, PawnMovement, RangedPieceMovement
 
 if TYPE_CHECKING:
     from game import Board
@@ -12,14 +12,15 @@ if TYPE_CHECKING:
 class CheckManager:
     def __init__(self, board: Board) -> None:
         self._board = board
-        self._checked_squares: list[dict[Vector2d, bool]] = [{}, {}]
-        self._checking_pieces: list[dict[Vector2d, Piece]] = [{}, {}]
-        self._critical_checked_squares: list[dict[Vector2d, bool]] = [{}, {}]
-        self._pinned_pieces: list[dict[Vector2d, tuple[Piece, Piece]]] = [{}, {}]
+        self._checked_squares: list[dict[BoardVector2d, bool]] = [{}, {}]
+        self._checking_pieces: list[dict[BoardVector2d, Piece]] = [{}, {}]
+        self._critical_checked_squares: list[dict[BoardVector2d, bool]] = [{}, {}]
+        self._pinned_pieces: list[dict[BoardVector2d, tuple[Piece, Piece]]] = [{}, {}]
+        self._pinned_squares: list[dict[BoardVector2d, bool]] = [{}, {}]
         self._can_move: bool = True
 
     @property
-    def checked_squares(self) -> list[dict[Vector2d, bool]]:
+    def checked_squares(self) -> list[dict[BoardVector2d, bool]]:
         return self._checked_squares
 
     @property
@@ -27,14 +28,64 @@ class CheckManager:
         return self._checking_pieces
 
     @checked_squares.setter
-    def checked_squares(self, value: [dict[Vector2d, bool]]) -> None:
+    def checked_squares(self, value: [dict[BoardVector2d, bool]]) -> None:
         self._checked_squares = value
-        
+
     @property
-    def pinned_pieces(self) -> list[dict[Vector2d, tuple[Piece, Piece]]]:
+    def pinned_pieces(self) -> list[dict[BoardVector2d, tuple[Piece, Piece]]]:
         return self._pinned_pieces
 
-    def is_check_at(self, position: Vector2d, player_id: int) -> bool:
+    def __filter_range_moves(self, moves: list[list[BoardVector2d]], color: int) -> list[list[BoardVector2d]]:
+        for i, moves_row in enumerate(moves):
+            for j, move in enumerate(moves_row):
+                p = self._board.get_piece(move)
+                if p and (p.model == PieceModel.KING and p.is_same_color(color) or p.model != PieceModel.KING):
+                    # if not p.is_same_color(color):
+                    #     moves[i] = moves_row[:j + 1]
+                    # else:
+                    #     moves[i] = moves_row[:j]
+                    moves[i] = moves_row[:j]
+                    break
+
+        return moves
+
+    def __iterate_pin(self, piece: Piece, moves: list[list[BoardVector2d]]) -> tuple[list[BoardVector2d] | None, Piece | None] | None:
+        b = self._board
+
+        if len(moves) <= 1:
+            return None, None
+
+        for moves_row in moves:
+            first_piece_idx = 0
+            pieces: list[Piece] = []
+
+            for i, move in enumerate(moves_row):
+                if b.is_piece_at(move):
+                    first_piece_idx = i
+                    pieces.append(b.get_piece(move))
+                if (
+                        len(pieces) == 2
+                        and pieces[1].model == PieceModel.KING
+                        and not pieces[1].is_same_color(piece)
+                        and pieces[0].is_same_color(pieces[1])
+                ):
+                    return moves_row[:first_piece_idx], pieces[0]
+
+        return None, None
+
+    def get_pinned_piece(self, piece: Piece, piece_movement: PieceMovement) -> Piece | None:
+        moves = piece_movement.get_all_moves()
+        _, p = self.__iterate_pin(piece, moves)
+
+        return p
+
+    def get_pinned_squares(self, piece: Piece, piece_movement: PieceMovement) -> list[BoardVector2d] | None:
+        moves = piece_movement.get_all_moves()
+        m, _ = self.__iterate_pin(piece, moves)
+
+        return m
+
+    def is_check_at(self, position: BoardVector2d, player_id: int) -> bool:
         return self._checked_squares[player_id].get(position) is not None
 
     def is_king_under_check(self, player_id: int) -> bool:
@@ -52,7 +103,10 @@ class CheckManager:
             return False
         return not self.is_king_under_check(player_id)
 
-    def can_player_move(self,player_id: int) -> bool:
+    def is_pinned_square(self, position: BoardVector2d, player_id: int) -> bool:
+        return self._pinned_squares[player_id].get(position, False)
+
+    def can_player_move(self, player_id: int) -> bool:
         #
         # Go through player's all pieces movement
         #
@@ -69,7 +123,7 @@ class CheckManager:
                 return True
         return False
 
-    def get_critical_square(self, position: Vector2d, player_id: int) -> bool | None:
+    def get_critical_square(self, position: BoardVector2d, player_id: int) -> bool | None:
         return self._critical_checked_squares[player_id].get(position)
 
     def update(self) -> None:
@@ -78,41 +132,49 @@ class CheckManager:
             self._checking_pieces[i].clear()
             self._critical_checked_squares[i].clear()
             self._pinned_pieces[i].clear()
+            self._pinned_squares[i].clear()
+
         for key, piece_data in self._board.pieces.items():
             piece, movement = piece_data
-            
+
             #
             # Pawn capture moves
             #
             if isinstance(movement, PawnMovement):
-                pos: Vector2d = piece.position + movement.direction
                 for i, checked_squares in enumerate(self.checked_squares):
                     if piece.is_same_color(i): continue
-                    checked_squares[pos + Vector2d(-1, 0)] = True
-                    checked_squares[pos + Vector2d(1, 0)] = True
+                    for capture_position in movement.get_capturable_moves()[0]:
+                        if self._board.can_move_to(capture_position, piece, capture_required=True):
+                            checked_squares[capture_position] = True
                 continue
 
             #
             # Other pieces moves
             #
-            for moves in movement.get_legal_moves():
-                for move in moves:
-                    for i, checked_squares in enumerate(self.checked_squares):
-                        if piece.is_same_color(i): continue
+            moves = self.__filter_range_moves(movement.get_all_moves(), piece.player_id) \
+                if isinstance(movement, RangedPieceMovement) \
+                else movement.get_legal_moves()
+            for moves_row in moves:
+                for i, move in enumerate(moves_row):
+                    for j, checked_squares in enumerate(self.checked_squares):
+                        if piece.is_same_color(j): continue
                         p = self._board.get_piece(move)
 
                         # Check occurrence
-                        if p is not None and p.model == PieceModel.KING and not p.is_same_color(piece):
+                        if p and p.model == PieceModel.KING and not p.is_same_color(piece):
                             self._checking_pieces[piece.player_id][piece.position] = piece
-                            if piece.model != PieceModel.PAWN and piece.model != PieceModel.KNIGHT:
-                                self.add_critical_checked_squares(p.player_id, moves)
+                            if piece.model not in [PieceModel.PAWN, PieceModel.KNIGHT]:
+                                self.add_critical_checked_squares(p.player_id, moves_row[:i])
                         checked_squares[move] = True
 
-            pinned = movement.get_pinned_piece()
+            pinned = self.get_pinned_piece(piece, movement)
             if pinned:
                 self.pinned_pieces[pinned.player_id][pinned.position] = (pinned, piece)
+                for sqr in self.get_pinned_squares(piece, movement):
+                    self._pinned_squares[pinned.player_id][sqr] = True
+
         self._can_move = self.can_player_move((self._board.move_number + 1) % 2)
 
-    def add_critical_checked_squares(self, player_id: int, squares: list[Vector2d]):
+    def add_critical_checked_squares(self, player_id: int, squares: list[BoardVector2d]) -> None:
         for s in squares:
             self._critical_checked_squares[player_id][s] = True

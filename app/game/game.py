@@ -1,5 +1,5 @@
-from typing import Tuple, Any
-from utils import Vector2d
+from typing import Any
+from utils import BoardVector2d
 from game import Board
 from game.piece import Piece, PieceModel, PieceFactory
 from game.piece.move import PieceMove, PieceMoveType, PieceMoveDetector
@@ -26,13 +26,13 @@ class Game:
     def on_position_change(self, piece: Piece, move_type: PieceMoveType) -> None:
         if move_type == PieceMoveType.KING_SIDE_CASTLING:
             self.move_piece(
-                self._board.get_piece(Vector2d(self.__BOARD_SIZE - 1, piece.position.y)),
-                piece.position + Vector2d(-1, 0)
+                self._board.get_piece(BoardVector2d(self.__BOARD_SIZE - 1, piece.position.y)),
+                piece.position + BoardVector2d(-1, 0)
             )
         elif move_type == PieceMoveType.QUEEN_SIDE_CASTLING:
             self.move_piece(
-                self._board.get_piece(Vector2d(0, piece.position.y)),
-                piece.position + Vector2d(1, 0)
+                self._board.get_piece(BoardVector2d(0, piece.position.y)),
+                piece.position + BoardVector2d(1, 0)
             )
         print(self._notation_generator.generate_last_move_string())
         self.end_if_conditions_fulfilled()
@@ -43,7 +43,7 @@ class Game:
         mh[pid].append(piece_move)
         self._last_move_index = piece_move.piece.player_id, len(mh[pid]) - 1
 
-    def modify_last_move(self, piece: Piece = None, origin: Vector2d = None, destination: Vector2d = None,
+    def modify_last_move(self, piece: Piece = None, origin: BoardVector2d = None, destination: BoardVector2d = None,
                          promotion: Piece = None, move_type: PieceMoveType = None, move: int = None) -> None:
         given = locals()
         given.pop('self')
@@ -103,16 +103,16 @@ class Game:
 
     def __init_kings(self):
         king_data = [
-            (Vector2d(4, 0), 0),
-            (Vector2d(4, self.board.height - 1), 1),
+            (BoardVector2d(4, 0), 0),
+            (BoardVector2d(4, self.board.height - 1), 1),
         ]
         for pos, color in king_data:
             self.__add_piece(self._piece_factory.create_piece(PieceModel.KING, pos, color))
 
     def __init_hetmanice(self):
         queen_data = [
-            (Vector2d(3, 0), 0),
-            (Vector2d(3, self.board.height - 1), 1),
+            (BoardVector2d(3, 0), 0),
+            (BoardVector2d(3, self.board.height - 1), 1),
         ]
         for pos, color in queen_data:
             self.__add_piece(self._piece_factory.create_piece(PieceModel.QUEEN, pos, color))
@@ -121,39 +121,39 @@ class Game:
         pawn_xs = [2, 3, 4, 5]
         for x in pawn_xs:
             self.board.add_pieces([
-                self._piece_factory.create_piece(PieceModel.PAWN, Vector2d(x, 1), 0),
-                self._piece_factory.create_piece(PieceModel.PAWN, Vector2d(x, self.__BOARD_SIZE - 2), 1),
+                self._piece_factory.create_piece(PieceModel.PAWN, BoardVector2d(x, 1), 0),
+                self._piece_factory.create_piece(PieceModel.PAWN, BoardVector2d(x, self.__BOARD_SIZE - 2), 1),
             ])
         self.board.add_pieces([
-            self._piece_factory.create_piece(PieceModel.PAWN, Vector2d(0, 1), 0),
-            self._piece_factory.create_piece(PieceModel.PAWN, Vector2d(self.__BOARD_SIZE - 1, self.__BOARD_SIZE - 2), 1)
+            self._piece_factory.create_piece(PieceModel.PAWN, BoardVector2d(0, 1), 0),
+            self._piece_factory.create_piece(PieceModel.PAWN, BoardVector2d(self.__BOARD_SIZE - 1, self.__BOARD_SIZE - 2), 1)
         ])
 
     def __init_bishops(self):
         bishop_data = [
-            (Vector2d(2, 0), 0), (Vector2d(5, 0), 0),
-            (Vector2d(2, self.board.height - 1), 1), (Vector2d(5, self.board.height - 1), 1),
+            (BoardVector2d(2, 0), 0), (BoardVector2d(5, 0), 0),
+            (BoardVector2d(2, self.board.height - 1), 1), (BoardVector2d(5, self.board.height - 1), 1),
         ]
         for pos, color in bishop_data:
             self.__add_piece(self._piece_factory.create_piece(PieceModel.BISHOP, pos, color))
 
     def __init_rooks(self):
         rook_data = [
-            (Vector2d(0, 0), 0), (Vector2d(7, 0), 0),
-            (Vector2d(0, self.board.height - 1), 1), (Vector2d(7, self.board.height - 1), 1),
+            (BoardVector2d(0, 0), 0), (BoardVector2d(7, 0), 0),
+            (BoardVector2d(0, self.board.height - 1), 1), (BoardVector2d(7, self.board.height - 1), 1),
         ]
         for pos, color in rook_data:
             self.__add_piece(self._piece_factory.create_piece(PieceModel.ROOK, pos, color))
 
     def __init_knights(self):
         knight_data = [
-            (Vector2d(1, 0), 0), (Vector2d(6, 0), 0),
-            (Vector2d(1, self.board.height - 1), 1), (Vector2d(6, self.board.height - 1), 1),
+            (BoardVector2d(1, 0), 0), (BoardVector2d(6, 0), 0),
+            (BoardVector2d(1, self.board.height - 1), 1), (BoardVector2d(6, self.board.height - 1), 1),
         ]
         for pos, color in knight_data:
             self.__add_piece(self._piece_factory.create_piece(PieceModel.KNIGHT, pos, color))
 
-    def move_piece(self, piece: Piece, destination: Vector2d) -> None:
+    def move_piece(self, piece: Piece, destination: BoardVector2d) -> None:
         piece.move(destination)
         self.board.move_number = (self.board.move_number + 1) % 2
         #     return

@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Tuple
 from game.piece import Piece
 from game.piece.movement import PieceMovement
 
-from utils import Vector2d
+from utils import BoardVector2d
 from game.piece.piece_model import PieceModel
 from game.piece.piece import Piece
 from game.piece.movement.pawn_movement import PawnMovement

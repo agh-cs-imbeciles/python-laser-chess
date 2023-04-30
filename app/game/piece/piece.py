@@ -1,6 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
-from utils import Vector2d
+from utils import BoardVector2d
 from game.piece import PieceModel
 
 if TYPE_CHECKING:
@@ -8,10 +8,10 @@ if TYPE_CHECKING:
 
 
 class Piece:
-    def __init__(self, model: PieceModel, position: Vector2d, player_id: int) -> None:
+    def __init__(self, model: PieceModel, position: BoardVector2d, player_id: int) -> None:
         self._model: PieceModel = model
         self._initial_position = position.copy()
-        self._position: Vector2d = position
+        self._position: BoardVector2d = position
         self._player_id: int = player_id
         self._move_count = 0
         self._position_observers: list[PositionObserver] = []
@@ -55,7 +55,7 @@ class Piece:
         return self._initial_position
 
     @property
-    def position(self) -> Vector2d:
+    def position(self) -> BoardVector2d:
         return self._position
     
     @property
@@ -79,7 +79,7 @@ class Piece:
     def add_observer(self, observer: PositionObserver) -> None:
         self._position_observers.append(observer)
 
-    def move(self, destination: Vector2d) -> None:
+    def move(self, destination: BoardVector2d) -> None:
         origin = self._position.copy()
         self._position = destination
         self._move_count += 1
