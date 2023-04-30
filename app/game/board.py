@@ -158,6 +158,16 @@ class Board(PositionObserver):
         ):
             return False
         #
+        # If it's a king and on the destination square is the checking piece,
+        # then check whether the checking piece is protected
+        #
+        elif (
+            self._check_manager.checking_pieces[(pid + 1) % 2].get(destination) is not None
+            and piece.model == PieceModel.KING
+            and self._check_manager.is_piece_protected(self.get_piece(destination))
+        ):
+            return False
+        #
         # Check, if piece isn't absolute pinned with own king
         #
         if (
@@ -171,6 +181,7 @@ class Board(PositionObserver):
         #
         if piece.model == PieceModel.KING and self.is_check_at(destination, piece.player_id):
             return False
+
 
         #
         # Move with potential capturing
