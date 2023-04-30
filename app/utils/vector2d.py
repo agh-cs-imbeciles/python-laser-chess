@@ -99,7 +99,7 @@ class Vector2d(Generic[X, Y]):
 
 
 class IntVector2d:
-    def __init__(self, x: int, y: int):
+    def __init__(self, x: int = 0, y: int = 0):
         self._x: int = x
         self._y: int = y
 
@@ -134,13 +134,19 @@ class IntVector2d:
         return not self == other
 
     def __add__(self, other: IntVector2d) -> IntVector2d:
-        return IntVector2d(self.x + other.x, self.y + other.y)
+        self.x += other.x
+        self.y += other.y
+        return self
 
     def __sub__(self, other: IntVector2d) -> IntVector2d:
-        return IntVector2d(self.x - other.x, self.y - other.y)
+        self.x -= other.x
+        self.y -= other.y
+        return self
 
     def __mul__(self, other: IntVector2d) -> IntVector2d:
-        return IntVector2d(self.x * other.x, self.y * other.y)
+        self.x *= other.x
+        self.y *= other.y
+        return self
 
     def __floordiv__(self, other) -> IntVector2d:
         if other.x == 0:
@@ -148,7 +154,9 @@ class IntVector2d:
         if other.y == 0:
             raise ZeroDivisionError("The y of other vector is equal 0")
 
-        return IntVector2d(self.x // other.x, self.y // other.y)
+        self.x //= other.x
+        self.y //= other.y
+        return self
 
     def __truediv__(self, other: IntVector2d) -> IntVector2d:
         if other.x == 0:
@@ -156,19 +164,28 @@ class IntVector2d:
         if other.y == 0:
             raise ZeroDivisionError("The y of other vector is equal 0")
 
-        return IntVector2d(int(self.x / other.x), int(self.y / other.y))
+        self.x /= other.x
+        self.y /= other.y
+        self.x, self.y = int(self.x), int(self.y)
+        return self
 
     def __neg__(self) -> IntVector2d:
-        return IntVector2d(-self.x, -self.y)
+        self.x = -self.x
+        self.y = -self.y
+        return self
 
     def __str__(self) -> str:
         return f"({self.x}, {self.y})"
 
     def multiply_scalar(self, scalar: float) -> IntVector2d:
-        return IntVector2d(int(self.x * scalar), int(self.y * scalar))
+        self.x *= scalar
+        self.y *= scalar
+        self.x, self.y = int(self.x), int(self.y)
+        return self
 
     def reverse_axis(self) -> IntVector2d:
-        return IntVector2d(self.y, self.x)
+        self.x, self.y = self.y, self.x
+        return self
 
     def copy(self) -> IntVector2d:
         return IntVector2d(self.x, self.y)
@@ -176,17 +193,26 @@ class IntVector2d:
     def pivot_symmetry(self, symmetry: Symmetry) -> IntVector2d:
         match symmetry:
             case Symmetry.ORIGIN:
-                return IntVector2d(-self.x, -self.y)
+                self.x = -self.x
+                self.y = -self.y
             case Symmetry.X_AXIS:
-                return IntVector2d(self.x, -self.y)
+                self.x = self.x
+                self.y = -self.y
             case Symmetry.Y_AXIS:
-                return IntVector2d(-self.x, self.y)
+                self.x = -self.x
+                self.y = self.y
+
+        return self
 
 
 class BoardVector2d(IntVector2d):
     # override
     def __str__(self) -> str:
         return self.x_to_str() + self.y_to_str()
+
+    # override
+    def copy(self) -> BoardVector2d:
+        return BoardVector2d(self.x, self.y)
 
     def x_to_str(self) -> str:
         return chr(self.x + 97)
