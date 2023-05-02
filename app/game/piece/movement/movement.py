@@ -1,7 +1,7 @@
 from __future__ import annotations
 from enum import Enum
 from typing import TYPE_CHECKING
-from utils import Vector2d
+from utils import BoardVector2d
 
 if TYPE_CHECKING:
     from game import Board
@@ -48,7 +48,7 @@ class Movement(Enum):
                 raise ValueError("Invalid movement parameter")
 
     @classmethod
-    def get_squares_from_tuple(cls, increment: tuple[int, int], board: Board, origin: Vector2d) -> list[Vector2d]:
+    def get_squares_from_tuple(cls, increment: tuple[int, int], board: Board, origin: BoardVector2d) -> list[BoardVector2d]:
         xi, yi = increment
         if xi == 0 and yi == 0:
             raise ValueError("increment tuple must be different than (0, 0)")
@@ -63,8 +63,8 @@ class Movement(Enum):
         if yi == 0:
             ys = [origin.y for _ in xs]
 
-        return [Vector2d(x, y) for x, y in zip(xs, ys)]
+        return [BoardVector2d(x, y) for x, y in zip(xs, ys)]
 
     @classmethod
-    def get_squares(cls, movement: Movement, board: Board, origin: Vector2d) -> list[Vector2d]:
+    def get_squares(cls, movement: Movement, board: Board, origin: BoardVector2d) -> list[BoardVector2d]:
         return Movement.get_squares_from_tuple(movement.to_tuple(), board, origin)

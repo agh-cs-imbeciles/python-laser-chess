@@ -1,6 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
-from utils import Vector2d
+from utils import BoardVector2d
 from game.piece import PieceModel
 
 if TYPE_CHECKING:
@@ -8,12 +8,13 @@ if TYPE_CHECKING:
 
 
 class Piece:
-    def __init__(self, model: PieceModel, position: Vector2d, player_id: int) -> None:
+    def __init__(self, model: PieceModel, position: BoardVector2d, player_id: int) -> None:
         self._model: PieceModel = model
         self._initial_position = position.copy()
-        self._position: Vector2d = position
+        self._position: BoardVector2d = position
         self._player_id: int = player_id
-        self._position_observers: [PositionObserver] = []
+        self._move_count = 0
+        self._position_observers: list[PositionObserver] = []
 
     def __eq__(self, other):
         if not isinstance(other, Piece):
@@ -22,7 +23,7 @@ class Piece:
             self.model == other.model
             and self.initial_position == other.initial_position
             and self.position == other.position
-            and self.player_id == other.player_id
+            and self.is_same_color(other)
         )
 
     def __ne__(self, other):
@@ -54,7 +55,7 @@ class Piece:
         return self._initial_position
 
     @property
-    def position(self) -> Vector2d:
+    def position(self) -> BoardVector2d:
         return self._position
     
     @property
@@ -66,13 +67,21 @@ class Piece:
         self._player_id = player_id
 
     def moved(self):
-        return self.position != self._initial_position
+        return self._move_count > 0
+
+    def is_same_color(self, other: Piece | int | None) -> bool:
+        if other is None:
+            return False
+        if isinstance(other, Piece):
+            return self.player_id == other.player_id
+        return self.player_id == other
 
     def add_observer(self, observer: PositionObserver) -> None:
         self._position_observers.append(observer)
 
-    def move(self, to: Vector2d) -> None:
+    def move(self, destination: BoardVector2d) -> None:
         origin = self._position.copy()
-        self._position = to
+        self._position = destination
+        self._move_count += 1
         for observer in self._position_observers:
-            observer.on_position_change(origin, to)
+            observer.on_position_change(origin, destination)

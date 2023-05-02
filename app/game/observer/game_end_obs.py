@@ -2,10 +2,11 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from utils import BoardVector2d
 from game.piece import Piece
+from game.piece.move import PieceMoveType
 
 
-class BoardPositionObserver(ABC):
+class GameEndObserver(ABC):
     # override PositionObserver
     @abstractmethod
-    def on_position_change(self, origin: BoardVector2d, destination: BoardVector2d, captured_piece: Piece | None = None) -> None:
+    def on_end(self, winner: int, type: PieceMoveType) -> None:
         pass
