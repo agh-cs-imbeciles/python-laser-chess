@@ -3,6 +3,7 @@ from utils import BoardVector2d
 import game.piece as pcs
 from typing import TYPE_CHECKING
 from game.piece.move.piece_move_type import PieceMoveType
+# from game.piece.piece import Piece
 # if TYPE_CHECKING:
 #     from game.piece.move import PieceMoveType
 
@@ -18,27 +19,14 @@ class PieceMove:
         self.origin: BoardVector2d = origin
         self.destination: BoardVector2d = destination
         self.promotion = promotion
-        self.move_type = move_type
+        if move_type is None:
+            self.move_types = []
+        else:
+            self.move_types = [move_type]
 
-    def __str__(self):
-        match self.move_type:
-            case PieceMoveType.DRAW:
-                return "="
-            case PieceMoveType.QUEEN_SIDE_CASTLING:
-                return "O-O-O"
-            case PieceMoveType.KING_SIDE_CASTLING:
-                return "O-O"
-            case PieceMoveType.MOVE:
-                return ""
-            case PieceMoveType.STALEMATE:
-                return "$"
-            case PieceMoveType.CHECKMATE:
-                return "#"
-            case PieceMoveType.CHECK:
-                return "+"
-            case PieceMoveType.CAPTURE:
-                return "x"
-            case PieceMoveType.PROMOTION:
-                return "=" + str(self.promotion)
+    def add_move_type(self, move_type: [PieceMoveType]):
+        self.move_types.extend(move_type)
 
+    def add_promotion(self, promotion: pcs.Piece):
+        self.promotion = promotion
 

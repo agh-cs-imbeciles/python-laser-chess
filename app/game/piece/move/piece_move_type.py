@@ -12,4 +12,25 @@ class PieceMoveType(Enum):
     STALEMATE           = 7
     DRAW                = 8
 
+    def __str__(self):
+        match self.value:
+            case PieceMoveType.DRAW.value:
+                return "="
+            case PieceMoveType.QUEEN_SIDE_CASTLING.value:
+                return "O-O-O"
+            case PieceMoveType.KING_SIDE_CASTLING.value:
+                return "O-O"
+            case PieceMoveType.MOVE.value:
+                return ""
+            case PieceMoveType.STALEMATE.value:
+                return "$"
+            case PieceMoveType.CHECKMATE.value:
+                return "#"
+            case PieceMoveType.CHECK.value:
+                return "+"
+            case PieceMoveType.CAPTURE.value:
+                return "x"
+            case PieceMoveType.PROMOTION.value:
+                return "="
+
 

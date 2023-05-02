@@ -6,6 +6,7 @@ from game.piece.move import PieceMove, PieceMoveType, PieceMoveDetector
 from game.piece.movement import PieceMovement
 from game.observer.game_end_obs import GameEndObserver
 from game.notation_generator import  NotationGenerator
+from game.ambiguous_enum import AmbiguousNotation
 
 
 class Game:
@@ -23,19 +24,23 @@ class Game:
         self.add_observer(self._notation_generator)
 
     # override
-    def on_position_change(self, piece: Piece, move_type: PieceMoveType) -> None:
-        if move_type == PieceMoveType.KING_SIDE_CASTLING:
+    def on_position_change(self, piece: Piece, move_types: list[PieceMoveType]) -> None:
+        if PieceMoveType.KING_SIDE_CASTLING in move_types:
             self.move_piece(
                 self._board.get_piece(BoardVector2d(self.__BOARD_SIZE - 1, piece.position.y)),
                 piece.position + BoardVector2d(-1, 0)
             )
-        elif move_type == PieceMoveType.QUEEN_SIDE_CASTLING:
+            self._board.move_number = (self._board.move_number + 1) % 2
+        elif PieceMoveType.QUEEN_SIDE_CASTLING in move_types:
             self.move_piece(
                 self._board.get_piece(BoardVector2d(0, piece.position.y)),
                 piece.position + BoardVector2d(1, 0)
             )
-        print(self._notation_generator.generate_last_move_string())
+            self._board.move_number = (self._board.move_number + 1) % 2
         self.end_if_conditions_fulfilled()
+
+    def set_notation_ambiguity(self, ambig: AmbiguousNotation) -> None:
+        self._notation_generator.ambiguity(ambig)
 
     def add_move_to_history(self, piece_move: PieceMove) -> None:
         mh = self._moves_history
@@ -44,7 +49,7 @@ class Game:
         self._last_move_index = piece_move.piece.player_id, len(mh[pid]) - 1
 
     def modify_last_move(self, piece: Piece = None, origin: BoardVector2d = None, destination: BoardVector2d = None,
-                         promotion: Piece = None, move_type: PieceMoveType = None, move: int = None) -> None:
+                         promotion: Piece = None, move_type: list[PieceMoveType] = None, move: int = None) -> None:
         given = locals()
         given.pop('self')
         mh = self._moves_history
@@ -154,6 +159,8 @@ class Game:
             self.__add_piece(self._piece_factory.create_piece(PieceModel.KNIGHT, pos, color))
 
     def move_piece(self, piece: Piece, destination: BoardVector2d) -> None:
+        ambig = self.board.ambiguity_move_type(self._board.get_piece_movement(piece.position), destination)
+        self.set_notation_ambiguity(ambig)
         piece.move(destination)
         self.board.move_number = (self.board.move_number + 1) % 2
         #     return

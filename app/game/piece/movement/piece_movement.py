@@ -52,3 +52,6 @@ class PieceMovement(ABC):
 
     # def get_pinned_piece(self) -> Piece | None:
     #     return None
+    @property
+    def piece(self):
+        return self._piece

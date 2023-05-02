@@ -10,7 +10,8 @@ from game.piece.movement import Movement, PawnMovement
 from game.piece.move import PieceMoveType, PieceMoveDetector
 from game.promotion import PromotionManager
 from game.piece.move.piece_move import PieceMove
-
+from game.ambiguous_enum import AmbiguousNotation
+import itertools
 if TYPE_CHECKING:
     from game import Game
     from game.piece.movement import PieceMovement
@@ -59,6 +60,40 @@ class Board(PositionObserver):
     def kings(self) -> list[Piece]:
         return self._kings
 
+    def ambiguity_move_type(self, piece_movement: PieceMovement, destination: BoardVector2d) -> AmbiguousNotation:
+        piece = piece_movement.piece
+        same_pieces: list[Piece] = self.get_pieces_of(piece.model, piece.player_id)
+        amb_f = set()
+        pieces: list[Piece] = []
+        if len(same_pieces) == 1:
+            return AmbiguousNotation.NONE
+        for p in same_pieces:
+            if p == piece:
+                pieces.append(p)
+                continue
+
+            mp = self.get_piece_movement(p.position)
+            moves = list(itertools.chain.from_iterable(mp.get_legal_moves()))
+            if destination in moves:
+                pieces.append(p)
+        if len(pieces) == 1:
+            return AmbiguousNotation.NONE
+        for i in range(len(pieces)):
+            for j in range(i+1, len(pieces)):
+                if pieces[i].position.x != pieces[j].position.x and pieces[i].position.y != pieces[j].position.y:
+                    continue
+                if pieces[i].position.x == pieces[j].position.x:
+                    amb_f.add(AmbiguousNotation.FILE)
+                elif pieces[i].position.y == pieces[j].position.y:
+                    amb_f.add(AmbiguousNotation.RANK)
+        if len(amb_f) == 0:
+            return AmbiguousNotation.NONE
+        if len(amb_f) == 2:
+            return AmbiguousNotation.BOTH
+        if AmbiguousNotation.FILE in amb_f:
+            return AmbiguousNotation.FILE
+        return AmbiguousNotation.RANK
+
     # override PositionObserver
     def on_position_change(self, origin: BoardVector2d, destination: BoardVector2d) -> None:
         mp, op = self.get_piece(origin), self.get_piece(destination)
@@ -73,17 +108,19 @@ class Board(PositionObserver):
         self._promotion_manager.check_promotion(mp)
 
         lm = self._game.get_last_move()
-        if lm.move_type == PieceMoveType.QUEEN_SIDE_CASTLING or lm.move_type == PieceMoveType.KING_SIDE_CASTLING:
-            self.move_number = (self.move_number + 1) % 2
+        if PieceMoveType.QUEEN_SIDE_CASTLING in lm.move_types or PieceMoveType.KING_SIDE_CASTLING in lm.move_types:
             return
 
         piece_move: PieceMove = PieceMove(mp, origin, destination, None, None)
         self._game.add_move_to_history(piece_move)
-        move_type: PieceMoveType = PieceMoveDetector.detect(self, mp, op, destination)
-        self._game.modify_last_move(move_type=move_type)
-        self._game.on_position_change(mp, move_type)
-        if mp.model == PieceModel.QUEEN and mp.position == BoardVector2d(4, 4):
-            pass
+        move_types: list[PieceMoveType] = PieceMoveDetector.detect(self, mp, op, destination)
+        self._game.get_last_move().add_move_type(move_types)
+        if PieceMoveType.PROMOTION in move_types:
+            self._game.get_last_move().add_promotion(self.get_to_promote())
+        self._game.on_position_change(mp, move_types)
+        print(self._game._notation_generator.generate_last_move_string())
+        # if mp.model == PieceModel.QUEEN and mp.position == BoardVector2d(4, 4):
+        #     pass
 
     def get_size(self) -> tuple[int, int]:
         return self._width, self._height
