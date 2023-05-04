@@ -43,8 +43,6 @@ class Piece:
                 return "R"
             case PieceModel.KNIGHT:
                 return "N"
-            case PieceModel.MIRROR:
-                return "M"
 
     @property
     def model(self) -> PieceModel:

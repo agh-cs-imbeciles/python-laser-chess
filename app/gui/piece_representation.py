@@ -2,8 +2,12 @@ from __future__ import annotations
 from kivy.uix.button import Button
 from kivy.uix.image import Image
 from kivy.uix.relativelayout import RelativeLayout
+from kivy.graphics import *
 
+from typing import cast
 from game.piece import PieceModel
+from game.piece.lasgun_logic import MirrorPiece
+from game.piece.lasgun_logic import MirrorDirections
 from game.piece.piece import Piece
 
 
@@ -15,6 +19,7 @@ class PieceRepresentationLayout(RelativeLayout):
         self.add_widget(button)
         self._img = None
         self._indicator = None
+        self._piece = piece
 
         if opacity is not None:
             self.opacity = opacity
@@ -22,7 +27,7 @@ class PieceRepresentationLayout(RelativeLayout):
             return
 
         self.__load(piece.model,piece.player_id)
-        self.add_widget(self._img)
+        self.__add_img_to_repr(self._img)
 
     def __load(self, piece_type: PieceModel, player: int):
         if piece_type is None or player is None:
@@ -51,8 +56,27 @@ class PieceRepresentationLayout(RelativeLayout):
                 self._img = Image(source=f"assets/{color}_mirror.png")
             case _:
                 self._img = None
+    def __add_img_to_repr(self, img: Image):
+        self.add_widget(img)
+        if self._piece.model == PieceModel.MIRROR:
+            match cast(MirrorPiece, self._piece).direction:
+                case MirrorDirections.UPPER_LEFT:
+                    rotate = 90
+                case MirrorDirections.UPPER_RIGHT:
+                    rotate = 180
+                case MirrorDirections.BOTTOM_RIGHT:
+                    rotate = 270
+                case MirrorDirections.BOTTOM_LEFT:
+                    rotate = 0
+            with self._img.canvas.before:
+                PushMatrix()
+                Rotate(angle=rotate, axis=(0, 0, 1))
+            with self._img.canvas.after:
+                PopMatrix()
 
-    def add_value_to_button(self,value):
+
+
+    def add_value_to_button(self, value):
         self._button.value = value
 
     def remove_img(self) -> Image | None:
@@ -63,23 +87,19 @@ class PieceRepresentationLayout(RelativeLayout):
         self._img = None
         return img
 
-    def add_img(self, img: Image):
-        if self._img is not None:
-            return
-        self._img = img
-        self.add_widget(img)
-
     def new_image_piece(self, piece: Piece):
         if piece is None:
             return
+        self._piece = piece
         self.__load(piece.model, piece.player_id)
-        self.add_widget(self._img)
+        self.__add_img_to_repr(self._img)
 
     def new_image(self, model: PieceModel, player: int):
+        self._piece = None
         if model is None or player is None:
             return
         self.__load(model, player)
-        self.add_widget(self._img)
+        self.__add_img_to_repr(self._img)
         pass
 
     def add_indicator(self, img: Image):
@@ -87,7 +107,7 @@ class PieceRepresentationLayout(RelativeLayout):
             return
         self._indicator = img
         img.size_hint = (0.5, 0.5)
-        self.add_widget(img)
+        self.__add_img_to_repr(img)
 
     def remove_indicator(self):
         if self._indicator is None:
@@ -97,6 +117,14 @@ class PieceRepresentationLayout(RelativeLayout):
         self._indicator = None
         return img
 
+    # not used (yet)
+
     def replace_indicator(self, img: Image):
         self.remove_indicator()
         self.add_indicator(img)
+
+    def add_img(self, img: Image):
+        if self._img is not None:
+            return
+        self._img = img
+        self.__add_img_to_repr(img)

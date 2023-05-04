@@ -40,7 +40,7 @@ class Game:
         self.end_if_conditions_fulfilled()
 
     def set_notation_ambiguity(self, ambig: AmbiguousNotation) -> None:
-        self._notation_generator.ambiguity(ambig)
+        self._notation_generator.ambiguity = ambig
 
     def add_move_to_history(self, piece_move: PieceMove) -> None:
         mh = self._moves_history

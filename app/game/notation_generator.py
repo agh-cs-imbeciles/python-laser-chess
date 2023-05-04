@@ -7,20 +7,20 @@ from game.piece import PieceModel
 from game.observer import game_end_obs
 from game.ambiguous_enum import AmbiguousNotation
 
-class NotationGenerator:
+
+class NotationGenerator(object):
     def __init__(self, board: Board):
+        self._ambiguity = AmbiguousNotation.NONE
         self._board = board
         self._ending_move = ""
         self._move_number = 0
-        self._ambiguity = AmbiguousNotation.NONE
-
 
     def generate_last_move_string(self) -> str:
         self._move_number += 1
         lm = self._board.get_last_move()
         gen_str: str = ""
         for m in lm.move_types:
-            if m == PieceMoveType.DRAW or m == PieceMoveType.QUEEN_SIDE_CASTLING\
+            if m == PieceMoveType.DRAW or m == PieceMoveType.QUEEN_SIDE_CASTLING \
                     or m == PieceMoveType.KING_SIDE_CASTLING:
                 return str(m)
         gen_str += str(lm.piece)
@@ -57,11 +57,14 @@ class NotationGenerator:
             self._ending_move = "1-0"
         else:
             self._ending_move = "0-1"
+    @property
+    def ambiguity(self):
+        return self._ambiguity
+
+    @ambiguity.setter
+    def ambiguity(self, ambig: AmbiguousNotation) -> None:
+        self._ambiguity = ambig
 
     @property
     def ending_move(self):
         return self._ending_move
-
-    # @ambiguity.setter
-    def ambiguity(self, ambig: AmbiguousNotation):
-        self._ambiguity = ambig
