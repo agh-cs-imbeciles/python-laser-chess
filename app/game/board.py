@@ -119,8 +119,6 @@ class Board(PositionObserver):
             self._game.get_last_move().add_promotion(self.get_to_promote())
         self._game.on_position_change(mp, move_types)
         print(self._game._notation_generator.generate_last_move_string())
-        # if mp.model == PieceModel.QUEEN and mp.position == BoardVector2d(4, 4):
-        #     pass
 
     def get_size(self) -> tuple[int, int]:
         return self._width, self._height

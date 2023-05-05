@@ -2,6 +2,7 @@ from kivy.uix.button import Button
 from kivy.uix.image import Image
 from kivy.uix.label import Label
 from kivy.uix.screenmanager import Screen
+from kivy.uix.relativelayout import RelativeLayout
 
 from game.piece import PieceModel
 from utils.background_label import BackgroundLabel
@@ -15,8 +16,10 @@ from numpy import empty
 from gui.piece_representation import PieceRepresentationLayout
 from gui.window_updater import WindowUpdater
 from game.piece.piece import Piece
+from game.piece.lasgun_logic import MirrorPiece
 import itertools
-
+from utils import ImageButtonLayout
+from utils import Paths
 
 class MetaAB(type(obs.PositionObserver), type(Screen)):
     pass
@@ -37,10 +40,10 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
         self._possible_movements = []
         self._is_promotion = False
         self._window_updater = WindowUpdater(self.ids)
-        self._promotion_representation: list[PieceRepresentationLayout] = [
-            PieceRepresentationLayout(None, Button(on_press=self.on_promotion_click), opacity=0) for _ in self._board
-            .get_possible_promotions()
-        ]
+        self._promotion_representation: list[PieceRepresentationLayout]
+        self._rotation_representation: list[ImageButtonLayout]
+        self._reset_button = Button()
+        self._reset_button.vector = BoardVector2d(-1, -1)
         self._init_board()
         self._elements_dict = dict()
 
@@ -89,8 +92,26 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
                 self._representations[vector.y][vector.x] = piece_layout
 
         # creation of promotion tab
+        self._promotion_representation = [
+            PieceRepresentationLayout(None, Button(on_press=self.on_promotion_click), opacity=0) for _ in self._board
+            .get_possible_promotions()
+        ]
+
         for rep in self._promotion_representation:
             self.ids.promotion_tab.add_widget(rep)
+
+        # creation of rotation tab
+
+        self._rotation_representation = [
+            ImageButtonLayout(Paths.LEFT.value, Button(on_press=self.on_rotation_click), opacity=0),
+            ImageButtonLayout(Paths.RIGHT.value, Button(on_press=self.on_rotation_click), opacity=0)
+        ]
+        r = self._rotation_representation
+        r[0].add_value_to_button(Paths.LEFT)
+        r[1].add_value_to_button(Paths.RIGHT)
+
+        for rep in self._rotation_representation:
+            self.ids.rotation_tab.add_widget(rep)
 
     def _add_coordinates(self):
         boxes = [self.ids.top, self.ids.left, self.ids.bot, self.ids.right]
@@ -123,7 +144,23 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
         self._is_promotion = False
         self.on_position_change(None, None)
 
+    def on_rotation_click(self, instance: Button):
+        match instance.value:
+            case Paths.LEFT:
+                self._game.move_piece(self._selected_piece, None, False)
+            case Paths.RIGHT:
+                self._game.move_piece(self._selected_piece, None, False)
+        for rep in self._rotation_representation:
+            rep.opacity = 0
+        self.on_tile_click(self._reset_button)
+
+    def hide_rotation(self):
+        for rep in self._rotation_representation:
+            rep.opacity = 0
+
+
     def on_tile_click(self, instance: Button):
+        self.hide_rotation()
         if self._is_promotion:
             return
 
@@ -143,6 +180,9 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
                 self._selected = self._board.get_piece_movement(instance.vector)
                 self._possible_movements = list(itertools.chain.from_iterable(self._selected.get_legal_moves()))
                 self.on_show_possible_movements(self._possible_movements)
+                if piece.model == PieceModel.MIRROR:
+                    self.show_rotation_menu()
+
                 return
         else:
             #
@@ -153,6 +193,9 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
                 self._selected = self._board.get_piece_movement(instance.vector)
                 self._possible_movements = list(itertools.chain.from_iterable(self._selected.get_legal_moves()))
                 self.on_show_possible_movements(self._possible_movements)
+                if piece.model == PieceModel.MIRROR:
+                    self.show_rotation_menu()
+
             #
             # Move piece
             #
@@ -187,6 +230,11 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
 
     def update_indicator_label(self, text: str):
         self._indicator_label.text = text
+        pass
+
+    def show_rotation_menu(self):
+        for rep in self._rotation_representation:
+            rep.opacity = 1
         pass
 
     def show_promotion_menu(self, piece: Piece):

@@ -11,6 +11,7 @@ class PieceMoveType(Enum):
     CHECKMATE           = 6
     STALEMATE           = 7
     DRAW                = 8
+    ROTATION            = 9
 
     def __str__(self):
         match self.value:

@@ -1,5 +1,5 @@
 from typing import Any
-from utils import BoardVector2d
+from utils import BoardVector2d, Paths
 from game import Board
 from game.piece import Piece, PieceModel, PieceFactory
 from game.piece.move import PieceMove, PieceMoveType, PieceMoveDetector
@@ -7,7 +7,8 @@ from game.piece.movement import PieceMovement
 from game.observer.game_end_obs import GameEndObserver
 from game.notation_generator import  NotationGenerator
 from game.ambiguous_enum import AmbiguousNotation
-
+from game.piece.lasgun_logic import MirrorDirections, MirrorPiece
+from typing import cast
 
 class Game:
     def __init__(self) -> None:
@@ -105,6 +106,8 @@ class Game:
         self.__init_rooks()
         # Knights
         self.__init_knights()
+        # Mirrors
+        self.__init_mirrors()
 
     def __init_kings(self):
         king_data = [
@@ -158,10 +161,29 @@ class Game:
         for pos, color in knight_data:
             self.__add_piece(self._piece_factory.create_piece(PieceModel.KNIGHT, pos, color))
 
-    def move_piece(self, piece: Piece, destination: BoardVector2d) -> None:
+    def __init_mirrors(self):
+        mirror_data = [
+            (BoardVector2d(3, 3), 0, MirrorDirections.UPPER_LEFT),
+            (BoardVector2d(4, 3), 0, MirrorDirections.UPPER_RIGHT),
+            (BoardVector2d(1, 1), 0, MirrorDirections.UPPER_LEFT),
+            (BoardVector2d(6, 1), 0, MirrorDirections.UPPER_RIGHT),
+
+            (BoardVector2d(3, 4), 1, MirrorDirections.BOTTOM_LEFT),
+            (BoardVector2d(4, 4), 1, MirrorDirections.BOTTOM_RIGHT),
+            (BoardVector2d(1, 6), 1, MirrorDirections.BOTTOM_LEFT),
+            (BoardVector2d(6, 6), 1, MirrorDirections.BOTTOM_RIGHT),
+        ]
+        for pos, color, dir in mirror_data:
+            self.__add_piece(self._piece_factory.create_piece(PieceModel.MIRROR, pos, color, dir))
+        pass
+
+    def move_piece(self, piece: Piece, destination: BoardVector2d, rotate_right: bool | None = None) -> None:
         ambig = self.board.ambiguity_move_type(self._board.get_piece_movement(piece.position), destination)
         self.set_notation_ambiguity(ambig)
-        piece.move(destination)
+        if rotate_right is not None and isinstance(piece, MirrorPiece):
+            cast(MirrorPiece, piece).move(None, rotate_right)
+        else:
+            piece.move(destination)
         self.board.move_number = (self.board.move_number + 1) % 2
         #     return
         #

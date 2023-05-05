@@ -53,28 +53,25 @@ class PieceRepresentationLayout(RelativeLayout):
             case piece_type.BISHOP:
                 self._img = Image(source=f"assets/{color}_bishop.png")
             case piece_type.MIRROR:
-                self._img = Image(source=f"assets/{color}_mirror.png")
+                match cast(MirrorPiece, self._piece).direction:
+                    case MirrorDirections.UPPER_LEFT:
+                        rotation = "ul"
+                    case MirrorDirections.UPPER_RIGHT:
+                        rotation = "ur"
+                    case MirrorDirections.BOTTOM_RIGHT:
+                        rotation = "br"
+                    case MirrorDirections.BOTTOM_LEFT:
+                        rotation = "bl"
+                    case _:
+                        rotation = "bl"
+                self._img = Image(source=f"assets/{color}_{rotation}_mirror.png")
+                self._img.allow_stretch = True
+                self._img.keep_ratio = False
             case _:
                 self._img = None
+
     def __add_img_to_repr(self, img: Image):
         self.add_widget(img)
-        if self._piece.model == PieceModel.MIRROR:
-            match cast(MirrorPiece, self._piece).direction:
-                case MirrorDirections.UPPER_LEFT:
-                    rotate = 90
-                case MirrorDirections.UPPER_RIGHT:
-                    rotate = 180
-                case MirrorDirections.BOTTOM_RIGHT:
-                    rotate = 270
-                case MirrorDirections.BOTTOM_LEFT:
-                    rotate = 0
-            with self._img.canvas.before:
-                PushMatrix()
-                Rotate(angle=rotate, axis=(0, 0, 1))
-            with self._img.canvas.after:
-                PopMatrix()
-
-
 
     def add_value_to_button(self, value):
         self._button.value = value

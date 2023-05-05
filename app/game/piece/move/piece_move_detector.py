@@ -19,6 +19,11 @@ class PieceMoveDetector:
             return [PieceMoveType.DRAW]
 
         #
+        # Mirror rotation
+        #
+        if moved_piece.model == PieceModel.MIRROR and other_piece == moved_piece:
+            return [PieceMoveType.ROTATION]
+        #
         # Castling
         #
         lm = board.get_last_move()
