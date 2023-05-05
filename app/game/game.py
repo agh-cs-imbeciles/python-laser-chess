@@ -7,7 +7,7 @@ from game.piece.movement import PieceMovement
 from game.observer.game_end_obs import GameEndObserver
 from game.notation_generator import  NotationGenerator
 from game.ambiguous_enum import AmbiguousNotation
-from game.piece.lasgun_logic import MirrorDirections, MirrorPiece
+from game.piece.lasgun import MirrorDirections, MirrorPiece
 from typing import cast
 
 class Game:

@@ -6,8 +6,8 @@ from kivy.graphics import *
 
 from typing import cast
 from game.piece import PieceModel
-from game.piece.lasgun_logic import MirrorPiece
-from game.piece.lasgun_logic import MirrorDirections
+from game.piece.lasgun import MirrorPiece
+from game.piece.lasgun import MirrorDirections
 from game.piece.piece import Piece
 
 

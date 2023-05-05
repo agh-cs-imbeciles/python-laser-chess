@@ -16,7 +16,7 @@ from numpy import empty
 from gui.piece_representation import PieceRepresentationLayout
 from gui.window_updater import WindowUpdater
 from game.piece.piece import Piece
-from game.piece.lasgun_logic import MirrorPiece
+from game.piece.lasgun import MirrorPiece
 import itertools
 from utils import ImageButtonLayout
 from utils import Paths
@@ -180,7 +180,7 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
                 self._selected = self._board.get_piece_movement(instance.vector)
                 self._possible_movements = list(itertools.chain.from_iterable(self._selected.get_legal_moves()))
                 self.on_show_possible_movements(self._possible_movements)
-                if piece.model == PieceModel.MIRROR:
+                if piece.model == PieceModel.MIRROR and not self._board.is_king_under_check(piece.player_id):
                     self.show_rotation_menu()
 
                 return
@@ -193,7 +193,7 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
                 self._selected = self._board.get_piece_movement(instance.vector)
                 self._possible_movements = list(itertools.chain.from_iterable(self._selected.get_legal_moves()))
                 self.on_show_possible_movements(self._possible_movements)
-                if piece.model == PieceModel.MIRROR:
+                if piece.model == PieceModel.MIRROR and not self._board.is_king_under_check(piece.player_id):
                     self.show_rotation_menu()
 
             #

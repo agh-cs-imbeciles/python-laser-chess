@@ -1,6 +1,6 @@
 from __future__ import annotations
 from game.piece import Piece
-from game.piece.lasgun_logic import MirrorDirections
+from game.piece.lasgun import MirrorDirections
 from game.piece import PieceModel
 from utils import BoardVector2d
 

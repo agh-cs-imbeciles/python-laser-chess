@@ -2,8 +2,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 from utils import BoardVector2d
 from game.piece import Piece, PieceModel
-from game.piece.lasgun_logic import MirrorPiece
-from game.piece.lasgun_logic import MirrorDirections
+from game.piece.lasgun import MirrorPiece
+from game.piece.lasgun import MirrorDirections
 from game.piece.movement import PieceMovement, \
                                 KingMovement, \
                                 QueenMovement, \
