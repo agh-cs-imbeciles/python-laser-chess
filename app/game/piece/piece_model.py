@@ -9,3 +9,4 @@ class PieceModel(Enum):
     ROOK    = 4
     KNIGHT  = 5
     MIRROR  = 6
+    LASGUN  = 7

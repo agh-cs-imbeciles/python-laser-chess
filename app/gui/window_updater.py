@@ -60,7 +60,16 @@ class WindowUpdater:
         e.get('board').width = 0.6 * main_x
         e.get('board').height = 0.8 * main_y
 
+        # promotion
+
         for rep in e.get('promotion_tab').children:
             rep.width = 0.2*main_x
             rep.height = 0.2*main_y
+
+        # rotation
+        # e.get('rotation_tab').height = 0.2*main_y
+        #
+        # for rot in e.get('rotation_tab').children:
+        #     rot.height = 0.2*main_y
+        #     rot.width = rot.height
 

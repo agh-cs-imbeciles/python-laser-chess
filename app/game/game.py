@@ -1,12 +1,14 @@
 from typing import Any
-from utils import BoardVector2d
+from utils import BoardVector2d, Paths
 from game import Board
 from game.piece import Piece, PieceModel, PieceFactory
 from game.piece.move import PieceMove, PieceMoveType, PieceMoveDetector
-from game.piece.movement import PieceMovement
+from game.piece.movement import PieceMovement, Movement
 from game.observer.game_end_obs import GameEndObserver
 from game.notation_generator import  NotationGenerator
 from game.ambiguous_enum import AmbiguousNotation
+from game.piece.lasgun import  MirrorPiece
+from typing import cast
 
 
 class Game:
@@ -40,7 +42,7 @@ class Game:
         self.end_if_conditions_fulfilled()
 
     def set_notation_ambiguity(self, ambig: AmbiguousNotation) -> None:
-        self._notation_generator.ambiguity(ambig)
+        self._notation_generator.ambiguity = ambig
 
     def add_move_to_history(self, piece_move: PieceMove) -> None:
         mh = self._moves_history
@@ -105,6 +107,10 @@ class Game:
         self.__init_rooks()
         # Knights
         self.__init_knights()
+        # Mirrors
+        self.__init_mirrors()
+        # Lasguns
+        self.__init_lasguns()
 
     def __init_kings(self):
         king_data = [
@@ -144,8 +150,8 @@ class Game:
 
     def __init_rooks(self):
         rook_data = [
-            (BoardVector2d(0, 0), 0), (BoardVector2d(7, 0), 0),
-            (BoardVector2d(0, self.board.height - 1), 1), (BoardVector2d(7, self.board.height - 1), 1),
+            (BoardVector2d(0, 0), 0), (BoardVector2d(7, 1), 0),
+            (BoardVector2d(0, self.board.height - 2), 1), (BoardVector2d(7, self.board.height - 1), 1),
         ]
         for pos, color in rook_data:
             self.__add_piece(self._piece_factory.create_piece(PieceModel.ROOK, pos, color))
@@ -158,10 +164,36 @@ class Game:
         for pos, color in knight_data:
             self.__add_piece(self._piece_factory.create_piece(PieceModel.KNIGHT, pos, color))
 
-    def move_piece(self, piece: Piece, destination: BoardVector2d) -> None:
+    def __init_mirrors(self):
+        mirror_data = [
+            (BoardVector2d(3, 3), 0, Movement.UPPER_LEFT_DIAGONAL),
+            (BoardVector2d(4, 3), 0, Movement.UPPER_RIGHT_DIAGONAL),
+            (BoardVector2d(1, 1), 0, Movement.UPPER_LEFT_DIAGONAL),
+            (BoardVector2d(6, 1), 0, Movement.UPPER_RIGHT_DIAGONAL),
+
+            (BoardVector2d(3, 4), 1, Movement.BOTTOM_LEFT_DIAGONAL),
+            (BoardVector2d(4, 4), 1, Movement.BOTTOM_RIGHT_DIAGONAL),
+            (BoardVector2d(1, 6), 1, Movement.BOTTOM_LEFT_DIAGONAL),
+            (BoardVector2d(6, 6), 1, Movement.BOTTOM_RIGHT_DIAGONAL),
+        ]
+        for pos, color, dir in mirror_data:
+            self.__add_piece(self._piece_factory.create_piece(PieceModel.MIRROR, pos, color, dir))
+
+    def __init_lasguns(self):
+        lasgun_data = [
+            (BoardVector2d(7, 0), 0, Movement.UPPER_FILE),
+            (BoardVector2d(0, self._board.height-1), 1, Movement.BOTTOM_FILE),
+        ]
+        for pos, color, dir in lasgun_data:
+            self.__add_piece(self._piece_factory.create_piece(PieceModel.LASGUN, pos, color, dir))
+
+    def move_piece(self, piece: Piece, destination: BoardVector2d, rotate_right: bool | None = None) -> None:
         ambig = self.board.ambiguity_move_type(self._board.get_piece_movement(piece.position), destination)
         self.set_notation_ambiguity(ambig)
-        piece.move(destination)
+        if rotate_right is not None and isinstance(piece, MirrorPiece):
+            cast(MirrorPiece, piece).move(None, rotate_right)
+        else:
+            piece.move(destination)
         self.board.move_number = (self.board.move_number + 1) % 2
         #     return
         #
