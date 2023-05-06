@@ -32,8 +32,10 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
         self._grid = self.ids.board
         self._indicator_label: Label = self.ids.indicator_lab
         self._dots = empty(shape=27, dtype=Image)
+        self._laser_ind = empty(shape=64, dtype=Image)
         self._representations = empty(shape=(8, 8), dtype=PieceRepresentationLayout)
         self._current_dots = []
+        self._current_laser_ind = []
         self._selected = None
         self._selected_piece = None
         self._board = self._game.board
@@ -61,6 +63,11 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
         # creation of indicator dots
         for i in range(len(self._dots)):
             self._dots[i] = Image(source="assets/dot.png")
+
+        # creation of laser dots
+        for i in range(len(self._laser_ind)):
+            self._laser_ind[i] = Image(source="assets/lasgun_dot.png")
+
         self._add_coordinates()
 
         self.update_indicator_label("Tura gracza " + str(self._board.move_number))
@@ -149,15 +156,22 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
             case Paths.LEFT:
                 self._game.move_piece(self._selected_piece, None, False)
             case Paths.RIGHT:
-                self._game.move_piece(self._selected_piece, None, False)
+                self._game.move_piece(self._selected_piece, None, True)
         for rep in self._rotation_representation:
             rep.opacity = 0
         self.on_tile_click(self._reset_button)
+        self._possible_movements = []
+        self._selected = None
+        self._selected_piece = None
 
     def hide_rotation(self):
         for rep in self._rotation_representation:
             rep.opacity = 0
 
+    def clear_laser_ind(self):
+        for l in self._current_laser_ind:
+            l.parent.remove_widget(l)
+        self._current_laser_ind.clear()
 
     def on_tile_click(self, instance: Button):
         self.hide_rotation()
@@ -171,48 +185,42 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
         self._current_dots.clear()
 
         piece = self._board.get_piece(instance.vector)
-        if self._selected is None:
-            #
-            # select piece
-            #
-            if piece is not None and piece.is_same_color(self._board.move_number):
-                self._selected_piece = self._board.get_piece(instance.vector)
-                self._selected = self._board.get_piece_movement(instance.vector)
-                self._possible_movements = list(itertools.chain.from_iterable(self._selected.get_legal_moves()))
-                self.on_show_possible_movements(self._possible_movements)
-                if piece.model == PieceModel.MIRROR and not self._board.is_king_under_check(piece.player_id):
-                    self.show_rotation_menu()
-
+        if piece is not None and piece.is_same_color(self._board.move_number):
+            if piece.model == PieceModel.LASGUN:
+                self._board.fire_lasgun_control(piece.player_id)
+                self.on_show_laser_fields(self._board.get_all_laser_fields())
                 return
-        else:
-            #
-            # Select other piece
-            #
-            if piece is not None and piece.is_same_color(self._board.move_number):
-                self._selected_piece = self._board.get_piece(instance.vector)
-                self._selected = self._board.get_piece_movement(instance.vector)
-                self._possible_movements = list(itertools.chain.from_iterable(self._selected.get_legal_moves()))
-                self.on_show_possible_movements(self._possible_movements)
-                if piece.model == PieceModel.MIRROR and not self._board.is_king_under_check(piece.player_id):
-                    self.show_rotation_menu()
+            self._selected_piece = self._board.get_piece(instance.vector)
+            self._selected = self._board.get_piece_movement(instance.vector)
+            self._possible_movements = list(itertools.chain.from_iterable(self._selected.get_legal_moves()))
+            self.on_show_possible_movements(self._possible_movements)
+            if piece.model == PieceModel.MIRROR and not self._board.is_king_under_check(piece.player_id):
+                self.show_rotation_menu()
+            return
+        #
+        # Move piece
+        #
+        if self._selected is not None and instance.vector in self._possible_movements:
+            self.update_indicator_label("Tura gracza " + str(self._board.move_number))
+            self._game.move_piece(self._selected_piece, instance.vector)
+            self.show_promotion_menu(self._board.get_to_promote())
+            self._possible_movements = []
+            self._selected = None
+            self._selected_piece = None
 
-            #
-            # Move piece
-            #
-            elif instance.vector in self._possible_movements:
-                self.update_indicator_label("Tura gracza " + str(self._board.move_number))
-                self._game.move_piece(self._selected_piece, instance.vector)
-                self.show_promotion_menu(self._board.get_to_promote())
-                self._possible_movements = []
-                self._selected = None
-                self._selected_piece = None
-            # reset
-
-    def on_show_possible_movements(self, movements: list[BoardVector2d]):
+    def on_show_possible_movements(self, fields: list[BoardVector2d]):
         i = 0
-        for m in movements:
+        for m in fields:
             self._representations[m.y][m.x].add_widget(self._dots[i])
             self._current_dots.append(self._dots[i])
+            i += 1
+
+    def on_show_laser_fields(self, movements: list[BoardVector2d]):
+        self.clear_laser_ind()
+        i = 0
+        for m in movements:
+            self._representations[m.y][m.x].add_widget(self._laser_ind[i])
+            self._current_laser_ind.append(self._laser_ind[i])
             i += 1
 
     # override
@@ -223,6 +231,8 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
                 self._representations[i][j].remove_img()
                 self._representations[i][j].new_image_piece(self._board.get_piece(BoardVector2d(j, i)))
         self._show_checks()
+        self.clear_laser_ind()
+        self.on_show_laser_fields(self._board.get_all_laser_fields())
 
     # override
     def on_end(self, winner: int, type: PieceMoveType) -> None:

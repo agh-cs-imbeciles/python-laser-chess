@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 from builtins import list
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, cast
+
+from game.piece.lasgun import Lasgun
 from utils import BoardVector2d
 from game import CheckManager
 from game.observer import PositionObserver
@@ -12,6 +14,7 @@ from game.promotion import PromotionManager
 from game.piece.move.piece_move import PieceMove
 from game.ambiguous_enum import AmbiguousNotation
 import itertools
+
 if TYPE_CHECKING:
     from game import Game
     from game.piece.movement import PieceMovement
@@ -24,6 +27,7 @@ class Board(PositionObserver):
         self._move_number: int = 0
         self._pieces: dict[BoardVector2d, tuple[Piece, PieceMovement]] = {}
         self._kings: list[Piece] = []
+        self._lasguns: list[Lasgun] = []
         self._check_manager: CheckManager = CheckManager(self)
         self._game: Game = game
         self._promotion_manager = PromotionManager(self)
@@ -79,7 +83,7 @@ class Board(PositionObserver):
         if len(pieces) == 1:
             return AmbiguousNotation.NONE
         for i in range(len(pieces)):
-            for j in range(i+1, len(pieces)):
+            for j in range(i + 1, len(pieces)):
                 if pieces[i].position.x != pieces[j].position.x and pieces[i].position.y != pieces[j].position.y:
                     continue
                 if pieces[i].position.x == pieces[j].position.x:
@@ -98,7 +102,13 @@ class Board(PositionObserver):
     def on_position_change(self, origin: BoardVector2d, destination: BoardVector2d) -> None:
         mp, op = self.get_piece(origin), self.get_piece(destination)
         self._pieces[destination] = self._pieces.pop(origin, None)
-
+        for l in self._lasguns:
+            if destination in l.laser_fields:
+                self._fire_lasgun(l.player_id)
+            if l.player_id != self.move_number:
+                l.clear_laser_fields()
+            else:
+                l.charge()
         if mp is not None and mp.model == PieceModel.PAWN:
             pos = destination - self.get_piece_movement(destination).direction
             if self.is_piece_at(pos):
@@ -149,6 +159,45 @@ class Board(PositionObserver):
             return None
         return piece[1]
 
+    def get_laser_fields(self, owner: int):
+        for l in self._lasguns:
+            las = cast(Lasgun, l)
+            if las.player_id == owner:
+                return las.laser_fields
+
+    def get_all_laser_fields(self):
+        all = []
+        for l in self._lasguns:
+            las = cast(Lasgun, l)
+            all.extend(las.laser_fields)
+        return all
+
+    def can_fire(self, owner: int):
+        for l in self._lasguns:
+            if l.player_id == owner:
+                return l.can_fire()
+
+    def fire_lasgun_control(self, owner: int):
+        for l in self._lasguns:
+            las = cast(Lasgun, l)
+            if las.player_id == owner:
+                if las.can_fire():
+                    las.reset()
+                    self._fire_lasgun(owner)
+        pass
+
+    def _fire_lasgun(self, owner: int):
+        for l in self._lasguns:
+            las = cast(Lasgun, l)
+            if las.player_id == owner:
+                las.fire()
+                break
+        for f in las.laser_fields:
+            p = self.get_piece(f)
+            if p is not None and p.model != PieceModel.MIRROR:
+                self.destroy_piece(p)
+        las.move(las.position, None)
+
     def is_out_of_bounds(self, destination: BoardVector2d) -> bool:
         return destination.x < 0 or destination.x >= self.width or destination.y < 0 or destination.y >= self.height
 
@@ -179,21 +228,28 @@ class Board(PositionObserver):
         if self.is_out_of_bounds(destination):
             return False
         #
+        # Check, if laser blocks movement
+        #
+        if piece.model != PieceModel.MIRROR and piece.model != PieceModel.PAWN and \
+                (destination in self.get_laser_fields((piece.player_id + 1) % 2) or \
+                destination in self.get_laser_fields(piece.player_id)):
+            return False
+        #
         # Check, if player's king is under check - if it's, only covering moves are legal
         #
         if (
-            piece.model != PieceModel.KING
-            and self.is_king_under_check(pid)
-            and self._check_manager.get_critical_square(destination, pid) is None
-            and self._check_manager.checking_pieces[(pid + 1) % 2].get(destination) is None
+                piece.model != PieceModel.KING
+                and self.is_king_under_check(pid)
+                and self._check_manager.get_critical_square(destination, pid) is None
+                and self._check_manager.checking_pieces[(pid + 1) % 2].get(destination) is None
         ):
             return False
         #
         # Check, if player can capture a checking piece
         #
         if (
-            self._check_manager.checking_pieces[(pid + 1) % 2].get(destination) is not None
-            and len(self._check_manager.checking_pieces[(pid + 1) % 2]) > 1
+                self._check_manager.checking_pieces[(pid + 1) % 2].get(destination) is not None
+                and len(self._check_manager.checking_pieces[(pid + 1) % 2]) > 1
         ):
             return False
         #
@@ -201,18 +257,18 @@ class Board(PositionObserver):
         # then check whether the checking piece is protected
         #
         elif (
-            self._check_manager.checking_pieces[(pid + 1) % 2].get(destination) is not None
-            and piece.model == PieceModel.KING
-            and self._check_manager.is_piece_protected(self.get_piece(destination))
+                self._check_manager.checking_pieces[(pid + 1) % 2].get(destination) is not None
+                and piece.model == PieceModel.KING
+                and self._check_manager.is_piece_protected(self.get_piece(destination))
         ):
             return False
         #
         # Check, if piece isn't absolute pinned with own king
         #
         if (
-            self._check_manager.pinned_pieces[pid].get(piece.position)
-            and self._check_manager.pinned_pieces[pid].get(piece.position)[1] != self.get_piece(destination)
-            and not self._check_manager.is_pinned_square(destination, pid)
+                self._check_manager.pinned_pieces[pid].get(piece.position)
+                and self._check_manager.pinned_pieces[pid].get(piece.position)[1] != self.get_piece(destination)
+                and not self._check_manager.is_pinned_square(destination, pid)
         ):
             return False
         #
@@ -220,7 +276,6 @@ class Board(PositionObserver):
         #
         if piece.model == PieceModel.KING and self.is_check_at(destination, piece.player_id):
             return False
-
 
         #
         # Move with potential capturing
@@ -253,8 +308,12 @@ class Board(PositionObserver):
 
             if piece[0].model == PieceModel.KING:
                 self._kings.append(piece[0])
+            if piece[0].model == PieceModel.LASGUN:
+                self._lasguns.append(piece[0])
 
     def destroy_piece(self, piece: Piece):
+        if piece is None:
+            return
         self._pieces.pop(piece.position, None)
 
     def add_pieces(self, pieces: list[tuple[Piece, PieceMovement]]) -> None:

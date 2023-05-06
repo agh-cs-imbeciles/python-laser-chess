@@ -3,12 +3,13 @@ from utils import BoardVector2d, Paths
 from game import Board
 from game.piece import Piece, PieceModel, PieceFactory
 from game.piece.move import PieceMove, PieceMoveType, PieceMoveDetector
-from game.piece.movement import PieceMovement
+from game.piece.movement import PieceMovement, Movement
 from game.observer.game_end_obs import GameEndObserver
 from game.notation_generator import  NotationGenerator
 from game.ambiguous_enum import AmbiguousNotation
-from game.piece.lasgun import MirrorDirections, MirrorPiece
+from game.piece.lasgun import  MirrorPiece
 from typing import cast
+
 
 class Game:
     def __init__(self) -> None:
@@ -108,6 +109,8 @@ class Game:
         self.__init_knights()
         # Mirrors
         self.__init_mirrors()
+        # Lasguns
+        self.__init_lasguns()
 
     def __init_kings(self):
         king_data = [
@@ -147,8 +150,8 @@ class Game:
 
     def __init_rooks(self):
         rook_data = [
-            (BoardVector2d(0, 0), 0), (BoardVector2d(7, 0), 0),
-            (BoardVector2d(0, self.board.height - 1), 1), (BoardVector2d(7, self.board.height - 1), 1),
+            (BoardVector2d(0, 0), 0), (BoardVector2d(7, 1), 0),
+            (BoardVector2d(0, self.board.height - 2), 1), (BoardVector2d(7, self.board.height - 1), 1),
         ]
         for pos, color in rook_data:
             self.__add_piece(self._piece_factory.create_piece(PieceModel.ROOK, pos, color))
@@ -163,19 +166,26 @@ class Game:
 
     def __init_mirrors(self):
         mirror_data = [
-            (BoardVector2d(3, 3), 0, MirrorDirections.UPPER_LEFT),
-            (BoardVector2d(4, 3), 0, MirrorDirections.UPPER_RIGHT),
-            (BoardVector2d(1, 1), 0, MirrorDirections.UPPER_LEFT),
-            (BoardVector2d(6, 1), 0, MirrorDirections.UPPER_RIGHT),
+            (BoardVector2d(3, 3), 0, Movement.UPPER_LEFT_DIAGONAL),
+            (BoardVector2d(4, 3), 0, Movement.UPPER_RIGHT_DIAGONAL),
+            (BoardVector2d(1, 1), 0, Movement.UPPER_LEFT_DIAGONAL),
+            (BoardVector2d(6, 1), 0, Movement.UPPER_RIGHT_DIAGONAL),
 
-            (BoardVector2d(3, 4), 1, MirrorDirections.BOTTOM_LEFT),
-            (BoardVector2d(4, 4), 1, MirrorDirections.BOTTOM_RIGHT),
-            (BoardVector2d(1, 6), 1, MirrorDirections.BOTTOM_LEFT),
-            (BoardVector2d(6, 6), 1, MirrorDirections.BOTTOM_RIGHT),
+            (BoardVector2d(3, 4), 1, Movement.BOTTOM_LEFT_DIAGONAL),
+            (BoardVector2d(4, 4), 1, Movement.BOTTOM_RIGHT_DIAGONAL),
+            (BoardVector2d(1, 6), 1, Movement.BOTTOM_LEFT_DIAGONAL),
+            (BoardVector2d(6, 6), 1, Movement.BOTTOM_RIGHT_DIAGONAL),
         ]
         for pos, color, dir in mirror_data:
             self.__add_piece(self._piece_factory.create_piece(PieceModel.MIRROR, pos, color, dir))
-        pass
+
+    def __init_lasguns(self):
+        lasgun_data = [
+            (BoardVector2d(7, 0), 0, Movement.UPPER_FILE),
+            (BoardVector2d(0, self._board.height-1), 1, Movement.BOTTOM_FILE),
+        ]
+        for pos, color, dir in lasgun_data:
+            self.__add_piece(self._piece_factory.create_piece(PieceModel.LASGUN, pos, color, dir))
 
     def move_piece(self, piece: Piece, destination: BoardVector2d, rotate_right: bool | None = None) -> None:
         ambig = self.board.ambiguity_move_type(self._board.get_piece_movement(piece.position), destination)

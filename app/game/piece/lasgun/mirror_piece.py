@@ -1,12 +1,13 @@
 from __future__ import annotations
 from game.piece import Piece
-from game.piece.lasgun import MirrorDirections
+
 from game.piece import PieceModel
+from game.piece.movement import Movement
 from utils import BoardVector2d
 
 
 class MirrorPiece(Piece):
-    def __init__(self, position: BoardVector2d, player_id: int, direction: MirrorDirections) -> None:
+    def __init__(self, position: BoardVector2d, player_id: int, direction: Movement) -> None:
         super().__init__(PieceModel.MIRROR, position, player_id)
         self._direction = direction
 
@@ -17,11 +18,11 @@ class MirrorPiece(Piece):
         return "M"
 
     @property
-    def direction(self) -> MirrorDirections:
+    def direction(self) -> Movement:
         return self._direction
 
     @direction.setter
-    def direction(self, direction: MirrorDirections) -> None:
+    def direction(self, direction: Movement) -> None:
         self.direction = direction
 
     def move(self, destination: BoardVector2d | None = None, rotate_right: bool | None = None) -> None:
@@ -30,9 +31,9 @@ class MirrorPiece(Piece):
             destination = origin
         match rotate_right:
             case True:
-                self._direction = self._direction.right()
+                self._direction = self._direction.double_right()
             case False:
-                self._direction = self._direction.left()
+                self._direction = self._direction.double_left()
             case None:
                 if destination is None:
                     raise ValueError("Destination and rotation cannot have both None value")

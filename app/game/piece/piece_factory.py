@@ -1,17 +1,19 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
+
+from game.piece.movement.lasgun_movement import LasgunMovement
 from utils import BoardVector2d
 from game.piece import Piece, PieceModel
-from game.piece.lasgun import MirrorPiece
-from game.piece.lasgun import MirrorDirections
+from game.piece.lasgun import MirrorPiece, Lasgun
+
 from game.piece.movement import PieceMovement, \
-                                KingMovement, \
-                                QueenMovement, \
-                                PawnMovement, \
-                                BishopMovement, \
-                                RookMovement, \
-                                KnightMovement, \
-                                MirrorMovement
+    KingMovement, \
+    QueenMovement, \
+    PawnMovement, \
+    BishopMovement, \
+    RookMovement, \
+    KnightMovement, \
+    MirrorMovement, Movement
 
 if TYPE_CHECKING:
     from game import Board
@@ -22,7 +24,7 @@ class PieceFactory:
         self._board = board
 
     def create_piece(self, piece_model: PieceModel, position: BoardVector2d, color: int,
-                     mirror_direction: MirrorDirections | None = None) -> tuple[Piece, PieceMovement]:
+                     mirror_direction: Movement | None = None) -> tuple[Piece, PieceMovement]:
         match piece_model:
             case PieceModel.KING:
                 p = Piece(PieceModel.KING, position, color)
@@ -50,3 +52,8 @@ class PieceFactory:
                     raise ValueError("Direction cannot be None for mirror piece")
                 p = MirrorPiece(position, color, mirror_direction)
                 return p, MirrorMovement(p, self._board)
+            case PieceModel.LASGUN:
+                if mirror_direction is None:
+                    raise ValueError("Direction cannot be None for lasgun piece")
+                p = Lasgun(position, color, mirror_direction, self._board)
+                return p, LasgunMovement(p, self._board)

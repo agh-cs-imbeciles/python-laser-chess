@@ -7,7 +7,7 @@ from kivy.graphics import *
 from typing import cast
 from game.piece import PieceModel
 from game.piece.lasgun import MirrorPiece
-from game.piece.lasgun import MirrorDirections
+from game.piece.movement import Movement
 from game.piece.piece import Piece
 
 
@@ -52,15 +52,17 @@ class PieceRepresentationLayout(RelativeLayout):
                 self._img = Image(source=f"assets/{color}_rook.png")
             case piece_type.BISHOP:
                 self._img = Image(source=f"assets/{color}_bishop.png")
+            case piece_type.LASGUN:
+                self._img = Image(source=f"assets/{color}_lasgun.png")
             case piece_type.MIRROR:
                 match cast(MirrorPiece, self._piece).direction:
-                    case MirrorDirections.UPPER_LEFT:
+                    case Movement.UPPER_LEFT_DIAGONAL:
                         rotation = "ul"
-                    case MirrorDirections.UPPER_RIGHT:
+                    case Movement.UPPER_RIGHT_DIAGONAL:
                         rotation = "ur"
-                    case MirrorDirections.BOTTOM_RIGHT:
+                    case Movement.BOTTOM_RIGHT_DIAGONAL:
                         rotation = "br"
-                    case MirrorDirections.BOTTOM_LEFT:
+                    case Movement.BOTTOM_LEFT_DIAGONAL:
                         rotation = "bl"
                     case _:
                         rotation = "bl"
