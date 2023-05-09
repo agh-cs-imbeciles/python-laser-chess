@@ -103,11 +103,15 @@ class Board(PositionObserver):
         mp, op = self.get_piece(origin), self.get_piece(destination)
         self._pieces[destination] = self._pieces.pop(origin, None)
         for l in self._lasguns:
-            if destination in l.laser_fields:
-                self._fire_lasgun(l.player_id)
-            if l.player_id != self.move_number:
-                l.clear_laser_fields()
+            las = cast(Lasgun, l)
+            if las.player_id != self.move_number:
+                if las.fired:
+                    self._laser_inflict(las.player_id)
+                las.clear_laser_fields()
+                las.fired = False
             else:
+                if las.fired and mp.model!=PieceModel.LASGUN:
+                    self._laser_inflict(las.player_id)
                 l.charge()
         if mp is not None and mp.model == PieceModel.PAWN:
             pos = destination - self.get_piece_movement(destination).direction
@@ -181,12 +185,13 @@ class Board(PositionObserver):
         for l in self._lasguns:
             las = cast(Lasgun, l)
             if las.player_id == owner:
+                las.fired = True
                 if las.can_fire():
                     las.reset()
-                    self._fire_lasgun(owner)
-        pass
+                    las = self._laser_inflict(owner)
+                    las.move(las.position, None)
 
-    def _fire_lasgun(self, owner: int):
+    def _laser_inflict(self, owner: int) -> Lasgun:
         for l in self._lasguns:
             las = cast(Lasgun, l)
             if las.player_id == owner:
@@ -196,8 +201,7 @@ class Board(PositionObserver):
             p = self.get_piece(f)
             if p is not None and p.model != PieceModel.MIRROR:
                 self.destroy_piece(p)
-        las.move(las.position, None)
-
+        return las
     def is_out_of_bounds(self, destination: BoardVector2d) -> bool:
         return destination.x < 0 or destination.x >= self.width or destination.y < 0 or destination.y >= self.height
 
@@ -346,6 +350,8 @@ class Board(PositionObserver):
             return PieceMoveType.CHECKMATE
         if self._check_manager.is_stalemate(mn):
             return PieceMoveType.STALEMATE
+        if self._check_manager.is_king_dead(mn):
+            return PieceMoveType.LASER_MATE
         return None
 
     def get_last_move(self):
@@ -353,3 +359,7 @@ class Board(PositionObserver):
 
     def add_critical_checked_squares(self, player_id: int, squares: list[BoardVector2d]) -> None:
         self._check_manager.add_critical_checked_squares(player_id, squares)
+
+    @property
+    def lasguns(self):
+        return self._lasguns

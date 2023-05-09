@@ -1,3 +1,5 @@
+from typing import cast
+
 from kivy.uix.button import Button
 from kivy.uix.image import Image
 from kivy.uix.label import Label
@@ -133,9 +135,9 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
                 boxes[j].add_widget(label)
 
     def _show_checks(self):
-        check = Image(source="assets/this_fire.png")
         for king in self._board.kings:
             if self._board.is_king_under_check(king.player_id):
+                check = Image(source="assets/this_fire.png")
                 vector = king.position
                 self._representations[vector.y][vector.x].add_indicator(check)
 
@@ -230,13 +232,27 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
                 self._representations[i][j].remove_indicator()
                 self._representations[i][j].remove_img()
                 self._representations[i][j].new_image_piece(self._board.get_piece(BoardVector2d(j, i)))
-        self._show_checks()
+        self._show_indicators()
         self.clear_laser_ind()
         self.on_show_laser_fields(self._board.get_all_laser_fields())
+
+    def _show_lasgun_ready_indicators(self):
+        for las in self._board.lasguns:
+            if las.can_fire():
+                ready = Image(source="assets/laser_ready.png")
+                vector = las.position
+                self._representations[vector.y][vector.x].add_indicator(ready)
+
+    def _show_indicators(self):
+        self._show_checks()
+        self._show_lasgun_ready_indicators()
 
     # override
     def on_end(self, winner: int, type: PieceMoveType) -> None:
         self.update_indicator_label("Szach mat. Wygrywa " + str(winner))
+        for rep_arr in self._representations:
+            for rep in rep_arr:
+                cast(PieceRepresentationLayout, rep).button.unbind(on_press=self.on_tile_click)
 
     def update_indicator_label(self, text: str):
         self._indicator_label.text = text

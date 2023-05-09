@@ -12,6 +12,7 @@ class PieceMoveType(Enum):
     STALEMATE           = 7
     DRAW                = 8
     ROTATION            = 9
+    LASER_MATE          = 10
 
     def __str__(self):
         match self.value:
@@ -33,5 +34,9 @@ class PieceMoveType(Enum):
                 return "x"
             case PieceMoveType.PROMOTION.value:
                 return "="
+            case PieceMoveType.ROTATION.value:
+                return "S"
+            case PieceMoveType.LASER_MATE.value:
+                return "%"
 
 

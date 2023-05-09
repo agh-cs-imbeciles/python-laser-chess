@@ -22,6 +22,7 @@ class Lasgun(MirrorPiece):
         self._redirected: BoardVector2d | None = None
         self._last_field: BoardVector2d | None = None
         self._last_directions: BoardVector2d | None = None
+        self._fired = False
 
     @property
     def charges_left(self) -> int:
@@ -35,9 +36,17 @@ class Lasgun(MirrorPiece):
     def laser_fields(self) -> list[BoardVector2d]:
         return self._laser_fields
 
+    @property
+    def fired(self) -> bool:
+        return self._fired
+
+    @fired.setter
+    def fired(self, f: bool) -> None:
+        self._fired = f
+
     def __eq__(self, other):
         return (
-                super().__eq__()
+                super().__eq__(other)
                 and self._charges_left == other.charges_left
                 and self._charge_time == other.charge_time
         )
