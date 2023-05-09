@@ -2,21 +2,17 @@ from kivy.uix.button import Button
 from kivy.uix.image import Image
 from kivy.uix.label import Label
 from kivy.uix.screenmanager import Screen
-from kivy.uix.relativelayout import RelativeLayout
 
 from game.piece import PieceModel
-from utils.background_label import BackgroundLabel
 from game.piece.move import PieceMoveType
 from utils import BoardVector2d, rgba_int_to_float
 import game as g
-import game.piece as pcs
 import game.observer as obs
 from game.observer.game_end_obs import GameEndObserver
 from numpy import empty
-from gui.piece_representation import PieceRepresentationLayout
-from gui.window_updater import WindowUpdater
+from app.gui.piece_representation import PieceRepresentationLayout
+from app.gui.window_updater import WindowUpdater
 from game.piece.piece import Piece
-from game.piece.lasgun import MirrorPiece
 import itertools
 from utils import ImageButtonLayout
 from utils import Paths
