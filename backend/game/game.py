@@ -3,12 +3,17 @@ import websockets
 
 
 async def handler(websocket):
-    while True:
-        try:
-            message = await websocket.recv()
-        except websockets.ConnectionClosedOK:
-            break
-        print(message)
+    message = await websocket.recv()
+    print(f"<<< {message}")
+    response = "Bishops sucks"
+    print(f">>> {response}")
+    await websocket.send(response)
+    # while True:
+    #     try:
+    #         message = await websocket.recv()
+    #     except websockets.ConnectionClosedOK:
+    #         break
+    #     print(message)
 
 
 async def main():
