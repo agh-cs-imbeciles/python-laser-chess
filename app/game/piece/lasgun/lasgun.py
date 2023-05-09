@@ -15,7 +15,7 @@ class Lasgun(MirrorPiece):
     def __init__(self, position: BoardVector2d, player_id: int, direction: Movement, board: Board):
         super().__init__(position, player_id, direction)
         self._model = PieceModel.LASGUN
-        self._charge_time = 3
+        self._charge_time = 5
         self._charges_left = self._charge_time
         self._board = board
         self._laser_fields: list[BoardVector2d] = []

@@ -187,6 +187,8 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
         self._current_dots.clear()
 
         piece = self._board.get_piece(instance.vector)
+        if piece is None and not instance.vector in self._possible_movements:
+            self._possible_movements.clear()
         if piece is not None and piece.is_same_color(self._board.move_number):
             if piece.model == PieceModel.LASGUN:
                 self._board.fire_lasgun_control(piece.player_id)
@@ -198,15 +200,17 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
             self.on_show_possible_movements(self._possible_movements)
             if piece.model == PieceModel.MIRROR and not self._board.is_king_under_check(piece.player_id):
                 self.show_rotation_menu()
-            return
+
+
         #
         # Move piece
         #
+
         if self._selected is not None and instance.vector in self._possible_movements:
             self.update_indicator_label("Tura gracza " + str(self._board.move_number))
             self._game.move_piece(self._selected_piece, instance.vector)
             self.show_promotion_menu(self._board.get_to_promote())
-            self._possible_movements = []
+            self._possible_movements.clear()
             self._selected = None
             self._selected_piece = None
 
