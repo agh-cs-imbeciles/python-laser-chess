@@ -5,7 +5,8 @@ from kivy.uix.screenmanager import Screen
 
 from game.piece import PieceModel
 from game.piece.move import PieceMoveType
-from utils import BoardVector2d, rgba_int_to_float
+from utils import BoardVector2d
+from app.gui.utils import rgba_int_to_float, ImageButtonLayout, Paths
 import game as g
 import game.observer as obs
 from game.observer.game_end_obs import GameEndObserver
@@ -14,8 +15,7 @@ from app.gui.piece_representation import PieceRepresentationLayout
 from app.gui.window_updater import WindowUpdater
 from game.piece.piece import Piece
 import itertools
-from utils import ImageButtonLayout
-from utils import Paths
+
 
 class MetaAB(type(obs.PositionObserver), type(Screen)):
     pass

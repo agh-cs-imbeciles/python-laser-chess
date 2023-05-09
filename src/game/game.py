@@ -1,7 +1,7 @@
 from typing import Any
 import asyncio
 import websockets
-from utils import BoardVector2d, Paths
+from utils import BoardVector2d
 from game import Board
 from game.piece import Piece, PieceModel, PieceFactory
 from game.piece.move import PieceMove, PieceMoveType, PieceMoveDetector
@@ -26,7 +26,6 @@ class Game:
         self.__init_board()
         self._notation_generator = NotationGenerator(self._board)
         self.add_observer(self._notation_generator)
-
 
     # override
     def on_position_change(self, piece: Piece, move_types: list[PieceMoveType]) -> None:
