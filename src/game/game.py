@@ -7,9 +7,9 @@ from game.piece import Piece, PieceModel, PieceFactory
 from game.piece.move import PieceMove, PieceMoveType, PieceMoveDetector
 from game.piece.movement import PieceMovement, Movement
 from game.observer.game_end_obs import GameEndObserver
-from game.notation_generator import  NotationGenerator
+from game.notation_generator import NotationGenerator
 from game.ambiguous_enum import AmbiguousNotation
-from game.piece.lasgun import  MirrorPiece
+from game.piece.lasgun import MirrorPiece
 from typing import cast
 
 
@@ -63,7 +63,7 @@ class Game:
             if val is not None:
                 setattr(last_move, key, val)
 
-    def get_last_move(self):
+    def get_last_move(self) -> PieceMove:
         lmi = self._last_move_index
         return self._moves_history[lmi[0]][lmi[1]]
 
@@ -73,7 +73,7 @@ class Game:
             for obs in self._observers:
                 obs.on_end(self._board.move_number, mov)
 
-    def add_observer(self, observer: GameEndObserver):
+    def add_observer(self, observer: GameEndObserver) -> None:
         self._observers.append(observer)
 
     @property
@@ -114,7 +114,7 @@ class Game:
         # Lasguns
         self.__init_lasguns()
 
-    def __init_kings(self):
+    def __init_kings(self) -> None:
         king_data = [
             (BoardVector2d(4, 0), 0),
             (BoardVector2d(4, self.board.height - 1), 1),
@@ -122,7 +122,7 @@ class Game:
         for pos, color in king_data:
             self.__add_piece(self._piece_factory.create_piece(PieceModel.KING, pos, color))
 
-    def __init_hetmanice(self):
+    def __init_hetmanice(self) -> None:
         queen_data = [
             (BoardVector2d(3, 0), 0),
             (BoardVector2d(3, self.board.height - 1), 1),
@@ -130,7 +130,7 @@ class Game:
         for pos, color in queen_data:
             self.__add_piece(self._piece_factory.create_piece(PieceModel.QUEEN, pos, color))
 
-    def __init_pawns(self):
+    def __init_pawns(self) -> None:
         pawn_xs = [2, 3, 4, 5]
         for x in pawn_xs:
             self.board.add_pieces([
@@ -142,7 +142,7 @@ class Game:
             self._piece_factory.create_piece(PieceModel.PAWN, BoardVector2d(self.__BOARD_SIZE - 1, self.__BOARD_SIZE - 2), 1)
         ])
 
-    def __init_bishops(self):
+    def __init_bishops(self) -> None:
         bishop_data = [
             (BoardVector2d(2, 0), 0), (BoardVector2d(5, 0), 0),
             (BoardVector2d(2, self.board.height - 1), 1), (BoardVector2d(5, self.board.height - 1), 1),
@@ -150,7 +150,7 @@ class Game:
         for pos, color in bishop_data:
             self.__add_piece(self._piece_factory.create_piece(PieceModel.BISHOP, pos, color))
 
-    def __init_rooks(self):
+    def __init_rooks(self) -> None:
         rook_data = [
             (BoardVector2d(0, 0), 0), (BoardVector2d(7, 1), 0),
             (BoardVector2d(0, self.board.height - 2), 1), (BoardVector2d(7, self.board.height - 1), 1),
@@ -158,7 +158,7 @@ class Game:
         for pos, color in rook_data:
             self.__add_piece(self._piece_factory.create_piece(PieceModel.ROOK, pos, color))
 
-    def __init_knights(self):
+    def __init_knights(self) -> None:
         knight_data = [
             (BoardVector2d(1, 0), 0), (BoardVector2d(6, 0), 0),
             (BoardVector2d(1, self.board.height - 1), 1), (BoardVector2d(6, self.board.height - 1), 1),
@@ -166,7 +166,7 @@ class Game:
         for pos, color in knight_data:
             self.__add_piece(self._piece_factory.create_piece(PieceModel.KNIGHT, pos, color))
 
-    def __init_mirrors(self):
+    def __init_mirrors(self) -> None:
         mirror_data = [
             (BoardVector2d(3, 3), 0, Movement.UPPER_LEFT_DIAGONAL),
             (BoardVector2d(4, 3), 0, Movement.UPPER_RIGHT_DIAGONAL),
@@ -181,7 +181,7 @@ class Game:
         for pos, color, dir in mirror_data:
             self.__add_piece(self._piece_factory.create_piece(PieceModel.MIRROR, pos, color, dir))
 
-    def __init_lasguns(self):
+    def __init_lasguns(self) -> None:
         lasgun_data = [
             (BoardVector2d(7, 0), 0, Movement.UPPER_FILE),
             (BoardVector2d(0, self._board.height-1), 1, Movement.BOTTOM_FILE),
@@ -197,12 +197,3 @@ class Game:
         else:
             piece.move(destination)
         self.board.move_number = (self.board.move_number + 1) % 2
-        #     return
-        #
-        # piece_movement = self.board.get_piece_movement(piece.position)
-        # moves = piece_movement.get_legal_moves()
-        # for row in moves:
-        #     if destination in row:
-        #         piece.move(destination)
-        #         self.board.move_number = (self.board.move_number + 1) % 2
-        #         break

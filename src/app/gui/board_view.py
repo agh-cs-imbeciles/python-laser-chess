@@ -14,6 +14,7 @@ from numpy import empty
 from app.gui.piece_representation import PieceRepresentationLayout
 from app.gui.window_updater import WindowUpdater
 from game.piece.piece import Piece
+from app.game import GameApplication
 import itertools
 
 
@@ -25,6 +26,7 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
     def __init__(self, **kwargs):
         super().__init__()
         self._game = g.Game()
+        self._game_app: GameApplication = GameApplication(self._game)
         self._grid = self.ids.board
         self._indicator_label: Label = self.ids.indicator_lab
         self._dots = empty(shape=27, dtype=Image)
@@ -199,6 +201,7 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
         if self._selected is not None and instance.vector in self._possible_movements:
             self.update_indicator_label("Tura gracza " + str(self._board.move_number))
             self._game.move_piece(self._selected_piece, instance.vector)
+            self._game_app.on_move()
             self.show_promotion_menu(self._board.get_to_promote())
             self._possible_movements = []
             self._selected = None

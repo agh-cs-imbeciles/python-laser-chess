@@ -2,10 +2,10 @@ import asyncio
 from kivy.app import App
 from kivy.lang import Builder
 # from kivy.uix.screenmanager import ScreenManager, Screen
-import gui
+import app.gui
 from app.client import Sender
 
-kv = Builder.load_file("wind.kv")
+kv = Builder.load_file("app/wind.kv")
 
 
 class MyMainApp(App):
