@@ -1,10 +1,9 @@
+import asyncio
 from kivy.app import App
 from kivy.lang import Builder
-from kivy.uix.screenmanager import ScreenManager, Screen
+# from kivy.uix.screenmanager import ScreenManager, Screen
 import gui
-# from gui.menu import Menu
-# from gui.board import Board
-# from gui.window_manager import WindowManager
+from app.client import Sender
 
 kv = Builder.load_file("wind.kv")
 
@@ -15,4 +14,5 @@ class MyMainApp(App):
 
 
 if __name__ == "__main__":
+    asyncio.run(Sender.send({"greeter": "Slim Shady", "message": "Mom's spaghetti"}))
     MyMainApp().run()
