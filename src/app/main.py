@@ -14,5 +14,5 @@ class MyMainApp(App):
 
 
 if __name__ == "__main__":
-    asyncio.run(Sender.send({"greeter": "Slim Shady", "message": "Mom's spaghetti"}))
+    asyncio.run(Sender.send({"greeter": "Slim Shady", "message": "Mom's spaghetti", "spaghetti": None}))
     MyMainApp().run()
