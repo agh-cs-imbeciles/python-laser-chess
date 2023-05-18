@@ -126,7 +126,7 @@ class Board(PositionObserver):
         move_types: list[PieceMoveType] = PieceMoveDetector.detect(self, mp, op, destination)
         self._game.get_last_move().add_move_type(move_types)
         if PieceMoveType.PROMOTION in move_types:
-            self._game.get_last_move().add_promotion(self.get_to_promote())
+            self._game.get_last_move().add_promotion_piece(self.get_to_promote())
         self._game.on_position_change(mp, move_types)
         print(self._game._notation_generator.generate_last_move_string())
 

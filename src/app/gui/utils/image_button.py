@@ -3,6 +3,7 @@ from kivy.uix.button import Button
 from kivy.uix.image import Image
 from kivy.uix.relativelayout import RelativeLayout
 from enum import Enum
+from app.gui import Path
 
 
 # 0-white
@@ -73,5 +74,5 @@ class ImageButtonLayout(RelativeLayout):
 
 
 class Paths(Enum):
-    LEFT  = "assets/left.png"
-    RIGHT = "assets/right.png"
+    LEFT  = f"{Path.IMG_PATH}/left.png"
+    RIGHT = f"{Path.IMG_PATH}/right.png"
