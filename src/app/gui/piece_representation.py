@@ -1,8 +1,9 @@
 from __future__ import annotations
+import os
+import pathlib
 from kivy.uix.button import Button
 from kivy.uix.image import Image
 from kivy.uix.relativelayout import RelativeLayout
-from kivy.graphics import *
 
 from typing import cast
 from game.piece import PieceModel
@@ -13,10 +14,11 @@ from game.piece.piece import Piece
 
 # 0-white
 class PieceRepresentationLayout(RelativeLayout):
-    PIECE_IMG_PATH: str = "./assets/images/pieces"
+    PIECE_IMG_PATH: str = os.path.join(pathlib.Path(__file__).parent.resolve(), "../assets/images/pieces")
 
     def __init__(self, piece: Piece | None, button: Button, opacity=None, promotion=None):
         super().__init__()
+        print(PieceRepresentationLayout.PIECE_IMG_PATH)
         self._button = button
         self.add_widget(button)
         self._img = None

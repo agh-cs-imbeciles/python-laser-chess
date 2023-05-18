@@ -1,3 +1,5 @@
+import os
+import pathlib
 from kivy.uix.button import Button
 from kivy.uix.image import Image
 from kivy.uix.label import Label
@@ -23,6 +25,8 @@ class MetaAB(type(obs.PositionObserver), type(Screen)):
 
 
 class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
+    IMG_PATH: str = os.path.join(pathlib.Path(__file__).parent.resolve(), "../assets/images")
+
     def __init__(self, **kwargs):
         super().__init__()
         self._game = g.Game()
@@ -60,11 +64,11 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
 
         # creation of indicator dots
         for i in range(len(self._dots)):
-            self._dots[i] = Image(source="assets/dot.png")
+            self._dots[i] = Image(source=f"{Board.IMG_PATH}/dot.png")
 
         # creation of laser dots
         for i in range(len(self._laser_ind)):
-            self._laser_ind[i] = Image(source="assets/lasgun_dot.png")
+            self._laser_ind[i] = Image(source=f"{Board.IMG_PATH}/lasgun_dot.png")
 
         self._add_coordinates()
 
@@ -131,7 +135,7 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
                 boxes[j].add_widget(label)
 
     def _show_checks(self):
-        check = Image(source="assets/this_fire.png")
+        check = Image(source=f"{Board.IMG_PATH}/this_fire.png")
         for king in self._board.kings:
             if self._board.is_king_under_check(king.player_id):
                 vector = king.position
