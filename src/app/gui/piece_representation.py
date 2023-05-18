@@ -13,6 +13,8 @@ from game.piece.piece import Piece
 
 # 0-white
 class PieceRepresentationLayout(RelativeLayout):
+    PIECE_IMG_PATH: str = "./assets/images/pieces"
+
     def __init__(self, piece: Piece | None, button: Button, opacity=None, promotion=None):
         super().__init__()
         self._button = button
@@ -33,27 +35,29 @@ class PieceRepresentationLayout(RelativeLayout):
         if piece_type is None or player is None:
             self._img = None
             return
+
         color = ""
         match player:
             case 0:
                 color = "w"
             case 1:
                 color = "b"
+
         match piece_type:
             case piece_type.KING:
-                self._img = Image(source=f"assets/{color}_king.png")
+                self._img = Image(source=f"{PieceRepresentationLayout.PIECE_IMG_PATH}/{color}_king.png")
             case piece_type.QUEEN:
-                self._img = Image(source=f"assets/{color}_queen.png")
+                self._img = Image(source=f"{PieceRepresentationLayout.PIECE_IMG_PATH}/{color}_queen.png")
             case piece_type.PAWN:
-                self._img = Image(source=f"assets/{color}_pawn.png")
+                self._img = Image(source=f"{PieceRepresentationLayout.PIECE_IMG_PATH}/{color}_pawn.png")
             case piece_type.KNIGHT:
-                self._img = Image(source=f"assets/{color}_knight.png")
+                self._img = Image(source=f"{PieceRepresentationLayout.PIECE_IMG_PATH}/{color}_knight.png")
             case piece_type.ROOK:
-                self._img = Image(source=f"assets/{color}_rook.png")
+                self._img = Image(source=f"{PieceRepresentationLayout.PIECE_IMG_PATH}/{color}_rook.png")
             case piece_type.BISHOP:
-                self._img = Image(source=f"assets/{color}_bishop.png")
+                self._img = Image(source=f"{PieceRepresentationLayout.PIECE_IMG_PATH}/{color}_bishop.png")
             case piece_type.LASGUN:
-                self._img = Image(source=f"assets/{color}_lasgun.png")
+                self._img = Image(source=f"{PieceRepresentationLayout.PIECE_IMG_PATH}/{color}_lasgun.png")
             case piece_type.MIRROR:
                 match cast(MirrorPiece, self._piece).direction:
                     case Movement.UPPER_LEFT_DIAGONAL:
@@ -66,7 +70,7 @@ class PieceRepresentationLayout(RelativeLayout):
                         rotation = "bl"
                     case _:
                         rotation = "bl"
-                self._img = Image(source=f"assets/{color}_{rotation}_mirror.png")
+                self._img = Image(source=f"{PieceRepresentationLayout.PIECE_IMG_PATH}/{color}_{rotation}_mirror.png")
                 self._img.allow_stretch = True
                 self._img.keep_ratio = False
             case _:
