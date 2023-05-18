@@ -1,11 +1,10 @@
 from __future__ import annotations
-import os
-import pathlib
 from kivy.uix.button import Button
 from kivy.uix.image import Image
 from kivy.uix.relativelayout import RelativeLayout
-
 from typing import cast
+
+from app.gui import Path
 from game.piece import PieceModel
 from game.piece.lasgun import MirrorPiece
 from game.piece.movement import Movement
@@ -14,11 +13,9 @@ from game.piece.piece import Piece
 
 # 0-white
 class PieceRepresentationLayout(RelativeLayout):
-    PIECE_IMG_PATH: str = os.path.join(pathlib.Path(__file__).parent.resolve(), "../assets/images/pieces")
-
     def __init__(self, piece: Piece | None, button: Button, opacity=None, promotion=None):
         super().__init__()
-        print(PieceRepresentationLayout.PIECE_IMG_PATH)
+        print(Path.PIECE_IMG_PATH)
         self._button = button
         self.add_widget(button)
         self._img = None
@@ -47,19 +44,19 @@ class PieceRepresentationLayout(RelativeLayout):
 
         match piece_type:
             case piece_type.KING:
-                self._img = Image(source=f"{PieceRepresentationLayout.PIECE_IMG_PATH}/{color}_king.png")
+                self._img = Image(source=f"{Path.PIECE_IMG_PATH}/{color}_king.png")
             case piece_type.QUEEN:
-                self._img = Image(source=f"{PieceRepresentationLayout.PIECE_IMG_PATH}/{color}_queen.png")
+                self._img = Image(source=f"{Path.PIECE_IMG_PATH}/{color}_queen.png")
             case piece_type.PAWN:
-                self._img = Image(source=f"{PieceRepresentationLayout.PIECE_IMG_PATH}/{color}_pawn.png")
+                self._img = Image(source=f"{Path.PIECE_IMG_PATH}/{color}_pawn.png")
             case piece_type.KNIGHT:
-                self._img = Image(source=f"{PieceRepresentationLayout.PIECE_IMG_PATH}/{color}_knight.png")
+                self._img = Image(source=f"{Path.PIECE_IMG_PATH}/{color}_knight.png")
             case piece_type.ROOK:
-                self._img = Image(source=f"{PieceRepresentationLayout.PIECE_IMG_PATH}/{color}_rook.png")
+                self._img = Image(source=f"{Path.PIECE_IMG_PATH}/{color}_rook.png")
             case piece_type.BISHOP:
-                self._img = Image(source=f"{PieceRepresentationLayout.PIECE_IMG_PATH}/{color}_bishop.png")
+                self._img = Image(source=f"{Path.PIECE_IMG_PATH}/{color}_bishop.png")
             case piece_type.LASGUN:
-                self._img = Image(source=f"{PieceRepresentationLayout.PIECE_IMG_PATH}/{color}_lasgun.png")
+                self._img = Image(source=f"{Path.PIECE_IMG_PATH}/{color}_lasgun.png")
             case piece_type.MIRROR:
                 match cast(MirrorPiece, self._piece).direction:
                     case Movement.UPPER_LEFT_DIAGONAL:
@@ -72,7 +69,7 @@ class PieceRepresentationLayout(RelativeLayout):
                         rotation = "bl"
                     case _:
                         rotation = "bl"
-                self._img = Image(source=f"{PieceRepresentationLayout.PIECE_IMG_PATH}/{color}_{rotation}_mirror.png")
+                self._img = Image(source=f"{Path.PIECE_IMG_PATH}/{color}_{rotation}_mirror.png")
                 self._img.allow_stretch = True
                 self._img.keep_ratio = False
             case _:
