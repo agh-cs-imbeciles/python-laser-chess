@@ -85,16 +85,12 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
                 button.bind(on_press=self.on_tile_click)
 
                 button.background_normal = ""
-                # button.background_normal.mag_filter = "nearest"
                 if (i + j) % 2 == 0:
                     img = Image(source=f"{Path.WOODEN_IMG_PATH}/bg_light.png")
-                    # button.background_normal = f"{Path.WOODEN_IMG_PATH}/bg_light.png"
                     # button.background_color = rgba_int_to_float((150, 50, 50, 255))
                 else:
                     img = Image(source=f"{Path.WOODEN_IMG_PATH}/bg_dark.png")
-                    # button.background_normal = f"{Path.WOODEN_IMG_PATH}/bg_dark.png"
                     # button.background_color = rgba_int_to_float((54, 54, 54, 255))
-                print(button.size)
                 img.size_hint = (1, 1)
                 img.allow_stretch = True
                 img.texture.mag_filter = "nearest"
