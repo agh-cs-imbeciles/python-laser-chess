@@ -1,7 +1,8 @@
+from __future__ import annotations
 from typing import Any
-import asyncio
-import websockets
+from typing import cast
 from utils import BoardVector2d
+
 from game import Board
 from game.piece import Piece, PieceModel, PieceFactory
 from game.piece.move import PieceMove, PieceMoveType, PieceMoveDetector
@@ -10,7 +11,6 @@ from game.observer.game_end_obs import GameEndObserver
 from game.notation_generator import NotationGenerator
 from game.ambiguous_enum import AmbiguousNotation
 from game.piece.lasgun import MirrorPiece
-from typing import cast
 
 
 class Game:

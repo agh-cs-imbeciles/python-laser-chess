@@ -13,4 +13,4 @@ class GameApplication:
 
     def on_move(self) -> None:
         print(self._game.get_last_move().to_dict())
-        asyncio.run(Sender.send(self._game.get_last_move().to_dict()))
+        asyncio.run(Sender.send_move(self._game.get_last_move().to_dict()))

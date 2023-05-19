@@ -188,6 +188,18 @@ class BoardVector2d(IntVector2d):
     def from_int_v2d(vector: IntVector2d) -> BoardVector2d:
         return BoardVector2d(vector.x, vector.y)
 
+    @staticmethod
+    def from_str(vector_str: str) -> BoardVector2d:
+        if len(vector_str) != 2:
+            raise ValueError("Vector string is invalid [from_str()]")
+        return BoardVector2d(ord(vector_str[0]) - 97, int(vector_str[1]) - 1)
+
+    def x_to_str(self) -> str:
+        return chr(self.x + 97)
+
+    def y_to_str(self) -> str:
+        return str(self.y + 1)
+
     # override
     def __str__(self) -> str:
         return self.x_to_str() + self.y_to_str()
@@ -231,9 +243,3 @@ class BoardVector2d(IntVector2d):
     # override
     def pivot_symmetry(self, symmetry: Symmetry) -> IntVector2d:
         return BoardVector2d.from_int_v2d(super().pivot_symmetry(symmetry))
-
-    def x_to_str(self) -> str:
-        return chr(self.x + 97)
-
-    def y_to_str(self) -> str:
-        return str(self.y + 1)

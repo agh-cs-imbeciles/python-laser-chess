@@ -45,8 +45,9 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
         self._rotation_representation: list[ImageButtonLayout]
         self._reset_button = Button()
         self._reset_button.vector = BoardVector2d(-1, -1)
-        self._init_board()
         self._elements_dict = dict()
+        self._elements_dict["board_images"] = empty(shape=(8, 8), dtype=Image)
+        self._init_board()
 
         for id in self.ids:
             t = self.ids.get(id)
@@ -61,7 +62,9 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
 
         # creation of indicator dots
         for i in range(len(self._dots)):
-            self._dots[i] = Image(source=f"{Path.IMG_PATH}/dot.png")
+            self._dots[i] = Image(source=f"{Path.WOODEN_IMG_PATH}/highlight_bg.png")
+            self._dots[i].allow_stretch = True
+            self._dots[i].texture.mag_filter = "nearest"
 
         # creation of laser dots
         for i in range(len(self._laser_ind)):
@@ -70,29 +73,38 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
         self._add_coordinates()
 
         self.update_indicator_label("Tura gracza " + str(self._board.move_number))
+
+        #
+        # Cell buttons of the board
+        #
         for i in range(8):
             for j in range(8):
                 vector = BoardVector2d(j, 7 - i)
 
                 # preparation of every button on board
-
                 button = Button()
                 button.vector = vector
                 button.bind(on_press=self.on_tile_click)
+
                 button.background_normal = ""
                 if (i + j) % 2 == 0:
-                    button.background_color = rgba_int_to_float((150, 50, 50, 255))
+                    img = Image(source=f"{Path.WOODEN_IMG_PATH}/bg_light.png")
+                    # button.background_color = rgba_int_to_float((150, 50, 50, 255))
                 else:
-                    button.background_color = rgba_int_to_float((54, 54, 54, 255))
+                    img = Image(source=f"{Path.WOODEN_IMG_PATH}/bg_dark.png")
+                    # button.background_color = rgba_int_to_float((54, 54, 54, 255))
+                img.size_hint = (1, 1)
+                img.allow_stretch = True
+                img.texture.mag_filter = "nearest"
+                self._elements_dict["board_images"][i, j] = img
+                button.add_widget(img)
 
                 # assigning observer to piece
-
                 piece = board.get_piece(vector)
                 if piece is not None:
                     piece.add_observer(self)
 
                 # adding piece and button to board
-
                 piece_layout = PieceRepresentationLayout(piece, button)
                 self._grid.add_widget(piece_layout)
                 self._representations[vector.y][vector.x] = piece_layout
