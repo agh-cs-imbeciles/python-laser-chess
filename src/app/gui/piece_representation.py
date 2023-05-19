@@ -69,10 +69,13 @@ class PieceRepresentationLayout(RelativeLayout):
                     case _:
                         rotation = "bl"
                 self._img = Image(source=f"{Path.PIECE_IMG_PATH}/mirror_{color}_{rotation}.png")
-                self._img.allow_stretch = True
                 self._img.keep_ratio = False
             case _:
                 self._img = None
+
+        if self._img:
+            self._img.allow_stretch = True
+            self._img.texture.mag_filter = "nearest"
 
     def __add_img_to_repr(self, img: Image):
         self.add_widget(img)
