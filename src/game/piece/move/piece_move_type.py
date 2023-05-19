@@ -33,5 +33,3 @@ class PieceMoveType(Enum):
                 return "x"
             case PieceMoveType.PROMOTION.value:
                 return "="
-
-
