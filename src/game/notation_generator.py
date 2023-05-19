@@ -57,6 +57,7 @@ class NotationGenerator(object):
             self._ending_move = "1-0"
         else:
             self._ending_move = "0-1"
+
     @property
     def ambiguity(self):
         return self._ambiguity

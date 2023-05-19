@@ -190,7 +190,7 @@ class BoardVector2d(IntVector2d):
 
     @staticmethod
     def from_str(vector_str: str) -> BoardVector2d:
-        if len(str) != 2:
+        if len(vector_str) != 2:
             raise ValueError("Vector string is invalid [from_str()]")
         return BoardVector2d(ord(vector_str[0]) - 97, int(vector_str[1]) - 1)
 

@@ -1,6 +1,8 @@
+from __future__ import annotations
 from typing import Any
 from typing import cast
 from utils import BoardVector2d
+
 from game import Board
 from game.piece import Piece, PieceModel, PieceFactory
 from game.piece.move import PieceMove, PieceMoveType, PieceMoveDetector

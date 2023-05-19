@@ -15,7 +15,6 @@ from game.piece.piece import Piece
 class PieceRepresentationLayout(RelativeLayout):
     def __init__(self, piece: Piece | None, button: Button, opacity=None, promotion=None):
         super().__init__()
-        print(Path.PIECE_IMG_PATH)
         self._button = button
         self.add_widget(button)
         self._img = None
