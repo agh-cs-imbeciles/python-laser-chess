@@ -37,25 +37,25 @@ class PieceRepresentationLayout(RelativeLayout):
         color = ""
         match player:
             case 0:
-                color = "w"
+                color = "white"
             case 1:
-                color = "b"
+                color = "black"
 
         match piece_type:
             case piece_type.KING:
-                self._img = Image(source=f"{Path.PIECE_IMG_PATH}/{color}_king.png")
+                self._img = Image(source=f"{Path.PIECE_IMG_PATH}/king_{color}.png")
             case piece_type.QUEEN:
-                self._img = Image(source=f"{Path.PIECE_IMG_PATH}/{color}_queen.png")
+                self._img = Image(source=f"{Path.PIECE_IMG_PATH}/queen_{color}.png")
             case piece_type.PAWN:
-                self._img = Image(source=f"{Path.PIECE_IMG_PATH}/{color}_pawn.png")
+                self._img = Image(source=f"{Path.PIECE_IMG_PATH}/pawn_{color}.png")
             case piece_type.KNIGHT:
-                self._img = Image(source=f"{Path.PIECE_IMG_PATH}/{color}_knight.png")
-            case piece_type.ROOK:
-                self._img = Image(source=f"{Path.PIECE_IMG_PATH}/{color}_rook.png")
+                self._img = Image(source=f"{Path.PIECE_IMG_PATH}/knight_{color}.png")
             case piece_type.BISHOP:
-                self._img = Image(source=f"{Path.PIECE_IMG_PATH}/{color}_bishop.png")
+                self._img = Image(source=f"{Path.PIECE_IMG_PATH}/bishop_{color}.png")
+            case piece_type.ROOK:
+                self._img = Image(source=f"{Path.PIECE_IMG_PATH}/rook_{color}.png")
             case piece_type.LASGUN:
-                self._img = Image(source=f"{Path.PIECE_IMG_PATH}/{color}_lasgun.png")
+                self._img = Image(source=f"{Path.PIECE_IMG_PATH}/lasgun_{color}.png")
             case piece_type.MIRROR:
                 match cast(MirrorPiece, self._piece).direction:
                     case Movement.UPPER_LEFT_DIAGONAL:
@@ -68,7 +68,7 @@ class PieceRepresentationLayout(RelativeLayout):
                         rotation = "bl"
                     case _:
                         rotation = "bl"
-                self._img = Image(source=f"{Path.PIECE_IMG_PATH}/{color}_{rotation}_mirror.png")
+                self._img = Image(source=f"{Path.PIECE_IMG_PATH}/mirror_{color}_{rotation}.png")
                 self._img.allow_stretch = True
                 self._img.keep_ratio = False
             case _:
