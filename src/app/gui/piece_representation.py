@@ -69,7 +69,6 @@ class PieceRepresentationLayout(RelativeLayout):
                     case _:
                         rotation = "bl"
                 self._img = Image(source=f"{Path.PIECE_IMG_PATH}/mirror_{color}_{rotation}.png")
-                self._img.keep_ratio = False
             case _:
                 self._img = None
 
