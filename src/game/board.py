@@ -31,6 +31,7 @@ class Board(PositionObserver):
         self._check_manager: CheckManager = CheckManager(self)
         self._game: Game = game
         self._promotion_manager = PromotionManager(self)
+        self._notation_list: list[str] = []
 
     @property
     def width(self) -> int:
@@ -132,7 +133,7 @@ class Board(PositionObserver):
         if PieceMoveType.PROMOTION in move_types:
             self._game.get_last_move().add_promotion_piece(self.get_to_promote())
         self._game.on_position_change(mp, move_types)
-        print(self._game._notation_generator.generate_last_move_string())
+        self._notation_list.append(self._game._notation_generator.generate_last_move_string())
 
     def get_size(self) -> tuple[int, int]:
         return self._width, self._height

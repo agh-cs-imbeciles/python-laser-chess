@@ -1,10 +1,13 @@
 from typing import cast
 
+from kivy.graphics import Rectangle, Color
 from kivy.uix.button import Button
+from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.image import Image
 from kivy.uix.label import Label
 from kivy.uix.screenmanager import Screen
 
+from app.gui.utils.common_font_label import CommonFontLabel
 from game.piece import PieceModel
 from game.piece.move import PieceMoveType
 from utils import BoardVector2d
@@ -57,6 +60,7 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
         self._window_updater = WindowUpdater(self._elements_dict)
 
     def _init_board(self):
+
         board = self._game.board
 
         # assigning observer to game
@@ -138,7 +142,7 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
         boxes = [self.ids.top, self.ids.left, self.ids.bot, self.ids.right]
         for i in range(8):
             for j in range(4):
-                label = Label()
+                label = CommonFontLabel()
                 if j % 2 == 1:
                     label.text = str(8 - i)
                 else:
@@ -174,7 +178,6 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
         self._possible_movements = []
         self._selected = None
         self._selected_piece = None
-
 
     def clear_laser_ind(self):
         for l in self._current_laser_ind:
@@ -242,6 +245,13 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
         self._show_indicators()
         self.clear_laser_ind()
         self.on_show_laser_fields(self._board.get_all_laser_fields())
+        self._update_notation()
+
+    def _update_notation(self):
+        not_tab = self._elements_dict.get('notation')
+        l = Label(text= self._game._notation_generator.generate_last_move_string())
+        not_tab.add_widget(l)
+        pass
 
     def _show_lasgun_ready_indicators(self):
         for las in self._board.lasguns:

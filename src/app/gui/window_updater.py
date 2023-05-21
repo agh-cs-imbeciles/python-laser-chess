@@ -1,14 +1,19 @@
 from copy import deepcopy
 from kivy.core.window import Window
+from kivy.graphics import Color, Rectangle
+
+from app.gui.utils.common_font_label import CommonFontLabel
 
 
 class WindowUpdater:
     def __init__(self, elements_dict: dict):
         self.elements = elements_dict
         Window.bind(on_resize=self.on_resize)
+        Window.clearcolor = (1, 0, 0, 1)
         self.on_resize(None, None, None)
 
     def on_resize(self, a, b, c):
+        CommonFontLabel.static_font_size = 20
         width = Window.width
         height = Window.height
         e = self.elements
@@ -55,7 +60,7 @@ class WindowUpdater:
 
         # promotion
         rpt = e.get('rotation_promotion_tab')
-        rpt.height = 0.2*e.get('left_box').height
+        # rpt.height = 0.2*e.get('left_box').height
         for rep in rpt.children:
             rep.width = rpt.width/len(rpt.children)
             rep.height = rep.width

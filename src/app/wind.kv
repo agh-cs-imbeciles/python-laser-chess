@@ -6,13 +6,6 @@ WindowManager:
 
 <Menu>:
     name: "menu"
-    FloatLayout:
-        canvas.before:
-            Color:
-                rgba: 1, 0, 0, 1
-            Rectangle:
-                pos: self.pos
-                size: self.size
     AnchorLayout:
         anchor_x: 'center'
         anchor_y: 'center'
@@ -36,71 +29,88 @@ WindowManager:
 
 
 <Board>:
+    id:"everything"
     name: "board"
-    EffectWidget:
-        AnchorLayout:
-            anchor_x: 'center'
-            anchor_y: 'center'
-            id:anchor
-            size_hint:1,1
+    AnchorLayout:
+        anchor_x: 'center'
+        anchor_y: 'center'
+        id:anchor
+        size_hint:1,1
+        BoxLayout:
+            id:whole
+            size_hint: None, None
             BoxLayout:
-                id:whole
+                id:left_box
                 size_hint: None, None
-                BoxLayout:
-                    id:left_box
-                    size_hint: None, None
-                    orientation: 'vertical'
-                    Label:
-                        id:indicator_lab
-                    BoxLayout:
+                orientation: 'vertical'
+                Label:
+                    id:indicator_lab
+                    size_hint:(1,0.2)
+                ScrollView:
+                    id:scroll
+                    size_hint:(1,1)
+                    do_scroll_x: False
+                    do_scroll_y: True
+                    GridLayout:
                         id:notation
-                    BoxLayout:
-                        id:rotation_promotion_tab
-                        orientation: 'horizontal'
-                        vertical_align:'top'
-                        padding: 0, 10, 0, 50
-
+                        size_hint_y: None
+                        height:self.minimum_height
+                        width: self.minimum_width
+                        cols:1
+                        spacing:20
+                        padding:20
                 BoxLayout:
-                    id:board_addit
-                    orientation: 'vertical'
-                    size_hint:None,None
-                    AnchorLayout:
-                        anchor_x: 'center'
-                        anchor_y: 'center'
-                        BoxLayout:
-                            id:top
-                            #size_hint_x:None
-                            size_hint:None,None
-                            #width: board.width
-                            #pos:50,0
-                            orientation: 'horizontal'
+                    id:rotation_promotion_tab
+                    orientation: 'horizontal'
+                    size_hint:1,0.4
+                    vertical_align:'top'
+                    padding: 0, 10, 0, 50
+                    spacing: 10
+
+            BoxLayout:
+                id:board_addit
+                orientation: 'vertical'
+                size_hint:None,None
+                AnchorLayout:
+                    anchor_x: 'center'
+                    anchor_y: 'center'
                     BoxLayout:
-                        id:mid
-                        orientation: 'horizontal'
+                        id:top
+                        rows:1
+                        #size_hint_x:None
                         size_hint:None,None
-                        BoxLayout:
-                            id:left
-                            #size_hint:0.1,1
-                            size_hint:None,None
-                            orientation: 'vertical'
-                        GridLayout:
-                            id:board
-                            #size_hint:1,1
-                            size_hint:None,None
-                            cols:8
-                            rows:8
-                        BoxLayout:
-                            id:right
-                            size_hint:None,None
-                            #size_hint:0.1,1
-                            orientation: 'vertical'
-                    AnchorLayout:
-                        anchor_x: 'center'
-                        anchor_y: 'center'
-                        BoxLayout:
-                            id:bot
-                            #size_hint_x:None
-                            size_hint:None,None
-                            #width: board.width
-                            #pos:50,0
-                            orientation: 'horizontal'
+                        #width: board.width
+                        #pos:50,0
+                        orientation: 'horizontal'
+                BoxLayout:
+                    id:mid
+                    orientation: 'horizontal'
+                    size_hint:None,None
+                    BoxLayout:
+                        id:left
+                        #size_hint:0.1,1
+                        size_hint:None,None
+                        orientation: 'vertical'
+                    GridLayout:
+                        id:board
+                        #size_hint:1,1
+                        size_hint:None,None
+                        cols:8
+                        rows:8
+                    BoxLayout:
+                        id:right
+                        size_hint:None,None
+                        #size_hint:0.1,1
+                        orientation: 'vertical'
+                AnchorLayout:
+                    anchor_x: 'center'
+                    anchor_y: 'center'
+                    BoxLayout:
+                        id:bot
+                        #size_hint_x:None
+                        size_hint:None,None
+                        #width: board.width
+                        #pos:50,0
+                        orientation: 'horizontal'
+
+
