@@ -20,7 +20,6 @@ class PieceRepresentationLayout(RelativeLayout):
         self._img = None
         self._indicator = None
         self._piece = piece
-
         if opacity is not None:
             self.opacity = opacity
         if piece is None:

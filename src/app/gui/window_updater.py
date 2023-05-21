@@ -6,10 +6,11 @@ class WindowUpdater:
     def __init__(self, elements_dict: dict):
         self.elements = elements_dict
         Window.bind(on_resize=self.on_resize)
+        self.on_resize(None, None, None)
 
-        self.on_resize(None, 800, 600)
-
-    def on_resize(self, window, width, height):
+    def on_resize(self, a, b, c):
+        width = Window.width
+        height = Window.height
         e = self.elements
         main_y = min(height, width / 1.2)
         main_x = 1.2*main_y
@@ -21,10 +22,6 @@ class WindowUpdater:
         # box with information about game + simple menu
         e.get('left_box').width = 0.2*main_x
         e.get('left_box').height = main_y
-
-        # e.get('promotion_tab').width = 0.1*main_x
-        # e.get('promotion_tab').height = 0.1*main_x
-        # box with board and coordinates
 
         e.get('board_addit').width = 0.8 * main_x
         e.get('board_addit').height = main_y
@@ -54,11 +51,14 @@ class WindowUpdater:
         e.get('board').width = b_size
         e.get('board').height = b_size
 
-        # promotion
+        e.get('indicator_lab').height = 10
 
-        for rep in e.get('promotion_tab').children:
-            rep.width = 0.2*main_x
-            rep.height = 0.2*main_y
+        # promotion
+        rpt = e.get('rotation_promotion_tab')
+        rpt.height = 0.2*e.get('left_box').height
+        for rep in rpt.children:
+            rep.width = rpt.width/len(rpt.children)
+            rep.height = rep.width
 
         # Board background cells
         if e.get("board_images") is not None:
@@ -66,10 +66,5 @@ class WindowUpdater:
             for i, j in [(i, j) for i in range(8) for j in range(8)]:
                 bi[i, j].size = bi[i, j].parent.size
 
-        # rotation
-        # e.get('rotation_tab').height = 0.2*main_y
-        #
-        # for rot in e.get('rotation_tab').children:
-        #     rot.height = 0.2*main_y
-        #     rot.width = rot.height
-
+    def refresh(self):
+        self.on_resize(None, None, None)

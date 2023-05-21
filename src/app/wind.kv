@@ -16,13 +16,22 @@ WindowManager:
     AnchorLayout:
         anchor_x: 'center'
         anchor_y: 'center'
-        Button:
-            id:b1
-            text: "Rozpocznij grę"
-            font_size:self.width/8
+        BoxLayout:
+            id:menu_box
+            orientation:'vertical'
             size_hint: 0.25,None
-            on_press:root.manager.current="board"
+
             on_size:root._update_width()
+            Button:
+                id:b1
+                text: "Rozpocznij grę lokalną"
+                on_press:root.manager.current="board"
+                font_size:self.width/11
+            Button:
+                id:b2
+                text: "Rozpocznij grę sieciową"
+                on_press:root.manager.current="board"
+                font_size:self.width/11
 
 
 
@@ -40,22 +49,21 @@ WindowManager:
                 BoxLayout:
                     id:left_box
                     size_hint: None, None
-                    width:
                     orientation: 'vertical'
                     Label:
                         id:indicator_lab
                     BoxLayout:
-                        id:rotation_tab
-                        orientation: 'horizontal'
+                        id:notation
                     BoxLayout:
-                        id:promotion_tab
-                        orientation: 'vertical'
+                        id:rotation_promotion_tab
+                        orientation: 'horizontal'
+                        vertical_align:'top'
+                        padding: 0, 10, 0, 50
+
                 BoxLayout:
                     id:board_addit
                     orientation: 'vertical'
                     size_hint:None,None
-                    #width:min(self.parent.height,self.parent.width)
-                    #height:min(self.parent.height,self.parent.width)
                     AnchorLayout:
                         anchor_x: 'center'
                         anchor_y: 'center'

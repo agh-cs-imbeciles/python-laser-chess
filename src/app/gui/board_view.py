@@ -111,27 +111,28 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
                 self._grid.add_widget(piece_layout)
                 self._representations[vector.y][vector.x] = piece_layout
 
+
         # creation of promotion tab
         self._promotion_representation = [
-            PieceRepresentationLayout(None, Button(on_press=self.on_promotion_click), opacity=0) for _ in self._board
-            .get_possible_promotions()
+            PieceRepresentationLayout(None, Button(on_press=self.on_promotion_click)) for _ in self._board.get_possible_promotions()
         ]
+        for e in self._promotion_representation:
+            e.size_hint = (None, None)
 
-        for rep in self._promotion_representation:
-            self.ids.promotion_tab.add_widget(rep)
 
         # creation of rotation tab
 
         self._rotation_representation = [
-            ImageButtonLayout(Paths.LEFT.value, Button(on_press=self.on_rotation_click), opacity=0),
-            ImageButtonLayout(Paths.RIGHT.value, Button(on_press=self.on_rotation_click), opacity=0)
+            ImageButtonLayout(Paths.LEFT.value, Button(on_press=self.on_rotation_click)),
+            ImageButtonLayout(Paths.RIGHT.value, Button(on_press=self.on_rotation_click))
         ]
+
+        for e in self._rotation_representation:
+            e.size_hint = (None, None)
+
         r = self._rotation_representation
         r[0].add_value_to_button(Paths.LEFT)
         r[1].add_value_to_button(Paths.RIGHT)
-
-        for rep in self._rotation_representation:
-            self.ids.rotation_tab.add_widget(rep)
 
     def _add_coordinates(self):
         boxes = [self.ids.top, self.ids.left, self.ids.bot, self.ids.right]
@@ -146,10 +147,9 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
                 boxes[j].add_widget(label)
 
     def _show_checks(self):
-        check = Image(source=f"{Path.IMG_PATH}/this_fire.png")
         for king in self._board.kings:
             if self._board.is_king_under_check(king.player_id):
-                check = Image(source="assets/this_fire.png")
+                check = Image(source=f"{Path.IMG_PATH}/this_fire.png")
                 vector = king.position
                 self._representations[vector.y][vector.x].add_indicator(check)
 
@@ -159,9 +159,7 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
     def on_promotion_click(self, instance: Button):
         new = self._board.promote(instance.value)
         new[0].add_observer(self)
-        for rep in self._promotion_representation:
-            rep.remove_img()
-            rep.opacity = 0
+        self.hide_promotion_menu()
         self._is_promotion = False
         self.on_position_change(None, None)
 
@@ -171,16 +169,11 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
                 self._game.move_piece(self._selected_piece, None, False)
             case Paths.RIGHT:
                 self._game.move_piece(self._selected_piece, None, True)
-        for rep in self._rotation_representation:
-            rep.opacity = 0
+        self.hide_rotation_menu()
         self.on_tile_click(self._reset_button)
         self._possible_movements = []
         self._selected = None
         self._selected_piece = None
-
-    def hide_rotation(self):
-        for rep in self._rotation_representation:
-            rep.opacity = 0
 
 
     def clear_laser_ind(self):
@@ -189,7 +182,7 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
         self._current_laser_ind.clear()
 
     def on_tile_click(self, instance: Button):
-        self.hide_rotation()
+        self.hide_rotation_menu()
         if self._is_promotion:
             return
 
@@ -253,7 +246,7 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
     def _show_lasgun_ready_indicators(self):
         for las in self._board.lasguns:
             if las.can_fire():
-                ready = Image(source="assets/laser_ready.png")
+                ready = Image(source=f"{Path.IMG_PATH}/laser_ready.png")
                 vector = las.position
                 self._representations[vector.y][vector.x].add_indicator(ready)
 
@@ -273,11 +266,19 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
         pass
 
     def show_rotation_menu(self):
+        tab = self._elements_dict.get('rotation_promotion_tab')
         for rep in self._rotation_representation:
-            rep.opacity = 1
-        pass
+            tab.add_widget(rep)
+        self._window_updater.refresh()
+
+    def hide_rotation_menu(self):
+        for rep in self._rotation_representation:
+            if rep.parent is not None:
+                rep.parent.remove_widget(rep)
+        self._window_updater.refresh()
 
     def show_promotion_menu(self, piece: Piece):
+        tab = self._elements_dict.get('rotation_promotion_tab')
         types = self._board.get_possible_promotions()
         if piece is None:
             return
@@ -285,5 +286,12 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
 
         for rep, tp in zip(self._promotion_representation, types):
             rep.add_value_to_button(tp)
-            rep.opacity = 1
             rep.new_image(tp, piece.player_id)
+            tab.add_widget(rep)
+        self._window_updater.refresh()
+
+    def hide_promotion_menu(self):
+        for rep in self._promotion_representation:
+            if rep.parent is not None:
+                rep.parent.remove_widget(rep)
+        self._window_updater.refresh()

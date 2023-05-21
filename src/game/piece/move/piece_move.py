@@ -1,11 +1,7 @@
 from __future__ import annotations
 from utils import BoardVector2d
 import game.piece as pcs
-from typing import TYPE_CHECKING
 from game.piece.move.piece_move_type import PieceMoveType
-# from game.piece.piece import Piece
-# if TYPE_CHECKING:
-#     from game.piece.move import PieceMoveType
 
 
 class PieceMove:
