@@ -62,7 +62,9 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
 
         # creation of indicator dots
         for i in range(len(self._dots)):
-            self._dots[i] = Image(source=f"{Path.IMG_PATH}/dot.png")
+            self._dots[i] = Image(source=f"{Path.WOODEN_IMG_PATH}/highlight_bg.png")
+            self._dots[i].allow_stretch = True
+            self._dots[i].texture.mag_filter = "nearest"
 
         # creation of laser dots
         for i in range(len(self._laser_ind)):
