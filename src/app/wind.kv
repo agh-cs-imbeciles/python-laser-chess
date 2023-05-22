@@ -43,11 +43,12 @@ WindowManager:
                 id:left_box
                 size_hint: None, None
                 orientation: 'vertical'
-                Label:
+                CommonFontLabel:
                     id:indicator_lab
                     size_hint:(1,0.2)
                 ScrollView:
                     id:scroll
+                    effect_cls:"ScrollEffect"
                     size_hint:(1,1)
                     do_scroll_x: False
                     do_scroll_y: True
@@ -57,7 +58,6 @@ WindowManager:
                         height:self.minimum_height
                         width: self.minimum_width
                         cols:1
-                        spacing:20
                         padding:20
                 BoxLayout:
                     id:rotation_promotion_tab
@@ -76,11 +76,7 @@ WindowManager:
                     anchor_y: 'center'
                     BoxLayout:
                         id:top
-                        rows:1
-                        #size_hint_x:None
                         size_hint:None,None
-                        #width: board.width
-                        #pos:50,0
                         orientation: 'horizontal'
                 BoxLayout:
                     id:mid

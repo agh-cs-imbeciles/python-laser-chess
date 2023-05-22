@@ -1,6 +1,8 @@
+from random import randint
 from typing import cast
 
 from kivy.graphics import Rectangle, Color
+from kivy.properties import NumericProperty
 from kivy.uix.button import Button
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.image import Image
@@ -143,6 +145,7 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
         for i in range(8):
             for j in range(4):
                 label = CommonFontLabel()
+                CommonFontLabel.update_font(20)
                 if j % 2 == 1:
                     label.text = str(8 - i)
                 else:
@@ -250,12 +253,15 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
         self.clear_laser_ind()
         self.on_show_laser_fields(self._board.get_all_laser_fields())
         self._update_notation()
+        self._window_updater.refresh()
 
     def _update_notation(self):
+        def size(instance,val):
+            instance.size = val
         not_tab = self._elements_dict.get('notation')
-        l = Label(text= self._game._notation_generator.generate_last_move_string())
+        l = CommonFontLabel(size_hint=(None,None),text= self._game._notation_generator.generate_last_move_string())
+        l.bind(texture_size=size)
         not_tab.add_widget(l)
-        pass
 
     def _show_lasgun_ready_indicators(self):
         for las in self._board.lasguns:

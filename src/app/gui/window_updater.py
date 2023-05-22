@@ -1,4 +1,6 @@
 from copy import deepcopy
+from typing import cast
+
 from kivy.core.window import Window
 from kivy.graphics import Color, Rectangle
 
@@ -13,12 +15,14 @@ class WindowUpdater:
         self.on_resize(None, None, None)
 
     def on_resize(self, a, b, c):
-        CommonFontLabel.static_font_size = 20
         width = Window.width
         height = Window.height
         e = self.elements
         main_y = min(height, width / 1.2)
         main_x = 1.2*main_y
+
+        font = main_x/25
+        CommonFontLabel.update_font(font)
 
         # every element of board view is located in whole
         e.get('whole').width = main_x
@@ -70,6 +74,8 @@ class WindowUpdater:
             bi = e.get("board_images")
             for i, j in [(i, j) for i in range(8) for j in range(8)]:
                 bi[i, j].size = bi[i, j].parent.size
+        # e.get('scroll').scroll_y = 0
+        # e.get('scroll').scroll_to(e.get('scroll').children[-1])
 
     def refresh(self):
         self.on_resize(None, None, None)

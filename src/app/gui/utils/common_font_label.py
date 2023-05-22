@@ -1,16 +1,19 @@
+from typing import cast
+
 from kivy.properties import NumericProperty
 from kivy.uix.label import Label
+import weakref
 
-
-def change_font_size(instance, value):
-    instance.font_size = value
-    print(value)
 
 
 class CommonFontLabel(Label):
-    static_font_size = NumericProperty(1)
+    instances = []
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.bind(static_font_size=change_font_size)
-        self.static_font_size = 3
+        self.__class__.instances.append(weakref.proxy(self))
+
+    @classmethod
+    def update_font(cls, size: int):
+        for i in cls.instances:
+            cast(CommonFontLabel, i).font_size = size
