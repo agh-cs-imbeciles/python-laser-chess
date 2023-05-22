@@ -80,7 +80,7 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
 
         self._add_coordinates()
 
-        self.update_indicator_label("Tura gracza " + str(self._board.move_number))
+        self.update_indicator_label("Gracz " + str(self._board.move_number))
 
         #
         # Cell buttons of the board
@@ -219,7 +219,7 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
         #
 
         if self._selected is not None and instance.vector in self._possible_movements:
-            self.update_indicator_label("Tura gracza " + str(self._board.move_number))
+            self.update_indicator_label("Gracz " + str(self._board.move_number))
             self._game.move_piece(self._selected_piece, instance.vector)
             self._game_app.on_move()
             self.show_promotion_menu(self._board.get_to_promote())
@@ -276,7 +276,7 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
 
     # override
     def on_end(self, winner: int, type: PieceMoveType) -> None:
-        self.update_indicator_label("Szach mat. Wygrywa " + str(winner))
+        self.update_indicator_label("Wygrywa " + str(winner))
         for rep_arr in self._representations:
             for rep in rep_arr:
                 cast(PieceRepresentationLayout, rep).button.unbind(on_press=self.on_tile_click)
