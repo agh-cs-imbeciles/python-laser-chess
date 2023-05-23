@@ -11,7 +11,7 @@ class WindowUpdater:
     def __init__(self, elements_dict: dict):
         self.elements = elements_dict
         Window.bind(on_resize=self.on_resize)
-        Window.clearcolor = (1, 0, 0, 1)
+        Window.clearcolor = (.1, .1, .1, 1)
         self.on_resize(None, None, None)
 
     def on_resize(self, a, b, c):
