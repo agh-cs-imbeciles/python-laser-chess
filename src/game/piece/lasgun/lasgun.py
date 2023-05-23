@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING, cast
 
-from game.observer.board_position_obs import BoardPositionObserver
+from game.observer import LaserObserver
 from game.piece import Piece, PieceModel
 from game.piece.lasgun import MirrorPiece
 from game.piece.movement import Movement
@@ -16,6 +16,7 @@ class Lasgun(MirrorPiece):
         super().__init__(position, player_id, direction)
         self._model = PieceModel.LASGUN
         self._charge_time = 5
+        self._target_propagation_count = 2
         self._charges_left = self._charge_time
         self._board = board
         self._laser_fields: list[BoardVector2d] = []
@@ -23,6 +24,10 @@ class Lasgun(MirrorPiece):
         self._last_field: BoardVector2d | None = None
         self._last_directions: BoardVector2d | None = None
         self._fired = False
+        self._propagation_count = 0
+        self._laser_observers = []
+
+
 
     @property
     def charges_left(self) -> int:
@@ -40,9 +45,7 @@ class Lasgun(MirrorPiece):
     def fired(self) -> bool:
         return self._fired
 
-    @fired.setter
-    def fired(self, f: bool) -> None:
-        self._fired = f
+
 
     def __eq__(self, other):
         return (
@@ -54,23 +57,7 @@ class Lasgun(MirrorPiece):
     def __str__(self):
         return "L"
 
-    def move(self, destination: BoardVector2d | None = None, rotate_right: bool | None = None) -> None:
-        for observer in self._position_observers:
-            observer.on_position_change(self._position.copy(), destination)
-
-    def can_fire(self):
-        return self._charges_left == 0
-
-    def clear_laser_fields(self) -> None:
-        self._laser_fields.clear()
-
-    def charge(self) -> None:
-        self._charges_left = max(0, self.charges_left-1)
-
-    def reset(self):
-        self._charges_left = self._charge_time
-
-    def __is_end_hit(self, origin: BoardVector2d, destination: BoardVector2d) -> bool:
+    def _is_end_hit(self, origin: BoardVector2d, destination: BoardVector2d) -> bool:
         self._redirected = None
 
         if self._board.is_out_of_bounds(destination):
@@ -85,13 +72,13 @@ class Lasgun(MirrorPiece):
         if model != PieceModel.MIRROR:
             return False
 
-        self.__redirect(origin, destination)
+        self._redirect(origin, destination)
         if self._redirected is None:
             return True
 
         return False
 
-    def __redirect(self, origin: BoardVector2d, destination: BoardVector2d) -> None:
+    def _redirect(self, origin: BoardVector2d, destination: BoardVector2d) -> None:
         p = self._board.get_piece(destination)
         if not isinstance(p, MirrorPiece):
             self._redirected = None
@@ -107,28 +94,56 @@ class Lasgun(MirrorPiece):
         else:
             self._redirected = None
 
-
-    # ready
-    # aim
-    def fire(self) -> list[BoardVector2d]:
-        self._laser_fields.clear()
-        x, y = self._direction.to_tuple()
-        direction = BoardVector2d(x, y)
-        self.__propagate(self.position, direction)
-        # return self._laser_fields
-
-    def continue_laser_popagation(self) -> list[BoardVector2d]:
-        self.__propagate(self._last_field, self._last_directions)
-        # return self._laser_fields
-
-    def __propagate(self, curr_pos: BoardVector2d, curr_dir: BoardVector2d):
+    def _propagate(self, curr_pos: BoardVector2d, curr_dir: BoardVector2d) -> None:
         direction = curr_dir
         next_pos = curr_pos + direction
-        while not self.__is_end_hit(curr_pos, next_pos):
+        while not self._is_end_hit(curr_pos, next_pos):
             self._laser_fields.append(next_pos)
             if self._redirected is not None:
                 direction = self._redirected
             curr_pos = next_pos
             next_pos = next_pos + direction
-        self._last_field = curr_pos
-        self._last_directions = direction
+
+    def _inc_propagation_count(self) -> None:
+        if self._propagation_count + 1 == self._target_propagation_count:
+            self._fired = False
+            self._propagation_count = 0
+        self._propagation_count += 1
+
+    def _propagate_laser_fields(self) -> list[BoardVector2d]:
+        self._laser_fields.clear()
+        x, y = self._direction.to_tuple()
+        direction = BoardVector2d(x, y)
+        self._propagate(self.position, direction)
+        for obs in self._laser_observers:
+            obs.on_laser_propagated(self)
+        return self._laser_fields
+
+    def add_laser_observer(self, observer: LaserObserver) -> None:
+        self._laser_observers.append(observer)
+
+    def can_fire(self) -> bool:
+        return self._charges_left == 0
+
+    def charge(self) -> None:
+        self._charges_left = max(0, self.charges_left-1)
+
+    def clear_laser_fields(self) -> None:
+        self._laser_fields.clear()
+
+    def propagate_until_target(self):
+        if not self._fired:
+            self._laser_fields.clear()
+            # for obs in self._laser_observers:
+            #     obs.on_laser_clear(self)
+            return
+        self._inc_propagation_count()
+        self._propagate_laser_fields()
+
+    def use_laser(self) -> None:
+        if not self.can_fire():
+            return
+        self._propagate_laser_fields()
+        self._fired = True
+        self._propagation_count = 0
+        self._charges_left = self._charge_time

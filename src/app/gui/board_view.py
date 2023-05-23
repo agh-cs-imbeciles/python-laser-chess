@@ -11,6 +11,7 @@ from kivy.uix.screenmanager import Screen
 
 from app.gui.utils.common_font_label import CommonFontLabel
 from game.piece import PieceModel
+from game.piece.lasgun import Lasgun
 from game.piece.move import PieceMoveType
 from utils import BoardVector2d
 from app.gui.utils import rgba_int_to_float, ImageButtonLayout, Paths
@@ -111,6 +112,8 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
                 piece = board.get_piece(vector)
                 if piece is not None:
                     piece.add_observer(self)
+                    if piece.model == PieceModel.LASGUN:
+                        piece.add_laser_observer(self)
 
                 # adding piece and button to board
                 piece_layout = PieceRepresentationLayout(piece, button)
@@ -160,6 +163,18 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
                 vector = king.position
                 self._representations[vector.y][vector.x].add_indicator(check)
 
+    def _update(self):
+        for i in range(len(self._representations)):
+            for j in range(len(self._representations[i])):
+                self._representations[i][j].remove_indicator()
+                self._representations[i][j].remove_img()
+                self._representations[i][j].new_image_piece(self._board.get_piece(BoardVector2d(j, i)))
+        self._show_indicators()
+        self.clear_laser_ind()
+        self.on_show_laser_fields(self._board.get_laser_fields())
+        self._update_notation()
+        self._window_updater.refresh()
+
     def get_to_promote(self):
         return self._promotion.get_promotion_piece()
 
@@ -203,8 +218,7 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
             self._possible_movements.clear()
         if piece is not None and piece.is_same_color(self._board.move_number):
             if piece.model == PieceModel.LASGUN:
-                self._board.fire_lasgun_control(piece.player_id)
-                self.on_show_laser_fields(self._board.get_all_laser_fields())
+                self._board.laser_fire_conditions(piece.player_id)
                 return
             self._selected_piece = self._board.get_piece(instance.vector)
             self._selected = self._board.get_piece_movement(instance.vector)
@@ -234,6 +248,8 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
             self._current_dots.append(self._dots[i])
             i += 1
 
+
+
     def on_show_laser_fields(self, movements: list[BoardVector2d]):
         self.clear_laser_ind()
         i = 0
@@ -244,16 +260,10 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
 
     # override
     def on_position_change(self, origin: BoardVector2d, destination: BoardVector2d) -> None:
-        for i in range(len(self._representations)):
-            for j in range(len(self._representations[i])):
-                self._representations[i][j].remove_indicator()
-                self._representations[i][j].remove_img()
-                self._representations[i][j].new_image_piece(self._board.get_piece(BoardVector2d(j, i)))
-        self._show_indicators()
-        self.clear_laser_ind()
-        self.on_show_laser_fields(self._board.get_all_laser_fields())
-        self._update_notation()
-        self._window_updater.refresh()
+        self._update()
+
+    def on_laser_propagated(self, lasgun: Lasgun):
+        self._update()
 
     def _update_notation(self):
         def size(instance,val):

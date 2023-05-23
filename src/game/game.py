@@ -190,7 +190,7 @@ class Game:
             self.__add_piece(self._piece_factory.create_piece(PieceModel.LASGUN, pos, color, dir))
 
     def move_piece(self, piece: Piece, destination: BoardVector2d, rotate_right: bool | None = None) -> None:
-        ambig = self.board.ambiguity_move_type(self._board.get_piece_movement(piece.position), destination)
+        ambig = self.board.get_ambiguity_move_type(self._board.get_piece_movement(piece.position), destination)
         self.set_notation_ambiguity(ambig)
         if rotate_right is not None and isinstance(piece, MirrorPiece):
             cast(MirrorPiece, piece).move(None, rotate_right)

@@ -6,9 +6,8 @@ from typing import TYPE_CHECKING, Optional, cast
 from game.piece.lasgun import Lasgun
 from utils import BoardVector2d
 from game import CheckManager
-from game.observer import PositionObserver
+from game.observer import PositionObserver, LaserObserver
 from game.piece import Piece, PieceModel
-from game.piece.movement import Movement, PawnMovement
 from game.piece.move import PieceMoveType, PieceMoveDetector
 from game.promotion import PromotionManager
 from game.piece.move.piece_move import PieceMove
@@ -20,7 +19,9 @@ if TYPE_CHECKING:
     from game.piece.movement import PieceMovement
 
 
-class Board(PositionObserver):
+class Board(PositionObserver, LaserObserver):
+
+
     def __init__(self, game: Game, width: int, height: int):
         self._width: int = width
         self._height: int = height
@@ -65,7 +66,7 @@ class Board(PositionObserver):
     def kings(self) -> list[Piece]:
         return self._kings
 
-    def ambiguity_move_type(self, piece_movement: PieceMovement, destination: BoardVector2d) -> AmbiguousNotation:
+    def get_ambiguity_move_type(self, piece_movement: PieceMovement, destination: BoardVector2d) -> AmbiguousNotation:
         piece = piece_movement.piece
         same_pieces: list[Piece] = self.get_pieces_of(piece.model, piece.player_id)
         amb_f = set()
@@ -76,7 +77,6 @@ class Board(PositionObserver):
             if p == piece:
                 pieces.append(p)
                 continue
-
             mp = self.get_piece_movement(p.position)
             moves = list(itertools.chain.from_iterable(mp.get_legal_moves()))
             if destination in moves:
@@ -99,33 +99,59 @@ class Board(PositionObserver):
             return AmbiguousNotation.FILE
         return AmbiguousNotation.RANK
 
+    def get_laser_fields(self):
+        all_las = []
+        for las in self._lasguns:
+            all_las.extend(las.laser_fields)
+        return all_las
+
+    def laser_fire_conditions(self, player_id: int):
+        for las in self.lasguns:
+            if las.player_id == player_id:
+                las.use_laser()
+
+    def on_laser_propagated(self, lasgun: Lasgun) -> None:
+        for field in lasgun.laser_fields:
+            pc = self.get_piece(field)
+            if pc is not None and pc.model != PieceModel.MIRROR:
+                self.destroy_piece(pc)
+        self._game.end_if_conditions_fulfilled()
+
+
     # override PositionObserver
     def on_position_change(self, origin: BoardVector2d, destination: BoardVector2d) -> None:
+        #
+        # Move piece
+        #
         mp, op = self.get_piece(origin), self.get_piece(destination)
         self._pieces[destination] = self._pieces.pop(origin, None)
-        for l in self._lasguns:
-            las = cast(Lasgun, l)
-            if las.player_id != self.move_number:
-                if las.fired:
-                    self._laser_inflict(las.player_id)
-                las.clear_laser_fields()
-                las.fired = False
-            else:
-                if las.fired and mp.model!=PieceModel.LASGUN:
-                    self._laser_inflict(las.player_id)
-                l.charge()
         if mp is not None and mp.model == PieceModel.PAWN:
             pos = destination - self.get_piece_movement(destination).direction
             if self.is_piece_at(pos):
                 self._pieces.pop(pos)
 
+        #
+        # Propagating laser fields
+        #
+        for las in self._lasguns:
+            # if las.fired:
+            las.propagate_until_target()
+            if not las.fired:
+                # las.laser_fields.clear()
+                las.charge()
+
+        #
+        # Updating check and promotion menagers
+        #
         self._check_manager.update()
         self._promotion_manager.check_promotion(mp)
 
+        #
+        # Analyzing move for PieceMoveType and generating notation
+        #
         lm = self._game.get_last_move()
         if PieceMoveType.QUEEN_SIDE_CASTLING in lm.move_types or PieceMoveType.KING_SIDE_CASTLING in lm.move_types:
             return
-
         piece_move: PieceMove = PieceMove(mp, origin, destination, None, None)
         self._game.add_move_to_history(piece_move)
         move_types: list[PieceMoveType] = PieceMoveDetector.detect(self, mp, op, destination)
@@ -164,45 +190,7 @@ class Board(PositionObserver):
             return None
         return piece[1]
 
-    def get_laser_fields(self, owner: int):
-        for l in self._lasguns:
-            las = cast(Lasgun, l)
-            if las.player_id == owner:
-                return las.laser_fields
 
-    def get_all_laser_fields(self):
-        all = []
-        for l in self._lasguns:
-            las = cast(Lasgun, l)
-            all.extend(las.laser_fields)
-        return all
-
-    def can_fire(self, owner: int):
-        for l in self._lasguns:
-            if l.player_id == owner:
-                return l.can_fire()
-
-    def fire_lasgun_control(self, owner: int):
-        for l in self._lasguns:
-            las = cast(Lasgun, l)
-            if las.player_id == owner:
-                las.fired = True
-                if las.can_fire():
-                    las.reset()
-                    las = self._laser_inflict(owner)
-                    las.move(las.position, None)
-
-    def _laser_inflict(self, owner: int) -> Lasgun:
-        for l in self._lasguns:
-            las = cast(Lasgun, l)
-            if las.player_id == owner:
-                las.fire()
-                break
-        for f in las.laser_fields:
-            p = self.get_piece(f)
-            if p is not None and p.model != PieceModel.MIRROR:
-                self.destroy_piece(p)
-        return las
     def is_out_of_bounds(self, destination: BoardVector2d) -> bool:
         return destination.x < 0 or destination.x >= self.width or destination.y < 0 or destination.y >= self.height
 
@@ -236,8 +224,7 @@ class Board(PositionObserver):
         # Check, if laser blocks movement
         #
         if piece.model != PieceModel.MIRROR and piece.model != PieceModel.PAWN and \
-                (destination in self.get_laser_fields((piece.player_id + 1) % 2) or \
-                destination in self.get_laser_fields(piece.player_id)):
+                destination in self.get_laser_fields():
             return False
         #
         # Check, if player's king is under check - if it's, only covering moves are legal
@@ -315,6 +302,7 @@ class Board(PositionObserver):
                 self._kings.append(piece[0])
             if piece[0].model == PieceModel.LASGUN:
                 self._lasguns.append(piece[0])
+                piece[0].add_laser_observer(self)
 
     def destroy_piece(self, piece: Piece):
         if piece is None:
