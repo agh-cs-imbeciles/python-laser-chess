@@ -188,14 +188,15 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
     def on_rotation_click(self, instance: Button):
         match instance.value:
             case Paths.LEFT:
-                self._game.move_piece(self._selected_piece, None, False)
+                self._game.move_piece(self._selected_piece, None, Paths.LEFT)
             case Paths.RIGHT:
-                self._game.move_piece(self._selected_piece, None, True)
+                self._game.move_piece(self._selected_piece, None, Paths.RIGHT)
         self.hide_rotation_menu()
         self.on_tile_click(self._reset_button)
         self._possible_movements = []
         self._selected = None
         self._selected_piece = None
+        self._game_app.on_move()
 
     def clear_laser_ind(self):
         for l in self._current_laser_ind:
@@ -248,8 +249,6 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
             self._current_dots.append(self._dots[i])
             i += 1
 
-
-
     def on_show_laser_fields(self, movements: list[BoardVector2d]):
         self.clear_laser_ind()
         i = 0
@@ -264,6 +263,10 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
 
     def on_laser_propagated(self, lasgun: Lasgun):
         self._update()
+
+    def on_rotation(self, origin: BoardVector2d, rotation: Paths) -> None:
+        self._update()
+
 
     def _update_notation(self):
         def size(instance,val):

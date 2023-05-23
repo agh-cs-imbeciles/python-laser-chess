@@ -38,6 +38,8 @@ class NotationGenerator(object):
         if PieceMoveType.CAPTURE in lm.move_types:
             gen_str += str(PieceMoveType.CAPTURE)
         gen_str += lm.destination.x_to_str() + lm.destination.y_to_str()
+        if PieceMoveType.ROTATION in lm.move_types:
+            gen_str += str(lm.rotation)
         if PieceMoveType.PROMOTION in lm.move_types:
             gen_str += str(PieceMoveType.PROMOTION) + str(lm.promotion_piece)
         for m in lm.move_types:

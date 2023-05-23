@@ -3,6 +3,7 @@ from __future__ import annotations
 from builtins import list
 from typing import TYPE_CHECKING, Optional, cast
 
+from app.gui.utils import Paths
 from game.piece.lasgun import Lasgun
 from utils import BoardVector2d
 from game import CheckManager
@@ -117,6 +118,26 @@ class Board(PositionObserver, LaserObserver):
                 self.destroy_piece(pc)
         self._game.end_if_conditions_fulfilled()
 
+    def on_rotation(self, origin: BoardVector2d, rotation: Paths) -> None:
+        mp = self.get_piece(origin)
+
+        #
+        # Propagating laser fields
+        #
+        for las in self._lasguns:
+            las.propagate_until_target()
+            if not las.fired:
+                las.charge()
+
+        #
+        # Analyzing move for PieceMoveType and generating notation
+        #
+        piece_move: PieceMove = PieceMove(mp, origin,origin, rotation=rotation)
+        self._game.add_move_to_history(piece_move)
+        move_types: list[PieceMoveType] = [PieceMoveType.ROTATION]
+        self._game.get_last_move().add_move_type(move_types)
+        self._game.on_position_change(mp, move_types)
+        self._notation_list.append(self._game._notation_generator.generate_last_move_string())
 
     # override PositionObserver
     def on_position_change(self, origin: BoardVector2d, destination: BoardVector2d) -> None:
@@ -134,10 +155,8 @@ class Board(PositionObserver, LaserObserver):
         # Propagating laser fields
         #
         for las in self._lasguns:
-            # if las.fired:
             las.propagate_until_target()
             if not las.fired:
-                # las.laser_fields.clear()
                 las.charge()
 
         #

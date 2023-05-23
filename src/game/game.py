@@ -1,6 +1,8 @@
 from __future__ import annotations
 from typing import Any
 from typing import cast
+
+from app.gui.utils import Paths
 from utils import BoardVector2d
 
 from game import Board
@@ -189,11 +191,11 @@ class Game:
         for pos, color, dir in lasgun_data:
             self.__add_piece(self._piece_factory.create_piece(PieceModel.LASGUN, pos, color, dir))
 
-    def move_piece(self, piece: Piece, destination: BoardVector2d, rotate_right: bool | None = None) -> None:
+    def move_piece(self, piece: Piece, destination: BoardVector2d, rotate: Paths | None = None) -> None:
         ambig = self.board.get_ambiguity_move_type(self._board.get_piece_movement(piece.position), destination)
         self.set_notation_ambiguity(ambig)
-        if rotate_right is not None and isinstance(piece, MirrorPiece):
-            cast(MirrorPiece, piece).move(None, rotate_right)
+        if rotate is not None and isinstance(piece, MirrorPiece):
+            cast(MirrorPiece, piece).move(piece.position, rotate)
         else:
             piece.move(destination)
         self.board.move_number = (self.board.move_number + 1) % 2
