@@ -16,6 +16,8 @@ class ImageButtonLayout(RelativeLayout):
         # self._indicator = None
         if src is not None:
             self._img = Image(source=src)
+            self._img.allow_stretch = True
+            self._img.texture.mag_filter = "nearest"
             self.add_widget(self._img)
         # if addit_src is not None:
         #     self._indicator = Image(source=addit_src)
@@ -76,3 +78,10 @@ class ImageButtonLayout(RelativeLayout):
 class Paths(Enum):
     LEFT  = f"{Path.IMG_PATH}/left.png"
     RIGHT = f"{Path.IMG_PATH}/right.png"
+
+    def __str__(self):
+        match self:
+            case Paths.LEFT:
+                return "L"
+            case Paths.RIGHT:
+                return "R"

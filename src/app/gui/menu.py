@@ -6,4 +6,4 @@ class Menu(Screen):
         super().__init__()
 
     def _update_width(self):
-        self.ids.b1.height = self.ids.b1.width / 2
+        self.ids.menu_box.height = self.ids.menu_box.width / 2

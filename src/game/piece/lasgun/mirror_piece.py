@@ -1,6 +1,7 @@
 from __future__ import annotations
-from game.piece import Piece
 
+from utils import Rotation
+from game.piece import Piece
 from game.piece import PieceModel
 from game.piece.movement import Movement
 from utils import BoardVector2d
@@ -25,19 +26,23 @@ class MirrorPiece(Piece):
     def direction(self, direction: Movement) -> None:
         self.direction = direction
 
-    def move(self, destination: BoardVector2d | None = None, rotate_right: bool | None = None) -> None:
+    def move(self, destination: BoardVector2d | None = None, rotate: Rotation | None = None) -> None:
         origin = self._position.copy()
         if destination is None:
             destination = origin
-        match rotate_right:
-            case True:
+        match rotate:
+            case Rotation.ANTICLOCKWISE:
                 self._direction = self._direction.double_right()
-            case False:
+            case Rotation.CLOCKWISE:
                 self._direction = self._direction.double_left()
             case None:
                 if destination is None:
                     raise ValueError("Destination and rotation cannot have both None value")
         self._position = destination
         self._move_count += 1
-        for observer in self._position_observers:
-            observer.on_position_change(origin, destination)
+        if rotate is None:
+            for observer in self._position_observers:
+                observer.on_position_change(origin, destination)
+        else:
+            for observer in self._position_observers:
+                observer.on_rotation(origin, rotate)
