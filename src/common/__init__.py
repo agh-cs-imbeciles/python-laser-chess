@@ -1,1 +1,1 @@
-from .status import Status
+from .message import MessageStatus, MessageType

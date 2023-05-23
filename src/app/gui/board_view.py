@@ -32,7 +32,7 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
     def __init__(self, **kwargs):
         super().__init__()
         self._game = g.Game()
-        self._game_app: GameApplication = GameApplication(self._game)
+        self._game_app: GameApplication = GameApplication(self._game, online=False)
         self._grid = self.ids.board
         self._indicator_label: Label = self.ids.indicator_lab
         self._dots = empty(shape=27, dtype=Image)

@@ -1,17 +1,21 @@
 import json
-import websockets
-from app.client import Connection
-from common import Status
+from common import MessageType
 
 
 class Sender:
-    @staticmethod
-    async def send_init() -> None:
-        pass
+    @classmethod
+    async def send_init(cls, websocket) -> None:
+        message = {
+            "messageType": str(MessageType.INIT)
+        }
+        print(json.dumps(message))
+        await websocket.send(json.dumps(message))
 
-    @staticmethod
-    async def send_move(data: dict[any, any]) -> None:
-        async with websockets.connect(Connection.URI) as websocket:
-            data["status"] = str(Status.MOVE)
-            print(json.dumps(data))
-            await websocket.send(json.dumps(data))
+    @classmethod
+    async def send_move(cls, websocket, data: dict[any, any]) -> None:
+        message = {
+            "messageType": str(MessageType.MOVE),
+            "data": data
+        }
+        print(json.dumps(message))
+        await websocket.send(json.dumps(message))
