@@ -1,12 +1,15 @@
 from __future__ import annotations
 
-from app.gui.utils import Paths
+from typing import TYPE_CHECKING
+
 from game.piece import Piece
 
 from game.piece import PieceModel
 from game.piece.movement import Movement
 from utils import BoardVector2d
 
+if TYPE_CHECKING:
+    from app.gui.utils import Paths
 
 class MirrorPiece(Piece):
     def __init__(self, position: BoardVector2d, player_id: int, direction: Movement) -> None:
