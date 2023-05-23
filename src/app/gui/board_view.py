@@ -1,10 +1,6 @@
 from random import randint
 from typing import cast
-
-from kivy.graphics import Rectangle, Color
-from kivy.properties import NumericProperty
 from kivy.uix.button import Button
-from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.image import Image
 from kivy.uix.label import Label
 from kivy.uix.screenmanager import Screen
@@ -25,6 +21,7 @@ from game.piece.piece import Piece
 from app.game import GameApplication
 from app.gui import Path
 import itertools
+
 
 
 class MetaAB(type(obs.PositionObserver), type(Screen)):

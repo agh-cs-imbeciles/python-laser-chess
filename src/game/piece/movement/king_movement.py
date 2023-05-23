@@ -3,10 +3,11 @@ from typing import TYPE_CHECKING
 from utils import BoardVector2d
 from game.piece import Piece, PieceModel
 from game.piece.movement import PieceMovement
-from game.piece.move import PieceMoveType
+
 
 if TYPE_CHECKING:
     from game import Board
+    from game.piece.move import PieceMoveType
 
 
 class KingMovement(PieceMovement):
