@@ -1,28 +1,44 @@
 from __future__ import annotations
-from enum import Enum
+from enum import Enum, unique, auto
 
 
-class Status(Enum):
-    INIT    = 0
-    SUCCESS = 1
-    ERROR   = 2
-    MOVE    = 3
+@unique
+class MessageStatus(Enum):
+    SUCCESS = auto()
+    ERROR   = auto()
 
     def __str__(self) -> str:
         match self:
-            case Status.INIT:
-                return "init"
-            case Status.SUCCESS:
+            case MessageStatus.SUCCESS:
                 return "success"
-            case Status.ERROR:
+            case MessageStatus.ERROR:
                 return "error"
-            case Status.MOVE:
-                return "move"
 
     @staticmethod
-    def from_str(status: str) -> Status:
-        for s in Status:
+    def from_str(status: str) -> MessageStatus:
+        for s in MessageStatus:
             if status == str(s):
                 return s
 
-        raise ValueError("Status argument is invalid [from_str()]")
+        raise ValueError("MessageStatus argument is invalid [from_str()]")
+
+
+@unique
+class MessageType(Enum):
+    INIT = auto()
+    MOVE = auto()
+
+    def __str__(self) -> str:
+        match self:
+            case MessageType.INIT:
+                return "init"
+            case MessageType.MOVE:
+                return "move"
+
+    @staticmethod
+    def from_str(type: str) -> MessageType:
+        for t in MessageType:
+            if type == str(t):
+                return t
+
+        raise ValueError("MessageType argument is invalid [from_str()]")
