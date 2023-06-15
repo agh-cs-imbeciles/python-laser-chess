@@ -4,6 +4,7 @@ from typing import cast
 from kivy.graphics import Rectangle, Color
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
+from kivy.uix.gridlayout import GridLayout
 from kivy.uix.image import Image
 from kivy.uix.label import Label
 from kivy.uix.popup import Popup
@@ -135,8 +136,8 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
         self._promotion_representation = [
             PieceRepresentationLayout(None, Button(on_press=self.on_promotion_click)) for _ in self._board.get_possible_promotions()
         ]
-        for e in self._promotion_representation:
-            e.size_hint = (None, None)
+        # for e in self._promotion_representation:
+        #     e.size_hint = (None, None)
 
 
         # creation of rotation tab
@@ -342,15 +343,19 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
         if piece is None:
             return
         self._is_promotion = True
-
+        grid = GridLayout(cols=2)
         for rep, tp in zip(self._promotion_representation, types):
             rep.add_value_to_button(tp)
             rep.new_image(tp, piece.player_id)
-            tab.add_widget(rep)
+            grid.add_widget(rep)
+        tab.add_widget(grid)
         self._window_updater.refresh()
 
     def hide_promotion_menu(self):
-        for rep in self._promotion_representation:
+        prom = self._promotion_representation
+        if len(prom)>0:
+            prom[0].parent.parent.remove_widget(prom[0].parent)
+        for rep in prom:
             if rep.parent is not None:
                 rep.parent.remove_widget(rep)
         self._window_updater.refresh()
