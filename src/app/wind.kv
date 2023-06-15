@@ -12,7 +12,6 @@ WindowManager:
             id:menu_box
             orientation:'vertical'
             size_hint: 0.25,None
-
             on_size:root._update_width()
             Button:
                 id:b1
@@ -29,14 +28,27 @@ WindowManager:
     id:"everything"
     name: "board"
     AnchorLayout:
+
         anchor_x: 'center'
         anchor_y: 'center'
         id:anchor
         size_hint:1,1
         BoxLayout:
+            canvas.before:
+                Color:
+                    rgba: 216 / 255., 195 / 255., 88 / 255., 1
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
             id:whole
-            size_hint: None, None
+            size_hint: 0,0
             BoxLayout:
+                canvas.before:
+                    Color:
+                        rgba: 100 / 255., 230 / 255., 88 / 20., 1
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
                 id:left_box
                 size_hint: 0.2, 1
                 orientation: 'vertical'
@@ -44,6 +56,12 @@ WindowManager:
                     id:indicator_lab
                     size_hint:0.8,0.2
                 ScrollView:
+                    canvas.before:
+                        Color:
+                            rgba: 20 / 255., 200 / 255., 5 / 255., 1
+                        Rectangle:
+                            pos: self.pos
+                            size: self.size
                     id:scroll
                     effect_cls:"ScrollEffect"
                     size_hint:1,0.6
@@ -57,9 +75,13 @@ WindowManager:
                         cols:1
                         padding:20
                 BoxLayout:
+                    id:button_tab
+                    size_hint:1,0.1
+
+                BoxLayout:
                     id:rotation_promotion_tab
                     orientation: 'horizontal'
-                    size_hint:1,0.4
+                    size_hint:1,0.3
                     vertical_align:'top'
 
             BoxLayout:

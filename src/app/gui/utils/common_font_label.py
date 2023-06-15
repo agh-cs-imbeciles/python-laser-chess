@@ -7,13 +7,8 @@ import weakref
 
 
 class CommonFontLabel(Label):
-    instances = []
-
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.__class__.instances.append(weakref.proxy(self))
 
-    @classmethod
-    def update_font(cls, size: int):
-        for i in cls.instances:
-            cast(CommonFontLabel, i).font_size = size
+    def on_size(self,instance,value):
+        self.font_size = self.width/(len(self.text)/2+1)

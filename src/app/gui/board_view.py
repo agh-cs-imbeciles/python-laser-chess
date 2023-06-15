@@ -1,8 +1,12 @@
 from random import randint
 from typing import cast
+
+from kivy.graphics import Rectangle, Color
+from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
 from kivy.uix.image import Image
 from kivy.uix.label import Label
+from kivy.uix.popup import Popup
 from kivy.uix.screenmanager import Screen
 
 from app.gui.utils.common_font_label import CommonFontLabel
@@ -52,19 +56,28 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
         self._reset_button.vector = BoardVector2d(-1, -1)
         self._elements_dict = dict()
         self._elements_dict["board_images"] = empty(shape=(8, 8), dtype=Image)
-        self._init_board()
-
         for id in self.ids:
             t = self.ids.get(id)
             self._elements_dict.update({id: t})
+        self._init_board()
         self._window_updater = WindowUpdater(self._elements_dict)
+
 
     def _init_board(self):
 
         board = self._game.board
 
+        # create ending button
+        end_button = Button()
+        label = CommonFontLabel(text="Zakończ grę")
+        end_button.add_widget(label)
+        end_button.bind(size=label.setter("size"))
+        end_button.bind(pos=label.setter("pos"))
+        end_button.bind(on_press=self._show_end_popup)
+        self._elements_dict.get("button_tab").add_widget(end_button)
+
         # assigning observer to game
-        self._game.add_observer(self)
+        self._game.add_observer(self);
 
         # creation of indicator dots
         for i in range(len(self._dots)):
@@ -145,14 +158,30 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
         for i in range(8):
             for j in range(4):
                 label = CommonFontLabel()
-                CommonFontLabel.update_font(20)
+                # CommonFontLabel.update_font(20)
                 if j % 2 == 1:
                     label.text = str(8 - i)
                 else:
                     label.text = chr(i + 97)
                 label.bold = True
                 boxes[j].add_widget(label)
-
+    def _show_end_popup(self,instance):
+        popup = Popup(size_hint=(0.4, 0.2), auto_dismiss=False)
+        title = "Koniec gry. Wygrał ..."
+        content = Button(text="Zakończ")
+        if isinstance(instance,Button):
+            title='Czy na pewno chcesz zakończyć rozgrywkę?'
+            content = BoxLayout(orientation="horizontal")
+            no = Button(text="Nie", size_hint=(1,1))
+            yes = Button(text="Tak", size_hint=(1,1))
+            content.add_widget(yes)
+            content.add_widget(no)
+        popup.title = title
+        popup.content = content
+        popup.open()
+        if isinstance(instance, Button):
+            yes.bind(on_press=lambda x: popup.dismiss())
+            no.bind(on_press=popup.dismiss)
     def _show_checks(self):
         for king in self._board.kings:
             if self._board.is_king_under_check(king.player_id):

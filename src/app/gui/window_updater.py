@@ -22,45 +22,46 @@ class WindowUpdater:
         main_x = 1.2*main_y
 
         font = main_x/25
-        CommonFontLabel.update_font(font)
-
+        # CommonFontLabel.update_font(font)
+        # e.get("whole").canvas.clear()
+        e.get("whole").size_hint = (None, None)
         # every element of board view is located in whole
         e.get('whole').width = main_x
         e.get('whole').height = main_y
 
         # box with information about game + simple menu
-        e.get('left_box').width = 0.2*main_x
-        e.get('left_box').height = main_y
+        # e.get('left_box').width = 0.2*main_x
+        # e.get('left_box').height = main_y
 
-        e.get('board_addit').width = 0.8 * main_x
-        e.get('board_addit').height = main_y
+        # e.get('board_addit').width = 0.8 * main_x
+        # e.get('board_addit').height = main_y
 
         # box with top coordinates
-        e.get('top').height = 0.1 * main_y
-        e.get('top').width = 0.6 * main_x
+        # e.get('top').height = 0.1 * main_y
+        # e.get('top').width = 0.6 * main_x
 
         # box with bottom coordinates
-        e.get('bot').height = 0.1 * main_y
-        e.get('bot').width = 0.6 * main_x
+        # e.get('bot').height = 0.1 * main_y
+        # e.get('bot').width = 0.6 * main_x
 
         # box with board, left and right coordinates
-        e.get('mid').height = 0.8 * main_y
-        e.get('mid').width = 0.8 * main_x
+        # e.get('mid').height = 0.8 * main_y
+        # e.get('mid').width = 0.8 * main_x
 
         # box with left coordinates
-        e.get('left').width = 0.1 * main_x
-        e.get('left').height = 0.8 * main_y
+        # e.get('left').width = 0.1 * main_x
+        # e.get('left').height = 0.8 * main_y
 
         # box with right coordinates
-        e.get('right').width = 0.1 * main_x
-        e.get('right').height = 0.8 * main_y
+        # e.get('right').width = 0.1 * main_x
+        # e.get('right').height = 0.8 * main_y
 
         # board
-        b_size = max(0.6 * main_x, 0.8 * main_y)
-        e.get('board').width = b_size
-        e.get('board').height = b_size
+        # b_size = max(0.6 * main_x, 0.8 * main_y)
+        # e.get('board').width = b_size
+        # e.get('board').height = b_size
 
-        e.get('indicator_lab').height = 10
+        # e.get('indicator_lab').height = 10
 
         # promotion
         rpt = e.get('rotation_promotion_tab')

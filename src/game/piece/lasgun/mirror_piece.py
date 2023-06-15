@@ -7,9 +7,8 @@ from game.piece import Piece
 from game.piece import PieceModel
 from game.piece.movement import Movement
 from utils import BoardVector2d
+from app.gui.utils import Paths
 
-if TYPE_CHECKING:
-    from app.gui.utils import Paths
 
 class MirrorPiece(Piece):
     def __init__(self, position: BoardVector2d, player_id: int, direction: Movement) -> None:
