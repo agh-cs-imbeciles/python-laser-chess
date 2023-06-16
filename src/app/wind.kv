@@ -1,4 +1,3 @@
-#: import ew kivy.uix.effectwidget
 
 WindowManager:
     Menu:
@@ -6,93 +5,97 @@ WindowManager:
 
 <Menu>:
     name: "menu"
-    FloatLayout:
-        canvas.before:
-            Color:
-                rgba: 1, 0, 0, 1
-            Rectangle:
-                pos: self.pos
-                size: self.size
     AnchorLayout:
         anchor_x: 'center'
         anchor_y: 'center'
-        Button:
-            id:b1
-            text: "Rozpocznij grę"
-            font_size:self.width/8
+        BoxLayout:
+            id:menu_box
+            orientation:'vertical'
             size_hint: 0.25,None
-            on_press:root.manager.current="board"
+
             on_size:root._update_width()
-
-
+            Button:
+                id:b1
+                text: "Rozpocznij grę lokalną"
+                on_press:root.manager.current="board"
+                font_size:self.width/11
+            Button:
+                id:b2
+                text: "Rozpocznij grę sieciową"
+                on_press:root.manager.current="board"
+                font_size:self.width/11
 
 <Board>:
+    id:"everything"
     name: "board"
-    EffectWidget:
-        AnchorLayout:
-            anchor_x: 'center'
-            anchor_y: 'center'
-            id:anchor
-            size_hint:1,1
+    AnchorLayout:
+        anchor_x: 'center'
+        anchor_y: 'center'
+        id:anchor
+        size_hint:1,1
+        BoxLayout:
+            id:whole
+            size_hint: None, None
             BoxLayout:
-                id:whole
-                size_hint: None, None
+                id:left_box
+                size_hint: 0.2, 1
+                orientation: 'vertical'
+                CommonFontLabel:
+                    id:indicator_lab
+                    size_hint:0.8,0.2
+                ScrollView:
+                    id:scroll
+                    effect_cls:"ScrollEffect"
+                    size_hint:1,0.6
+                    do_scroll_x: False
+                    do_scroll_y: True
+                    GridLayout:
+                        id:notation
+                        size_hint_y: None
+                        height:self.minimum_height
+                        width: self.minimum_width
+                        cols:1
+                        padding:20
                 BoxLayout:
-                    id:left_box
-                    size_hint: None, None
-                    width:
-                    orientation: 'vertical'
-                    Label:
-                        id:indicator_lab
+                    id:rotation_promotion_tab
+                    orientation: 'horizontal'
+                    size_hint:1,0.4
+                    vertical_align:'top'
+
+            BoxLayout:
+                id:board_addit
+                orientation: 'vertical'
+                size_hint:0.8,1
+                AnchorLayout:
+                    size_hint:1,0.1
+                    anchor_x:'center'
                     BoxLayout:
-                        id:rotation_tab
+                        id:top
+                        size_hint:0.84,1
                         orientation: 'horizontal'
+                BoxLayout:
+                    id:mid
+                    orientation: 'horizontal'
+                    size_hint:1,0.8
                     BoxLayout:
-                        id:promotion_tab
+                        id:left
+                        size_hint:0.1,1
                         orientation: 'vertical'
-                BoxLayout:
-                    id:board_addit
-                    orientation: 'vertical'
-                    size_hint:None,None
-                    #width:min(self.parent.height,self.parent.width)
-                    #height:min(self.parent.height,self.parent.width)
-                    AnchorLayout:
-                        anchor_x: 'center'
-                        anchor_y: 'center'
-                        BoxLayout:
-                            id:top
-                            #size_hint_x:None
-                            size_hint:None,None
-                            #width: board.width
-                            #pos:50,0
-                            orientation: 'horizontal'
+                    GridLayout:
+                        id:board
+                        size_hint:1,1
+                        cols:8
+                        rows:8
                     BoxLayout:
-                        id:mid
+                        id:right
+                        size_hint:0.1,1
+                        orientation: 'vertical'
+                AnchorLayout:
+                    size_hint:1,0.1
+                    anchor_x:'center'
+                    BoxLayout:
+                        id:bot
+                        size_hint:0.84,1
                         orientation: 'horizontal'
-                        size_hint:None,None
-                        BoxLayout:
-                            id:left
-                            #size_hint:0.1,1
-                            size_hint:None,None
-                            orientation: 'vertical'
-                        GridLayout:
-                            id:board
-                            #size_hint:1,1
-                            size_hint:None,None
-                            cols:8
-                            rows:8
-                        BoxLayout:
-                            id:right
-                            size_hint:None,None
-                            #size_hint:0.1,1
-                            orientation: 'vertical'
-                    AnchorLayout:
-                        anchor_x: 'center'
-                        anchor_y: 'center'
-                        BoxLayout:
-                            id:bot
-                            #size_hint_x:None
-                            size_hint:None,None
-                            #width: board.width
-                            #pos:50,0
-                            orientation: 'horizontal'
+
+

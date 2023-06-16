@@ -5,6 +5,7 @@ from game.piece import Piece, PieceModel
 from game.piece.movement import PieceMovement
 from game.piece.move import PieceMoveType
 
+
 if TYPE_CHECKING:
     from game import Board
 

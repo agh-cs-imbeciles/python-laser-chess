@@ -20,7 +20,6 @@ class PieceRepresentationLayout(RelativeLayout):
         self._img = None
         self._indicator = None
         self._piece = piece
-
         if opacity is not None:
             self.opacity = opacity
         if piece is None:
@@ -28,6 +27,10 @@ class PieceRepresentationLayout(RelativeLayout):
 
         self.__load(piece.model,piece.player_id)
         self.__add_img_to_repr(self._img)
+
+    @property
+    def button(self) -> Button:
+        return self._button
 
     def __load(self, piece_type: PieceModel, player: int):
         if piece_type is None or player is None:
@@ -107,6 +110,7 @@ class PieceRepresentationLayout(RelativeLayout):
         pass
 
     def add_indicator(self, img: Image):
+        # self.remove_indicator()
         if self._indicator is not None:
             return
         self._indicator = img

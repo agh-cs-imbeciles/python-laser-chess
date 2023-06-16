@@ -123,6 +123,10 @@ class CheckManager:
             return False
         return not self.is_king_under_check(player_id)
 
+    def is_king_dead(self, player_id: int) -> bool:
+        return len(self._board.get_pieces_of(PieceModel.KING, player_id))==0
+
+
     def is_pinned_square(self, position: BoardVector2d, player_id: int) -> bool:
         return self._pinned_squares[player_id].get(position, False)
 
