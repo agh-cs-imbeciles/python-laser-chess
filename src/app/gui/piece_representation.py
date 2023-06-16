@@ -74,6 +74,7 @@ class PieceRepresentationLayout(RelativeLayout):
 
         if self._img:
             self._img.allow_stretch = True
+            self._img.texture.min_filter = "nearest"
             self._img.texture.mag_filter = "nearest"
 
     def __add_img_to_repr(self, img: Image):
