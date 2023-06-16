@@ -5,7 +5,6 @@ from game.piece import Piece
 from game.piece import PieceModel
 from game.piece.movement import Movement
 from utils import BoardVector2d
-from app.gui.utils import Paths
 
 
 class MirrorPiece(Piece):
