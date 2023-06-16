@@ -53,6 +53,7 @@ WindowManager:
                 size_hint: 0.2, 1
                 orientation: 'vertical'
                 CommonFontLabel:
+                    font_modificator:0.3
                     id:indicator_lab
                     size_hint:0.8,0.2
                 ScrollView:
@@ -71,7 +72,6 @@ WindowManager:
                         id:notation
                         size_hint_y: None
                         height:self.minimum_height
-                        width: self.minimum_width
                         cols:1
                         padding:20
                 BoxLayout:

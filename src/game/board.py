@@ -146,7 +146,7 @@ class Board(PositionObserver, LaserObserver):
         #
         mp, op = self.get_piece(origin), self.get_piece(destination)
         self._pieces[destination] = self._pieces.pop(origin, None)
-        if mp is not None and mp.model == PieceModel.PAWN:
+        if mp is not None and op is None and mp.model == PieceModel.PAWN:
             pos = destination - self.get_piece_movement(destination).direction
             if self.is_piece_at(pos):
                 self._pieces.pop(pos)
@@ -160,7 +160,7 @@ class Board(PositionObserver, LaserObserver):
                 las.charge()
 
         #
-        # Updating check and promotion menagers
+        # Updating check and promotion managers
         #
         self._check_manager.update()
         self._promotion_manager.check_promotion(mp)

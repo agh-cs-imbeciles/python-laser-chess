@@ -70,7 +70,7 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
 
         # create ending button
         end_button = Button()
-        label = CommonFontLabel(text="Zakończ grę")
+        label = CommonFontLabel(font_modificator=0.15,text="Zakończ grę")
         end_button.add_widget(label)
         end_button.bind(size=label.setter("size"))
         end_button.bind(pos=label.setter("pos"))
@@ -158,7 +158,7 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
         boxes = [self.ids.top, self.ids.left, self.ids.bot, self.ids.right]
         for i in range(8):
             for j in range(4):
-                label = CommonFontLabel()
+                label = CommonFontLabel(font_modificator=0.4)
                 # CommonFontLabel.update_font(20)
                 if j % 2 == 1:
                     label.text = str(8 - i)
@@ -167,17 +167,19 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
                 label.bold = True
                 boxes[j].add_widget(label)
     def _show_end_popup(self,instance):
-        popup = Popup(size_hint=(0.4, 0.2), auto_dismiss=False)
+        popup = Popup(size_hint=(0.6, 0.2), auto_dismiss=False)
         title = "Koniec gry. Wygrał ..."
         content = Button(text="Zakończ")
         if isinstance(instance,Button):
             title='Czy na pewno chcesz zakończyć rozgrywkę?'
-            content = BoxLayout(orientation="horizontal")
-            no = Button(text="Nie", size_hint=(1,1))
-            yes = Button(text="Tak", size_hint=(1,1))
+            content = BoxLayout(orientation="horizontal",padding=20,size_hint=(1,1))
+            no = Button(text="Nie",size_hint=(0.5, 0.5))
+            yes = Button(text="Tak",size_hint=(0.5, 0.5))
             content.add_widget(yes)
             content.add_widget(no)
         popup.title = title
+        popup.size_hint_min = (200, 200)
+        popup.size_hint_max = (300, 300)
         popup.content = content
         popup.open()
         if isinstance(instance, Button):
@@ -297,10 +299,10 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
 
     def _update_notation(self):
         def size(instance,val):
-            instance.size = val
+            instance.height = val
         not_tab = self._elements_dict.get('notation')
-        l = CommonFontLabel(size_hint=(None,None),text= self._game._notation_generator.generate_last_move_string())
-        l.bind(texture_size=size)
+        l = CommonFontLabel(font_modificator=0.3,size_hint=(1, None), text= self._game._notation_generator.generate_last_move_string())
+        l.bind(font_size=size)
         not_tab.add_widget(l)
 
     def _show_lasgun_ready_indicators(self):
