@@ -20,9 +20,15 @@ WindowManager:
                 font_size:self.width/11
             Button:
                 id:b2
-                text: "Rozpocznij grę sieciową"
+                text: "Hostuj grę"
                 on_press:root.manager.current="board"
                 font_size:self.width/11
+            Button:
+                id:b2
+                text: "Dołącz do gry sieciowej"
+                on_press:root.manager.current="board"
+                font_size:self.width/11
+
 
 <Board>:
     id:"everything"

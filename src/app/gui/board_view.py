@@ -14,7 +14,7 @@ from app.gui.utils.common_font_label import CommonFontLabel
 from game.piece import PieceModel
 from game.piece.lasgun import Lasgun
 from game.piece.move import PieceMoveType
-from utils import BoardVector2d
+from utils import BoardVector2d, Rotation
 from app.gui.utils import rgba_int_to_float, ImageButtonLayout, Paths
 import game as g
 import game.observer as obs
@@ -216,9 +216,9 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
     def on_rotation_click(self, instance: Button):
         match instance.value:
             case Paths.LEFT:
-                self._game.move_piece(self._selected_piece, None, Paths.LEFT)
+                self._game.move_piece(self._selected_piece, None, Rotation.CLOCKWISE)
             case Paths.RIGHT:
-                self._game.move_piece(self._selected_piece, None, Paths.RIGHT)
+                self._game.move_piece(self._selected_piece, None, Rotation.ANTICLOCKWISE)
         self.hide_rotation_menu()
         self.on_tile_click(self._reset_button)
         self._possible_movements = []

@@ -33,6 +33,7 @@ class MirrorPiece(Piece):
             destination = origin
         match rotate:
             case Rotation.ANTICLOCKWISE:
+                print("lol")
                 self._direction = self._direction.double_right()
             case Rotation.CLOCKWISE:
                 self._direction = self._direction.double_left()
