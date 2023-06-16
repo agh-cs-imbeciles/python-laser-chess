@@ -28,7 +28,6 @@ from app.gui import Path
 import itertools
 
 
-
 class MetaAB(type(obs.PositionObserver), type(Screen)):
     pass
 

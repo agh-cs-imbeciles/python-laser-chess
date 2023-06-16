@@ -1,9 +1,7 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
-
+from utils import Rotation
 from game.piece import Piece
-
 from game.piece import PieceModel
 from game.piece.movement import Movement
 from utils import BoardVector2d
@@ -29,14 +27,14 @@ class MirrorPiece(Piece):
     def direction(self, direction: Movement) -> None:
         self.direction = direction
 
-    def move(self, destination: BoardVector2d | None = None, rotate: Paths | None = None) -> None:
+    def move(self, destination: BoardVector2d | None = None, rotate: Rotation | None = None) -> None:
         origin = self._position.copy()
         if destination is None:
             destination = origin
         match rotate:
-            case Paths.RIGHT:
+            case Rotation.ANTICLOCKWISE:
                 self._direction = self._direction.double_right()
-            case Paths.LEFT:
+            case Rotation.CLOCKWISE:
                 self._direction = self._direction.double_left()
             case None:
                 if destination is None:

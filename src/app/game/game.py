@@ -1,6 +1,8 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 import asyncio
+from app.client import Sender
+from app.config import GameSettings
 from app.client import Connection
 
 if TYPE_CHECKING:
