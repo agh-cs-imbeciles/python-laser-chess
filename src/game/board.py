@@ -1,14 +1,12 @@
 from __future__ import annotations
-
 from builtins import list
 from typing import TYPE_CHECKING, Optional, cast
 
-from app.gui.utils import Paths
-from game.piece.lasgun import Lasgun
-from utils import BoardVector2d
+from utils import BoardVector2d, Rotation
 from game import CheckManager
 from game.observer import PositionObserver, LaserObserver
 from game.piece import Piece, PieceModel
+from game.piece.lasgun import Lasgun
 from game.piece.move import PieceMoveType, PieceMoveDetector
 from game.promotion import PromotionManager
 from game.piece.move.piece_move import PieceMove
@@ -118,7 +116,7 @@ class Board(PositionObserver, LaserObserver):
                 self.destroy_piece(pc)
         self._game.end_if_conditions_fulfilled()
 
-    def on_rotation(self, origin: BoardVector2d, rotation: Paths) -> None:
+    def on_rotation(self, origin: BoardVector2d, rotation: Rotation) -> None:
         mp = self.get_piece(origin)
 
         #

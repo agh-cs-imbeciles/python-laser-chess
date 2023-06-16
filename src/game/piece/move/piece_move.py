@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from app.gui.utils import Paths
-from utils import BoardVector2d
+from utils import BoardVector2d, Rotation
 import game.piece as pcs
 from game.piece.move.piece_move_type import PieceMoveType
 
@@ -14,7 +13,7 @@ class PieceMove:
         destination: BoardVector2d = None,
         promotion_piece: pcs.Piece | None = None,
         move_type: PieceMoveType = None,
-        rotation: Paths = None
+        rotation: Rotation | None = None
     ) -> None:
         if piece is None:
             self.move: int = None
