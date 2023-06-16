@@ -71,8 +71,13 @@ class Movement(Enum):
             xs = [origin.x for _ in ys]
         if yi == 0:
             ys = [origin.y for _ in xs]
-
-        return [BoardVector2d(x, y) for x, y in zip(xs, ys)]
+        moves = [BoardVector2d(x, y) for x, y in zip(xs, ys)]
+        filtered = []
+        for m in moves:
+            if m in board.get_laser_fields():
+                break
+            filtered.append(m)
+        return filtered
 
     @classmethod
     def get_squares(cls, movement: Movement, board: Board, origin: BoardVector2d) -> list[BoardVector2d]:
