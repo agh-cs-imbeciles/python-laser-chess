@@ -8,7 +8,7 @@ class Sender:
         message = {
             "messageType": str(MessageType.INIT)
         }
-        print(json.dumps(message))
+        # print(json.dumps(message))
         await websocket.send(json.dumps(message))
 
     @classmethod
@@ -17,5 +17,5 @@ class Sender:
             "messageType": str(MessageType.MOVE),
             "data": data
         }
-        print(json.dumps(message))
+        # print(json.dumps(message))
         await websocket.send(json.dumps(message))

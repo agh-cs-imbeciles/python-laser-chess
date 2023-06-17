@@ -1,7 +1,10 @@
 from __future__ import annotations
 import json
+import random
 import secrets
 import asyncio
+import time
+
 import websockets
 from common import MessageStatus, MessageType
 from utils import BoardVector2d
@@ -14,6 +17,10 @@ class Server:
         self.__games: list[Game] = []
         self.__connected: list[any] = []
         self.__move: int = 0
+
+    async def main(self):
+        async with websockets.serve(self.handler, "", 8000):
+            await asyncio.Future()
 
     async def start(self, websocket):
         """
@@ -32,7 +39,8 @@ class Server:
             response = {
                 "status": str(MessageStatus.SUCCESS),
                 "messageType": str(MessageType.INIT),
-                # "joinKey": join_key
+                "playerId": self.__generate_player_id()
+                # "gameId": join_key
             }
             await websocket.send(json.dumps(response))
         finally:
@@ -61,6 +69,7 @@ class Server:
             response = {
                 "status": str(MessageStatus.SUCCESS),
                 "messageType": str(MessageType.INIT),
+                "playerId": self.__generate_player_id()
                 # "joinKey": join_key
             }
             await websocket.send(json.dumps(response))
@@ -170,9 +179,17 @@ class Server:
         #     except websockets.ConnectionClosedOK:
         #         break
 
-    async def main(self):
-        async with websockets.serve(self.handler, "", 8000):
-            await asyncio.Future()
+    def __generate_player_id(self) -> str:
+        prefix: str = "laschess_pid"
+        random_sequence: str = ""
+        for i in range(8):
+            generate_number: bool = True if random.randint(0, 1) else False
+            if generate_number:
+                random_sequence += chr(random.randint(48, 57))
+            else:
+                random_sequence += chr(random.randint(97, 122))
+
+        return f"{prefix}_{random_sequence}{time.time_ns()}"
 
 
 if __name__ == "__main__":

@@ -14,13 +14,15 @@ class GameApplication:
     def __init__(self, game: Game, **kwargs) -> None:
         self.__game = game
         self.__online = kwargs.get("online", False)
-        self.__loop = asyncio.get_event_loop()
+        self.__player_id: str | None = None
 
         if self.__online:
             asyncio.run(self.establish_connection())
 
     async def establish_connection(self):
-        await Connection.send_init()
+        response: dict[str, any] = await Connection.communicate_init()
+        self.__player_id = response.get("playerId")
+        print(self.__player_id)
 
     # async def run_async(self) -> None:
     #     await self.connect()
@@ -46,4 +48,4 @@ class GameApplication:
         if self.__online:
             move: PieceMove = self.__game.get_last_move()
             print(move.to_dict())
-            await Connection.send_move(move.to_dict())
+            await Connection.communicate_move(move.to_dict())

@@ -24,16 +24,16 @@ class Connection:
     #     await self.__websocket.ping()
 
     @classmethod
-    async def send_init(cls) -> None:
+    async def communicate_init(cls) -> dict[str, any]:
         async with websockets.connect(cls.URI) as websocket:
             await Sender.send_init(websocket)
-            await Receiver.receive(websocket)
+            return await Receiver.receive(websocket)
 
     @classmethod
-    async def send_move(cls, data: dict[any, any]) -> None:
+    async def communicate_move(cls, data: dict[any, any]) -> dict[str, any]:
         async with websockets.connect(cls.URI) as websocket:
             try:
                 await Sender.send_move(websocket, data)
-                await Receiver.receive(websocket)
+                return await Receiver.receive(websocket)
             except ConnectionClosedOK:
                 pass

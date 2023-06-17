@@ -19,8 +19,6 @@ if TYPE_CHECKING:
 
 
 class Board(PositionObserver, LaserObserver):
-
-
     def __init__(self, game: Game, width: int, height: int):
         self._width: int = width
         self._height: int = height
