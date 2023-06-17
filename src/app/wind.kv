@@ -1,4 +1,3 @@
-
 WindowManager:
     Menu:
     Board:
@@ -14,14 +13,15 @@ WindowManager:
             size_hint: 0.25,None
             on_size:root._update_width()
             Button:
-                id:b1
+                id: button_play_local
                 text: "Rozpocznij grę lokalną"
-                on_press:root.manager.current="board"
+                on_press:
+                    root.manager.current="board"
                 font_size:self.width/11
             Button:
-                id:b2
+                id: button_play_online
                 text: "Rozpocznij grę sieciową"
-                on_press:root.manager.current="board"
+                on_press: root.manager.current="board"
                 font_size:self.width/11
 
 <Board>:

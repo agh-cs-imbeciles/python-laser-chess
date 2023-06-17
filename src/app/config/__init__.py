@@ -1,1 +1,1 @@
-from .settings import GameSettings
+from .settings import GameSettings, SettingsGameplay

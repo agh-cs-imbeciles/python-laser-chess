@@ -1,5 +1,7 @@
 from random import randint
 from typing import cast
+import asyncio
+import itertools
 
 from kivy.graphics import Rectangle, Color
 from kivy.uix.boxlayout import BoxLayout
@@ -25,7 +27,6 @@ from app.gui.window_updater import WindowUpdater
 from game.piece.piece import Piece
 from app.game import GameApplication
 from app.gui import Path
-import itertools
 
 
 class MetaAB(type(obs.PositionObserver), type(Screen)):
@@ -36,7 +37,7 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
     def __init__(self, **kwargs):
         super().__init__()
         self._game = g.Game()
-        self._game_app: GameApplication = GameApplication(self._game, online=False)
+        self._game_app: GameApplication = GameApplication(self._game, online=True)
         self._grid = self.ids.board
         self._indicator_label: Label = self.ids.indicator_lab
         self._dots = empty(shape=27, dtype=Image)
@@ -165,6 +166,7 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
                     label.text = chr(i + 97)
                 label.bold = True
                 boxes[j].add_widget(label)
+
     def _show_end_popup(self,instance):
         popup = Popup(size_hint=(0.6, 0.2), auto_dismiss=False)
         title = "Koniec gry. Wygrał ..."
@@ -184,6 +186,7 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
         if isinstance(instance, Button):
             yes.bind(on_press=lambda x: popup.dismiss())
             no.bind(on_press=popup.dismiss)
+
     def _show_checks(self):
         for king in self._board.kings:
             if self._board.is_king_under_check(king.player_id):
@@ -256,19 +259,11 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
             if piece.model == PieceModel.MIRROR and not self._board.is_king_under_check(piece.player_id):
                 self.show_rotation_menu()
 
-
         #
         # Move piece
         #
-
         if self._selected is not None and instance.vector in self._possible_movements:
-            self.update_indicator_label("Gracz " + str(self._board.move_number))
-            self._game.move_piece(self._selected_piece, instance.vector)
-            self._game_app.on_move()
-            self.show_promotion_menu(self._board.get_to_promote())
-            self._possible_movements.clear()
-            self._selected = None
-            self._selected_piece = None
+            asyncio.run(self.__move_piece(instance.vector))
 
     def on_show_possible_movements(self, fields: list[BoardVector2d]):
         i = 0
@@ -295,6 +290,16 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
     def on_rotation(self, origin: BoardVector2d, rotation: Paths) -> None:
         self._update()
 
+    async def __move_piece(self, destination: BoardVector2d) -> None:
+        print("XD")
+        self.update_indicator_label("Player " + str(self._board.move_number))
+        self._game.move_piece(self._selected_piece, destination)
+        await self._game_app.on_move()
+        print("XD2")
+        self.show_promotion_menu(self._board.get_to_promote())
+        self._possible_movements.clear()
+        self._selected = None
+        self._selected_piece = None
 
     def _update_notation(self):
         def size(instance,val):

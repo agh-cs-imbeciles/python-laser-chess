@@ -1,11 +1,21 @@
+from __future__ import annotations
+from enum import Enum, auto, unique
+
+
 class GameSettings:
-    def __init__(self, online_gameplay: bool = False) -> None:
-        self.__online_gameplay: bool = online_gameplay
+    def __init__(self, gameplay: SettingsGameplay) -> None:
+        self.__gameplay: SettingsGameplay = gameplay
 
     @property
-    def online_gameplay(self) -> bool:
-        return self.__online_gameplay
+    def gameplay(self) -> SettingsGameplay:
+        return self.__gameplay
 
-    @online_gameplay.setter
-    def online_gameplay(self, value: bool) -> None:
-        self.__online_gameplay = value
+    @gameplay.setter
+    def gameplay(self, value: SettingsGameplay) -> None:
+        self.__gameplay = value
+
+
+@unique
+class SettingsGameplay(Enum):
+    LOCAL   = auto()
+    ONLINE  = auto()

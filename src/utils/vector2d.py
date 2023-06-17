@@ -184,12 +184,12 @@ class IntVector2d:
 
 
 class BoardVector2d(IntVector2d):
-    @staticmethod
-    def from_int_v2d(vector: IntVector2d) -> BoardVector2d:
+    @classmethod
+    def from_int_v2d(cls, vector: IntVector2d) -> BoardVector2d:
         return BoardVector2d(vector.x, vector.y)
 
-    @staticmethod
-    def from_str(vector_str: str) -> BoardVector2d:
+    @classmethod
+    def from_str(cls, vector_str: str) -> BoardVector2d:
         if len(vector_str) != 2:
             raise ValueError("Vector string is invalid [from_str()]")
         return BoardVector2d(ord(vector_str[0]) - 97, int(vector_str[1]) - 1)
@@ -237,7 +237,7 @@ class BoardVector2d(IntVector2d):
         return BoardVector2d.from_int_v2d(super().reverse_axis())
 
     # override
-    def copy(self) -> IntVector2d:
+    def copy(self) -> BoardVector2d:
         return BoardVector2d(self.x, self.y)
 
     # override

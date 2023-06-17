@@ -16,16 +16,34 @@ class GameApplication:
         self.__online = kwargs.get("online", False)
 
         if self.__online:
-            asyncio.run(Connection.send_init())
+            self.__connection: Connection = Connection()
+            asyncio.run(self.run_async())
 
-    # async def __init_connection(self):
-    #     self.__connection = Connection()
-    #     await self.__connection.connect()
-    #     await Connection.send_init()
+    async def run_async(self) -> None:
+        await self.connect()
+        while True:
+            print("huh")
+            if self.__connection.is_established():
+                await self.__connection.ping()
+            await asyncio.sleep(1)
 
-    def on_move(self) -> None:
+    async def connect(self) -> None:
+        print("Connecting asynchronously...")
+
+        connection = Connection()
+        await connection.connect()
+        if connection.is_established():
+            print("Connected")
+        else:
+            raise RuntimeError("Failed to connect to the websocket server")
+
+        await connection.send_init()
+
+    async def on_move(self) -> None:
         if self.__online:
-            # print(self.__game.get_last_move().to_dict())
-            # asyncio.run(Sender.send_move(self.__game.get_last_move().to_dict()))
+            if not self.__connection.is_established():
+                await self.__connection.connect()
             move: PieceMove = self.__game.get_last_move()
-            asyncio.run(Connection.send_move(move.to_dict()))
+            print("On move")
+            print(move.to_dict())
+            await self.__connection.send_move(move.to_dict())
