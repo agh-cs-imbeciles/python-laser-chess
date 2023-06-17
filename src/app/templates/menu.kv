@@ -1,0 +1,26 @@
+
+<Menu>:
+    name: "menu"
+    AnchorLayout:
+        anchor_x: 'center'
+        anchor_y: 'center'
+        BoxLayout:
+            id:menu_box
+            orientation:'vertical'
+            size_hint: 0.25,None
+            on_size:root._update_width()
+            Button:
+                id:b1
+                text: "Rozpocznij grę lokalną"
+                on_press:root.create_new_board(b1)
+                font_size:self.width/11
+            Button:
+                id:b2
+                text: "Hostuj grę"
+                on_press:root.create_new_board(b2)
+                font_size:self.width/11
+            Button:
+                id:b3
+                text: "Dołącz do gry sieciowej"
+                on_press:root.create_new_board(b3)
+                font_size:self.width/11
