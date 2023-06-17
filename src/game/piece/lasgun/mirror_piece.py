@@ -31,9 +31,9 @@ class MirrorPiece(Piece):
         if destination is None:
             destination = origin
         match rotate:
-            case Rotation.ANTICLOCKWISE:
-                self._direction = self._direction.double_right()
             case Rotation.CLOCKWISE:
+                self._direction = self._direction.double_right()
+            case Rotation.ANTICLOCKWISE:
                 self._direction = self._direction.double_left()
             case None:
                 if destination is None:

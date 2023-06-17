@@ -339,6 +339,7 @@ class Board(PositionObserver, LaserObserver):
             return
         self.add_piece(new)
         self._game.modify_last_move(promotion=new[0], move_type=PieceMoveType.PROMOTION)
+        self._check_manager.update()
         return new
 
     def get_possible_promotions(self) -> list[PieceModel]:

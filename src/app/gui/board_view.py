@@ -16,7 +16,7 @@ from app.gui.utils.common_font_label import CommonFontLabel
 from game.piece import PieceModel
 from game.piece.lasgun import Lasgun
 from game.piece.move import PieceMoveType
-from utils import BoardVector2d
+from utils import BoardVector2d, Rotation
 from app.gui.utils import rgba_int_to_float, ImageButtonLayout, Paths
 import game as g
 import game.observer as obs
@@ -56,6 +56,7 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
         self._reset_button = Button()
         self._reset_button.vector = BoardVector2d(-1, -1)
         self._elements_dict = dict()
+        self._notation_list = []
         self._elements_dict["board_images"] = empty(shape=(8, 8), dtype=Image)
         for id in self.ids:
             t = self.ids.get(id)
@@ -70,7 +71,7 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
 
         # create ending button
         end_button = Button()
-        label = CommonFontLabel(font_modificator=0.15,text="Zakończ grę")
+        label = CommonFontLabel(font_modificator=0.08,text="Zakończ grę")
         end_button.add_widget(label)
         end_button.bind(size=label.setter("size"))
         end_button.bind(pos=label.setter("pos"))
@@ -203,25 +204,19 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
         self._show_indicators()
         self.clear_laser_ind()
         self.on_show_laser_fields(self._board.get_laser_fields())
-        self._update_notation()
-        self._window_updater.refresh()
+        # self._window_updater.refresh()
 
     def get_to_promote(self):
         return self._promotion.get_promotion_piece()
 
-    def on_promotion_click(self, instance: Button):
-        new = self._board.promote(instance.value)
-        new[0].add_observer(self)
-        self.hide_promotion_menu()
-        self._is_promotion = False
-        self.on_position_change(None, None)
+
 
     def on_rotation_click(self, instance: Button):
         match instance.value:
             case Paths.LEFT:
-                self._game.move_piece(self._selected_piece, None, Paths.LEFT)
+                self._game.move_piece(self._selected_piece, None, Rotation.ANTICLOCKWISE)
             case Paths.RIGHT:
-                self._game.move_piece(self._selected_piece, None, Paths.RIGHT)
+                self._game.move_piece(self._selected_piece, None, Rotation.CLOCKWISE)
         self.hide_rotation_menu()
         self.on_tile_click(self._reset_button)
         self._possible_movements = []
@@ -280,15 +275,28 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
             self._current_laser_ind.append(self._laser_ind[i])
             i += 1
 
+    def on_promotion_click(self, instance: Button):
+        new = self._board.promote(instance.value)
+        new[0].add_observer(self)
+        self.hide_promotion_menu()
+        self._is_promotion = False
+        self._update()
+        self._update_notation()
+        # self.on_position_change(None, None)
+
     # override
     def on_position_change(self, origin: BoardVector2d, destination: BoardVector2d) -> None:
         self._update()
+        if PieceMoveType.PROMOTION not in self._game.get_last_move().move_types:
+            self._update_notation()
 
     def on_laser_propagated(self, lasgun: Lasgun):
         self._update()
+        self._update_notation()
 
     def on_rotation(self, origin: BoardVector2d, rotation: Paths) -> None:
         self._update()
+        self._update_notation()
 
     async def __move_piece(self, destination: BoardVector2d) -> None:
         print("XD")
@@ -304,10 +312,23 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
     def _update_notation(self):
         def size(instance,val):
             instance.height = val
+        def size2(instance,val):
+            instance.text_size = val[0],val[1]
+
         not_tab = self._elements_dict.get('notation')
-        l = CommonFontLabel(font_modificator=0.3,size_hint=(1, None), text= self._game._notation_generator.generate_last_move_string())
+        notation = self._game._notation_generator.generate_last_move_string()
+        self._notation_list.append(notation)
+        if len(self._notation_list)%2 == 1:
+            notation = str(len(self._notation_list)//2+1)+"."+notation
+            print(notation)
+
+        l = CommonFontLabel(halign="left",font_modificator=0.15,size_hint=(1, None), text=notation)
         l.bind(font_size=size)
+        l.bind(size=size2)
         not_tab.add_widget(l)
+        scroll = self._elements_dict.get("scroll")
+        if scroll.children[0].height>scroll.height:
+            scroll.scroll_to(l)
 
     def _show_lasgun_ready_indicators(self):
         for las in self._board.lasguns:

@@ -1,29 +1,3 @@
-WindowManager:
-    Menu:
-    Board:
-
-<Menu>:
-    name: "menu"
-    AnchorLayout:
-        anchor_x: 'center'
-        anchor_y: 'center'
-        BoxLayout:
-            id:menu_box
-            orientation:'vertical'
-            size_hint: 0.25,None
-            on_size:root._update_width()
-            Button:
-                id: button_play_local
-                text: "Rozpocznij grę lokalną"
-                on_press:
-                    root.manager.current="board"
-                font_size:self.width/11
-            Button:
-                id: button_play_online
-                text: "Rozpocznij grę sieciową"
-                on_press: root.manager.current="board"
-                font_size:self.width/11
-
 <Board>:
     id:"everything"
     name: "board"
@@ -50,10 +24,10 @@ WindowManager:
                         pos: self.pos
                         size: self.size
                 id:left_box
-                size_hint: 0.2, 1
+                size_hint: 0.35, 1
                 orientation: 'vertical'
                 CommonFontLabel:
-                    font_modificator:0.3
+                    font_modificator:0.1
                     id:indicator_lab
                     size_hint:0.8,0.2
                 ScrollView:
@@ -72,8 +46,14 @@ WindowManager:
                         id:notation
                         size_hint_y: None
                         height:self.minimum_height
-                        cols:1
-                        padding:20
+                        cols:2
+                        Label:
+                            size_hint_y:0
+                            height:0
+                        Label:
+                            size_hint_y:0
+                            height:0
+
                 BoxLayout:
                     id:button_tab
                     size_hint:1,0.1
@@ -87,7 +67,7 @@ WindowManager:
             BoxLayout:
                 id:board_addit
                 orientation: 'vertical'
-                size_hint:0.8,1
+                size_hint:0.65,1
                 AnchorLayout:
                     size_hint:1,0.1
                     anchor_x:'center'
@@ -119,5 +99,3 @@ WindowManager:
                         id:bot
                         size_hint:0.84,1
                         orientation: 'horizontal'
-
-

@@ -18,8 +18,8 @@ class WindowUpdater:
         width = Window.width
         height = Window.height
         e = self.elements
-        main_y = min(height, width / 1.2)
-        main_x = 1.2*main_y
+        main_y = min(height, width / 1.48)
+        main_x = 1.48*main_y
 
         font = main_x/25
         # CommonFontLabel.update_font(font)
