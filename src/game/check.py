@@ -134,7 +134,7 @@ class CheckManager:
         #
         # Go through player's all pieces movement
         #
-        pieces = self._board.get_player_pieces_movements(player_id)
+        pieces = self._board.get_player_piece_movements(player_id)
         for pie, mov in pieces:
             ll = mov.get_legal_moves()
             all_moves = []

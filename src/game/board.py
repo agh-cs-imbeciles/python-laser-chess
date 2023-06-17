@@ -187,7 +187,7 @@ class Board(PositionObserver, LaserObserver):
             return None
         return piece[0]
 
-    def get_player_pieces_movements(self, player_id: int) -> list[tuple[Piece, PieceMovement]]:
+    def get_player_piece_movements(self, player_id: int) -> list[tuple[Piece, PieceMovement]]:
         movements = []
         for piece, mov in self._pieces.values():
             if piece.is_same_color(player_id):
@@ -206,7 +206,6 @@ class Board(PositionObserver, LaserObserver):
         if piece is None:
             return None
         return piece[1]
-
 
     def is_out_of_bounds(self, destination: BoardVector2d) -> bool:
         return destination.x < 0 or destination.x >= self.width or destination.y < 0 or destination.y >= self.height
