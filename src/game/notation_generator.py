@@ -27,7 +27,6 @@ class NotationGenerator(object):
         if lm.piece.model == PieceModel.PAWN and PieceMoveType.CAPTURE in lm.move_types:
             gen_str += lm.origin.x_to_str()
         else:
-            same_pieces = self._board.get_pieces_of(lm.piece.model, lm.piece.player_id)
             match self._ambiguity:
                 case AmbiguousNotation.FILE:
                     gen_str += lm.origin.y_to_str()
