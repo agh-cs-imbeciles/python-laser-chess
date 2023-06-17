@@ -24,6 +24,7 @@ class Game:
         self._piece_factory = PieceFactory(self._board)
         self._observers: list[GameEndObserver] = []
         self.__init_board()
+
         self._notation_generator = NotationGenerator(self._board)
         self.add_observer(self._notation_generator)
 
@@ -52,16 +53,14 @@ class Game:
         mh[pid].append(piece_move)
         self._last_move_index = piece_move.piece.player_id, len(mh[pid]) - 1
 
-    def modify_last_move(self, piece: Piece = None, origin: BoardVector2d = None, destination: BoardVector2d = None,
-                         promotion: Piece = None, move_type: list[PieceMoveType] = None, move: int = None) -> None:
-        given = locals()
-        given.pop('self')
+    def modify_last_move(self,**kwargs) -> None:
         mh = self._moves_history
         lm = self._last_move_index
         last_move: PieceMove = mh[lm[0]][lm[1]]
-        for key, val in given.items():
+        for key, val in kwargs.items():
             if val is not None:
                 setattr(last_move, key, val)
+
 
     def get_last_move(self) -> PieceMove:
         lmi = self._last_move_index
