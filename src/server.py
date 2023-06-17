@@ -69,7 +69,7 @@ class Server:
         finally:
             self.__connected.remove(websocket)
 
-    async def play(self, move: dict[any, any], game: Game):
+    async def play(self, websocket, move: dict[any, any], game: Game):
         """
         Receive and process moves from a player.
         """
@@ -82,13 +82,21 @@ class Server:
         #     raise ValueError("Move object is invalid, doesn't contain \"playerId\" key")
 
         print(f"Received a move from player", end='')
-
         origin: BoardVector2d = BoardVector2d.from_str(move["origin"])
         destination: BoardVector2d = BoardVector2d.from_str(move["destination"])
         piece: Piece = game.board.get_piece(origin)
-        game.move_piece(piece, destination)
-
         print(f" [{destination} -> {origin}]")
+
+        game: Game = self.__games[0]
+
+        if game.board.get_piece_movement(origin):
+            game.move_piece(piece, destination)
+        else:
+            response = {
+                "status": str(MessageStatus.ERROR)
+            }
+            websockets.broadcast(self.__connected, json.dumps(response))
+            raise ValueError("Sent move is illegal")
 
         self.__move += 1
 
@@ -105,7 +113,6 @@ class Server:
             "messageType": str(MessageType.MOVE),
             "data": game.get_last_move().to_dict()
         }
-
         websockets.broadcast(self.__connected, json.dumps(response))
 
         # If move is winning, send a "win" event.
@@ -133,7 +140,7 @@ class Server:
                 elif len(self.__connected) == 1:
                     await self.join(websocket)
             case MessageType.MOVE:
-                await self.play(message["data"], self.__games[0])
+                await self.play(websocket, message["data"], self.__games[0])
                 pass
 
         # if "join" in event:
