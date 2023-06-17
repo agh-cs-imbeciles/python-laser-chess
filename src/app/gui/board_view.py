@@ -299,11 +299,9 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
         self._update_notation()
 
     async def __move_piece(self, destination: BoardVector2d) -> None:
-        print("XD")
         self.update_indicator_label("Player " + str(self._board.move_number))
         self._game.move_piece(self._selected_piece, destination)
         await self._game_app.on_move()
-        print("XD2")
         self.show_promotion_menu(self._board.get_to_promote())
         self._possible_movements.clear()
         self._selected = None
@@ -312,6 +310,7 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
     def _update_notation(self):
         def size(instance,val):
             instance.height = val
+
         def size2(instance,val):
             instance.text_size = val[0],val[1]
 

@@ -124,7 +124,8 @@ class Server:
                 elif len(self.__connected) == 1:
                     await self.join(websocket)
             case MessageType.MOVE:
-                await self.play(message["data"], self.__games[0])
+                # await self.play(message["data"], self.__games[0])
+                pass
 
         # if "join" in event:
         #     # Second player joins an existing game
