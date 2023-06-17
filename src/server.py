@@ -74,12 +74,21 @@ class Server:
         Receive and process moves from a player.
         """
 
-        print("Receive a move from player")
+        if "origin" not in move:
+            raise ValueError("Move object is invalid, doesn't contain \"origin\" key")
+        if "destination" not in move:
+            raise ValueError("Move object is invalid, doesn't contain \"destination\" key")
+        # if "playerId" not in move:
+        #     raise ValueError("Move object is invalid, doesn't contain \"playerId\" key")
+
+        print(f"Received a move from player", end='')
 
         origin: BoardVector2d = BoardVector2d.from_str(move["origin"])
         destination: BoardVector2d = BoardVector2d.from_str(move["destination"])
         piece: Piece = game.board.get_piece(origin)
         game.move_piece(piece, destination)
+
+        print(f" [{destination} -> {origin}]")
 
         self.__move += 1
 
@@ -124,7 +133,7 @@ class Server:
                 elif len(self.__connected) == 1:
                     await self.join(websocket)
             case MessageType.MOVE:
-                # await self.play(message["data"], self.__games[0])
+                await self.play(message["data"], self.__games[0])
                 pass
 
         # if "join" in event:

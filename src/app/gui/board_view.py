@@ -64,9 +64,7 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
         self._init_board()
         self._window_updater = WindowUpdater(self._elements_dict)
 
-
     def _init_board(self):
-
         board = self._game.board
 
         # create ending button
@@ -208,8 +206,6 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
 
     def get_to_promote(self):
         return self._promotion.get_promotion_piece()
-
-
 
     def on_rotation_click(self, instance: Button):
         match instance.value:

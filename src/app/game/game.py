@@ -45,4 +45,5 @@ class GameApplication:
     async def on_move(self) -> None:
         if self.__online:
             move: PieceMove = self.__game.get_last_move()
+            print(move.to_dict())
             await Connection.send_move(move.to_dict())
