@@ -16,11 +16,6 @@
                 font_size:self.width/11
             Button:
                 id:b2
-                text: "Hostuj grę"
-                on_press:root.create_new_board(b2)
-                font_size:self.width/11
-            Button:
-                id:b3
-                text: "Dołącz do gry sieciowej"
-                on_press:root.create_new_board(b3)
+                text: "Rozpocznij grę sieciową"
+                on_press:root.join_game_popup(b2)
                 font_size:self.width/11
