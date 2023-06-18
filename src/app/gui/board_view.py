@@ -69,7 +69,7 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
 
         # create ending button
         end_button = Button()
-        label = CommonFontLabel(font_modificator=0.08, text="Zakończ grę")
+        label = CommonFontLabel(font_modificator=0.08, text="End game")
         end_button.add_widget(label)
         end_button.bind(size=label.setter("size"))
         end_button.bind(pos=label.setter("pos"))
@@ -91,7 +91,7 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
 
         self._add_coordinates()
 
-        self.update_indicator_label("Player " + str(self._game.move_number))
+        self.update_indicator_label("White turn")
 
         #
         # Cell buttons of the board
@@ -108,15 +108,12 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
                 button.background_normal = ""
                 if (i + j) % 2 == 0:
                     img = Image(source=f"{Path.WOODEN_IMG_PATH}/bg_light.png")
-                    # button.background_color = rgba_int_to_float((150, 50, 50, 255))
                 else:
                     img = Image(source=f"{Path.WOODEN_IMG_PATH}/bg_dark.png")
-                    # button.background_color = rgba_int_to_float((54, 54, 54, 255))
-                img.size_hint = (1, 1)
                 img.allow_stretch = True
                 img.texture.mag_filter = "nearest"
-                self._elements_dict["board_images"][i, j] = img
                 button.add_widget(img)
+                button.bind(size=img.setter("size"))
 
                 # assigning observer to piece
                 piece = board.get_piece(vector)
@@ -144,10 +141,6 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
             ImageButtonLayout(Paths.LEFT.value, Button(on_press=self.on_rotation_click)),
             ImageButtonLayout(Paths.RIGHT.value, Button(on_press=self.on_rotation_click))
         ]
-
-        for e in self._rotation_representation:
-            e.size_hint = (None, None)
-
         r = self._rotation_representation
         r[0].add_value_to_button(Paths.LEFT)
         r[1].add_value_to_button(Paths.RIGHT)
@@ -168,24 +161,21 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
     def _show_end_popup(self, instance):
         popup = Popup(size_hint=(0.6, 0.2), auto_dismiss=False)
         title = "Koniec gry. Wygrał ..."
-        content = Button(text="Zakończ")
+        content = Button(text="End game")
         if isinstance(instance, Button):
-            title = 'Czy na pewno chcesz zakończyć rozgrywkę?'
+            title = "Do you really want to end game"
             content = BoxLayout(orientation="horizontal", padding=20, size_hint=(1, 1))
-            no = Button(text="Nie", size_hint=(0.5, 0.5))
-            yes = Button(text="Tak", size_hint=(0.5, 0.5))
+            no = Button(text="No", size_hint=(0.5, 0.5))
+            yes = Button(text="Yes", size_hint=(0.5, 0.5))
             content.add_widget(yes)
             content.add_widget(no)
-            yes.bind(on_press=lambda x: popup.dismiss())
+            yes.bind(on_press=popup.dismiss)
             no.bind(on_press=popup.dismiss)
         popup.title = title
         popup.size_hint_min = (200, 200)
         popup.size_hint_max = (300, 300)
         popup.content = content
         popup.open()
-        if isinstance(instance, Button):
-            yes.bind(on_press=lambda x: popup.dismiss())
-            no.bind(on_press=popup.dismiss)
 
     def _show_checks(self):
         for king in self._board.kings:
@@ -273,7 +263,6 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
         self._is_promotion = False
         self._update()
         self._update_notation()
-        # self.on_position_change(None, None)
 
     # override
     def on_position_change(self, origin: BoardVector2d, destination: BoardVector2d) -> None:
@@ -283,15 +272,19 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
 
     def on_laser_propagated(self, lasgun: Lasgun):
         self._update()
-        # self._update_notation()
 
     def on_rotation(self, origin: BoardVector2d, rotation: Paths) -> None:
         self._update()
         self._update_notation()
 
     async def __move_piece(self, destination: BoardVector2d) -> None:
-        self.update_indicator_label("Player " + str(self._game.move_number))
         self._game.move_piece(self._selected_piece, destination)
+        match self._game.move_number:
+            case 0:
+                message = "White turn"
+            case 1:
+                message = "Black turn"
+        self.update_indicator_label(message)
         await self._game_app.on_move()
         self.show_promotion_menu(self._board.get_to_promote())
         self._possible_movements.clear()

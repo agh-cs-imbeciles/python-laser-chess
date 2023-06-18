@@ -1,3 +1,4 @@
+
 <Board>:
     id:"everything"
     name: "board"
@@ -25,10 +26,40 @@
                 id:left_box
                 size_hint: 0.35, 1
                 orientation: 'vertical'
-                CommonFontLabel:
-                    font_modificator:0.1
-                    id:indicator_lab
+                AnchorLayout:
+                    size_hint:1,0.1
+                    anchor_x: "center"
+                    anchor_y: "center"
+                    CommonFontLabel:
+                        font_modificator: 0.1
+                        id:indicator_lab
+                        canvas.before:
+                            Color:
+                                rgba: (1,1,1,0.7)
+                            Line:
+                                width: 1.1
+                                rectangle: self.x, self.y, self.width, self.height
+                BoxLayout:
                     size_hint:0.8,0.2
+                    orientation: "horizontal"
+                    CommonFontLabel:
+                        font_modificator: 0.1
+                        id:timer_white
+                        canvas.before:
+                            Color:
+                                rgba: (1,1,1,0.7)
+                            Line:
+                                width: 1.1
+                                rectangle: self.x, self.y, self.width, self.height
+                    CommonFontLabel:
+                        font_modificator: 0.1
+                        id:timer_black
+                        canvas.before:
+                            Color:
+                                rgba: (1,1,1,0.7)
+                            Line:
+                                width: 1.1
+                                rectangle: self.x, self.y, self.width, self.height
                 ScrollView:
                     canvas.before:
                         Color:
