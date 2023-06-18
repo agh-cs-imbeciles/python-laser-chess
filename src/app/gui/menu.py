@@ -31,23 +31,32 @@ class MenuView(Screen):
     def __code(self, instance, value):
         self.code = value
 
-    def join_game_popup(self, button):
-        popup = Popup(size_hint=(0.6, 0.2))
+    def pregame_popup(self, button):
+        popup = Popup(size_hint=(0.7, 0.5))
         title = "Play online game"
         content = BoxLayout(orientation="vertical")
+
         l1 = Label(text="Create the new game")
         l2 = Label(text="Join to the existing game")
         b1 = Button(text="Create the game")
         b1.bind(on_press=self.create_online_game)
+        game_id_input = TextInput()
+        game_id_input.background_color = (0, 0, 0, 0)
+        game_id_input.foreground_color = (.9, .9, .9, 1)
+        game_id_input.cursor_color = (0, 0, 0, 0)
+
         b2 = Button(text="Join the game")
         b2.bind(on_press=self.join_online_game)
         text_input = TextInput(text="2137")
         text_input.bind(text=self.__code)
+
         content.add_widget(l1)
         content.add_widget(b1)
+        content.add_widget(game_id_input)
         content.add_widget(l2)
         content.add_widget(text_input)
         content.add_widget(b2)
+
         popup.title = title
         popup.size_hint_min = (200, 200)
         popup.size_hint_max = (300, 300)
