@@ -19,6 +19,7 @@ class MenuView(Screen):
     def __init__(self, **kwargs):
         super().__init__()
         self.code = "2137"
+        self.__game_id_label: TextInput = TextInput()
 
     def create_new_board(
             self, online: bool = False,
@@ -32,7 +33,7 @@ class MenuView(Screen):
         self.code = value
 
     def pregame_popup(self, button):
-        popup = Popup(size_hint=(0.7, 0.5))
+        popup = Popup(size_hint=(1, 0.5))
         title = "Play online game"
         content = BoxLayout(orientation="vertical")
 
@@ -40,19 +41,20 @@ class MenuView(Screen):
         l2 = Label(text="Join to the existing game")
         b1 = Button(text="Create the game")
         b1.bind(on_press=self.create_online_game)
-        game_id_input = TextInput()
-        game_id_input.background_color = (0, 0, 0, 0)
-        game_id_input.foreground_color = (.9, .9, .9, 1)
-        game_id_input.cursor_color = (0, 0, 0, 0)
+        game_id_label = self.__game_id_label
+        game_id_label.readonly = True
+        game_id_label.background_color = (0, 0, 0, 0)
+        game_id_label.foreground_color = (.9, .9, .9, 1)
+        game_id_label.cursor_color = (0, 0, 0, 0)
 
         b2 = Button(text="Join the game")
         b2.bind(on_press=self.join_online_game)
-        text_input = TextInput(text="2137")
+        text_input = TextInput(hint_text="Game ID")
         text_input.bind(text=self.__code)
 
         content.add_widget(l1)
         content.add_widget(b1)
-        content.add_widget(game_id_input)
+        content.add_widget(game_id_label)
         content.add_widget(l2)
         content.add_widget(text_input)
         content.add_widget(b2)
@@ -63,11 +65,15 @@ class MenuView(Screen):
         popup.content = content
         popup.open()
 
+    def __set_game_id(self, game_id: str):
+        print(game_id)
+        self.__game_id_label.text = game_id
+
     def create_online_game(self, instance):
         async def create_online_game_async():
             game_id, player_id = await PreGameHelper.create_game()
-            print(game_id)
-            await PreGameHelper.wait_for_other_player()
+            self.__set_game_id(game_id)
+            # await PreGameHelper.wait_for_other_player()
             # self.create_new_board(True, game_id, player_id)
 
         asyncio.run(create_online_game_async())
@@ -78,6 +84,3 @@ class MenuView(Screen):
 
     def _update_width(self):
         self.ids.menu_box.height = self.ids.menu_box.width / 2
-
-    def set_game_settings(self, gameplay: SettingsGameplay):
-        print("Hi")
