@@ -6,19 +6,19 @@ from kivy.uix.popup import Popup
 from kivy.uix.screenmanager import Screen
 from kivy.uix.textinput import TextInput
 
-from app.gui.board_view import Board
+from app.gui import BoardView
 from app.config.settings import SettingsGameplay
 
 
-class Menu(Screen):
+class MenuView(Screen):
     def __init__(self, **kwargs):
         super().__init__()
         self.code = "2137"
 
-    def create_new_board(self,button):
+    def create_new_board(self, online: bool):
         Builder.load_file("app/templates/board.kv")
-        self.manager.add_widget(Board(name="board"))
-        self.manager.current="board"
+        self.manager.add_widget(BoardView(name="board", online=online))
+        self.manager.current = "board"
 
     def __code(self, instance, value):
         self.code = value
