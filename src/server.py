@@ -1,8 +1,9 @@
 from __future__ import annotations
 import json
-import secrets
 import asyncio
 import websockets
+
+from utils import Key
 from common import MessageStatus, MessageType
 from utils import BoardVector2d
 from game import Game
@@ -15,61 +16,64 @@ class Server:
         self.__connected: list[any] = []
         self.__move: int = 0
 
+    async def main(self):
+        async with websockets.serve(self.handler, "", 8000):
+            await asyncio.Future()
+
     async def start(self, websocket):
         """
         Handle a connection from the first player. Start a new game.
         """
 
-        print("Starting a new game...")
+        print("Starting the new game...")
 
         game: Game = Game()
         self.__games.append(game)
 
-        # join_key: str = secrets.token_urlsafe(8)
         self.__connected.append(websocket)
 
         try:
             response = {
                 "status": str(MessageStatus.SUCCESS),
                 "messageType": str(MessageType.INIT),
-                # "joinKey": join_key
+                "playerId": self.__generate_player_id(),
+                "gameId": self.__generate_game_id()
             }
             await websocket.send(json.dumps(response))
         finally:
             self.__connected.remove(websocket)
 
-    async def join(self, websocket):
+    async def join(self, websocket, game_id: str | None):
         """
         Handle a connection from the second player. Join an existing game.
         """
 
-        # try:
-        #     game, connected = JOIN[join_key]
-        # except KeyError:
-        #     await error(websocket, "Game not found.")
-        #     return
-        # Register to receive moves from this game.
+        if not game_id:
+            response = {
+                "status": str(MessageStatus.ERROR)
+            }
+            await websocket.send(json.dumps(response))
+            raise ValueError("Game ID hasn't been sent")
 
-        print("Joining an existing game...")
+        print("Joining the existing game...")
 
         game: Game = self.__games[0]
         self.__connected.append(websocket)
 
         try:
-            # # Send the first move, in case the first player already played it.
-            # await replay(websocket, game)
             response = {
                 "status": str(MessageStatus.SUCCESS),
-                "messageType": str(MessageType.INIT),
-                # "joinKey": join_key
+                "messageType": str(MessageType.JOIN),
+                "playerId": self.__generate_player_id(),
+                "gameId": game_id
             }
-            await websocket.send(json.dumps(response))
-
-            # await self.play(websocket, game)
+            if game.move_number == 1:
+                response["data"] = json.dumps(game.get_last_move())
+            await websockets.broadcast(self.__connected, response)
         finally:
             self.__connected.remove(websocket)
 
-    async def play(self, websocket, move: dict[any, any], game: Game):
+    async def play(self, move: dict[any, any], player_id: str, game: Game):
         """
         Receive and process moves from a player.
         """
@@ -78,8 +82,6 @@ class Server:
             raise ValueError("Move object is invalid, doesn't contain \"origin\" key")
         if "destination" not in move:
             raise ValueError("Move object is invalid, doesn't contain \"destination\" key")
-        # if "playerId" not in move:
-        #     raise ValueError("Move object is invalid, doesn't contain \"playerId\" key")
 
         print(f"Received a move from player", end='')
         origin: BoardVector2d = BoardVector2d.from_str(move["origin"])
@@ -100,17 +102,10 @@ class Server:
 
         self.__move += 1
 
-        # try:
-        #     # Play the move.
-        #     row = game.play(player, column)
-        # except RuntimeError as exc:
-        #     # Send an "error" event if the move was illegal.
-        #     await error(websocket, str(exc))
-        #     continue
-
         response = {
             "status": str(MessageStatus.SUCCESS),
             "messageType": str(MessageType.MOVE),
+            "playerId": player_id,
             "data": game.get_last_move().to_dict()
         }
         websockets.broadcast(self.__connected, json.dumps(response))
@@ -138,41 +133,21 @@ class Server:
                 if not self.__connected:
                     await self.start(websocket)
                 elif len(self.__connected) == 1:
-                    await self.join(websocket)
+                    await self.join(websocket, message.get("gameId"))
             case MessageType.MOVE:
-                await self.play(websocket, message["data"], self.__games[0])
-                pass
+                assert message["playerId"], "Player ID hasn't been sent"
+                player_id: str = message["playerId"]
+                await self.play(message["data"], player_id, self.__games[0])
 
-        # if "join" in event:
-        #     # Second player joins an existing game
-        #     await join(websocket, event["join"])
-        # elif "watch" in event:
-        #     # Spectator watches an existing game
-        #     await watch(websocket, event["watch"])
-        # else:
-        #     # First player starts a new game
-        #     await start(websocket)
+    def __generate_player_id(self) -> str:
+        prefix: str = "laschess_pid"
+        id: str = Key.generate_timestamp_id(8)
+        return f"{prefix}_{id}"
 
-        # while True:
-        #     try:
-        #         message = await websocket.recv()
-        #         message_obj = json.loads(message)
-        #         print(f"<<< {message_obj}")
-        #
-        #         game = self._games[0]
-        #         origin = BoardVector2d.from_str(message_obj.get("origin"))
-        #         destination = BoardVector2d.from_str(message_obj.get("destination"))
-        #         game.move_piece(game.board.get_piece(origin), destination)
-        #
-        #         response = "Bishops suck"
-        #         print(f">>> {response}")
-        #         await websocket.send(response)
-        #     except websockets.ConnectionClosedOK:
-        #         break
-
-    async def main(self):
-        async with websockets.serve(self.handler, "", 8000):
-            await asyncio.Future()
+    def __generate_game_id(self) -> str:
+        prefix: str = "laschess_gid"
+        id: str = Key.generate_timestamp_id(8)
+        return f"{prefix}_{id}"
 
 
 if __name__ == "__main__":

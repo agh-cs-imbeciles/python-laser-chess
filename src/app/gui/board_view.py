@@ -91,7 +91,7 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
 
         self._add_coordinates()
 
-        self.update_indicator_label("Gracz " + str(self._board.move_number))
+        self.update_indicator_label("Player " + str(self._game.move_number))
 
         #
         # Cell buttons of the board
@@ -235,7 +235,7 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
         piece = self._board.get_piece(instance.vector)
         if piece is None and instance.vector not in self._possible_movements:
             self._possible_movements.clear()
-        if piece is not None and piece.is_same_color(self._board.move_number):
+        if piece is not None and piece.is_same_color(self._game.move_number):
             if piece.model == PieceModel.LASGUN:
                 self._board.laser_fire_conditions(piece.player_id)
                 return
@@ -290,7 +290,7 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
         self._update_notation()
 
     async def __move_piece(self, destination: BoardVector2d) -> None:
-        self.update_indicator_label("Player " + str(self._board.move_number))
+        self.update_indicator_label("Player " + str(self._game.move_number))
         self._game.move_piece(self._selected_piece, destination)
         await self._game_app.on_move()
         self.show_promotion_menu(self._board.get_to_promote())

@@ -27,8 +27,7 @@ class PawnMovement(PieceMovement):
             -self.direction.reverse_axis() + self.direction,    # Left capture delta
             self.direction.reverse_axis() + self.direction      # Right capture delta
         ]
-        print("lol")
-        
+
     @property
     def direction(self) -> BoardVector2d:
         return self._direction
@@ -55,7 +54,6 @@ class PawnMovement(PieceMovement):
         p, b = self._get_aliases()
         dir = self.direction
         enp = self._en_passant_position
-
 
         #
         # Advance 1 square (default move)
