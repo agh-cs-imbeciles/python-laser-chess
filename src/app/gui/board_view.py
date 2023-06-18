@@ -12,6 +12,7 @@ from kivy.uix.label import Label
 from kivy.uix.popup import Popup
 from kivy.uix.screenmanager import Screen
 
+from app.gui.laser_painter import LaserPainter
 from app.gui.utils.common_font_label import CommonFontLabel
 from game.piece import PieceModel
 from game.piece.lasgun import Lasgun
@@ -41,10 +42,8 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
         self._grid = self.ids.board
         self._indicator_label: Label = self.ids.indicator_lab
         self._dots = empty(shape=27, dtype=Image)
-        self._laser_ind = empty(shape=64, dtype=Image)
         self._representations = empty(shape=(8, 8), dtype=PieceRepresentationLayout)
         self._current_dots = []
-        self._current_laser_ind = []
         self._selected = None
         self._selected_piece = None
         self._board = self._game.board
@@ -57,6 +56,7 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
         self._reset_button.vector = BoardVector2d(-1, -1)
         self._elements_dict = dict()
         self._notation_list = []
+        self._laser_painer = LaserPainter(self, self._board)
         self._elements_dict["board_images"] = empty(shape=(8, 8), dtype=Image)
         for id in self.ids:
             t = self.ids.get(id)
@@ -69,7 +69,7 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
 
         # create ending button
         end_button = Button()
-        label = CommonFontLabel(font_modificator=0.08,text="Zakończ grę")
+        label = CommonFontLabel(font_modificator=0.08, text="Zakończ grę")
         end_button.add_widget(label)
         end_button.bind(size=label.setter("size"))
         end_button.bind(pos=label.setter("pos"))
@@ -86,8 +86,8 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
             self._dots[i].texture.mag_filter = "nearest"
 
         # creation of laser dots
-        for i in range(len(self._laser_ind)):
-            self._laser_ind[i] = Image(source=f"{Path.IMG_PATH}/lasgun_dot.png")
+        # for i in range(len(self._laser_ind)):
+        #     self._laser_ind[i] = Image(source=f"{Path.IMG_PATH}/lasgun_dot.png")
 
         self._add_coordinates()
 
@@ -130,14 +130,13 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
                 self._grid.add_widget(piece_layout)
                 self._representations[vector.y][vector.x] = piece_layout
 
-
         # creation of promotion tab
         self._promotion_representation = [
-            PieceRepresentationLayout(None, Button(on_press=self.on_promotion_click)) for _ in self._board.get_possible_promotions()
+            PieceRepresentationLayout(None, Button(on_press=self.on_promotion_click)) for _ in
+            self._board.get_possible_promotions()
         ]
         # for e in self._promotion_representation:
         #     e.size_hint = (None, None)
-
 
         # creation of rotation tab
 
@@ -166,17 +165,19 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
                 label.bold = True
                 boxes[j].add_widget(label)
 
-    def _show_end_popup(self,instance):
+    def _show_end_popup(self, instance):
         popup = Popup(size_hint=(0.6, 0.2), auto_dismiss=False)
         title = "Koniec gry. Wygrał ..."
         content = Button(text="Zakończ")
-        if isinstance(instance,Button):
-            title='Czy na pewno chcesz zakończyć rozgrywkę?'
-            content = BoxLayout(orientation="horizontal",padding=20,size_hint=(1,1))
-            no = Button(text="Nie",size_hint=(0.5, 0.5))
-            yes = Button(text="Tak",size_hint=(0.5, 0.5))
+        if isinstance(instance, Button):
+            title = 'Czy na pewno chcesz zakończyć rozgrywkę?'
+            content = BoxLayout(orientation="horizontal", padding=20, size_hint=(1, 1))
+            no = Button(text="Nie", size_hint=(0.5, 0.5))
+            yes = Button(text="Tak", size_hint=(0.5, 0.5))
             content.add_widget(yes)
             content.add_widget(no)
+            yes.bind(on_press=lambda x: popup.dismiss())
+            no.bind(on_press=popup.dismiss)
         popup.title = title
         popup.size_hint_min = (200, 200)
         popup.size_hint_max = (300, 300)
@@ -200,9 +201,9 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
                 self._representations[i][j].remove_img()
                 self._representations[i][j].new_image_piece(self._board.get_piece(BoardVector2d(j, i)))
         self._show_indicators()
-        self.clear_laser_ind()
-        self.on_show_laser_fields(self._board.get_laser_fields())
-        # self._window_updater.refresh()
+        self._laser_painer.clear()
+        self._laser_painer.paint()
+        self._window_updater.refresh()
 
     def get_to_promote(self):
         return self._promotion.get_promotion_piece()
@@ -220,11 +221,6 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
         self._selected_piece = None
         self._game_app.on_move()
 
-    def clear_laser_ind(self):
-        for l in self._current_laser_ind:
-            l.parent.remove_widget(l)
-        self._current_laser_ind.clear()
-
     def on_tile_click(self, instance: Button):
         self.hide_rotation_menu()
         if self._is_promotion:
@@ -237,7 +233,7 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
         self._current_dots.clear()
 
         piece = self._board.get_piece(instance.vector)
-        if piece is None and not instance.vector in self._possible_movements:
+        if piece is None and instance.vector not in self._possible_movements:
             self._possible_movements.clear()
         if piece is not None and piece.is_same_color(self._board.move_number):
             if piece.model == PieceModel.LASGUN:
@@ -263,8 +259,7 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
             self._current_dots.append(self._dots[i])
             i += 1
 
-    def on_show_laser_fields(self, movements: list[BoardVector2d]):
-        self.clear_laser_ind()
+    def on_show_laser_fields(self, movements: list[BoardVector2d], player_id: int):
         i = 0
         for m in movements:
             self._representations[m.y][m.x].add_widget(self._laser_ind[i])
@@ -288,7 +283,7 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
 
     def on_laser_propagated(self, lasgun: Lasgun):
         self._update()
-        self._update_notation()
+        # self._update_notation()
 
     def on_rotation(self, origin: BoardVector2d, rotation: Paths) -> None:
         self._update()
@@ -304,25 +299,25 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
         self._selected_piece = None
 
     def _update_notation(self):
-        def size(instance,val):
+        def size(instance, val):
             instance.height = val
 
-        def size2(instance,val):
-            instance.text_size = val[0],val[1]
+        def size2(instance, val):
+            instance.text_size = val[0], val[1]
 
         not_tab = self._elements_dict.get('notation')
         notation = self._game._notation_generator.generate_last_move_string()
         self._notation_list.append(notation)
-        if len(self._notation_list)%2 == 1:
-            notation = str(len(self._notation_list)//2+1)+"."+notation
+        if len(self._notation_list) % 2 == 1:
+            notation = str(len(self._notation_list) // 2 + 1) + "." + notation
             print(notation)
 
-        l = CommonFontLabel(halign="left",font_modificator=0.15,size_hint=(1, None), text=notation)
+        l = CommonFontLabel(halign="left", font_modificator=0.15, size_hint=(1, None), text=notation)
         l.bind(font_size=size)
         l.bind(size=size2)
         not_tab.add_widget(l)
         scroll = self._elements_dict.get("scroll")
-        if scroll.children[0].height>scroll.height:
+        if scroll.children[0].height > scroll.height:
             scroll.scroll_to(l)
 
     def _show_lasgun_ready_indicators(self):
@@ -375,7 +370,7 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
 
     def hide_promotion_menu(self):
         prom = self._promotion_representation
-        if len(prom)>0:
+        if len(prom) > 0:
             prom[0].parent.parent.remove_widget(prom[0].parent)
         for rep in prom:
             if rep.parent is not None:

@@ -1,15 +1,19 @@
 from __future__ import annotations
+
+from kivy.graphics import Rotate, Translate, PushMatrix
+from kivy.lang import Builder
 from kivy.uix.button import Button
 from kivy.uix.image import Image
 from kivy.uix.relativelayout import RelativeLayout
 from typing import cast
 
 from app.gui import Path
+from app.gui.utils.rotated_image import RotatedImage
 from game.piece import PieceModel
 from game.piece.lasgun import MirrorPiece
 from game.piece.movement import Movement
 from game.piece.piece import Piece
-
+from kivy.graphics.context_instructions import Rotate
 
 # 0-white
 class PieceRepresentationLayout(RelativeLayout):
@@ -58,20 +62,27 @@ class PieceRepresentationLayout(RelativeLayout):
             case piece_type.ROOK:
                 self._img = Image(source=f"{Path.PIECE_IMG_PATH}/rook_{color}.png")
             case piece_type.LASGUN:
-                self._img = Image(source=f"{Path.PIECE_IMG_PATH}/lasgun_{color}.png")
+                self._img = RotatedImage(source=f"{Path.PIECE_IMG_PATH}/lasgun_{color}.png")
+                match cast(MirrorPiece, self._piece).direction:
+                    case Movement.LEFT_RANK:
+                        self._img.angle = 90
+                    case Movement.UPPER_FILE:
+                        self._img.angle = 0
+                    case Movement.RIGHT_RANK:
+                        self._img.angle = -90
+                    case Movement.BOTTOM_FILE:
+                        self._img.angle = -180
             case piece_type.MIRROR:
+                self._img = RotatedImage(source=f"{Path.PIECE_IMG_PATH}/mirror_{color}.png")
                 match cast(MirrorPiece, self._piece).direction:
                     case Movement.UPPER_LEFT_DIAGONAL:
-                        rotation = "ul"
+                        self._img.angle = 90
                     case Movement.UPPER_RIGHT_DIAGONAL:
-                        rotation = "ur"
+                        self._img.angle = 0
                     case Movement.BOTTOM_RIGHT_DIAGONAL:
-                        rotation = "br"
+                        self._img.angle = -90
                     case Movement.BOTTOM_LEFT_DIAGONAL:
-                        rotation = "bl"
-                    case _:
-                        rotation = "bl"
-                self._img = Image(source=f"{Path.PIECE_IMG_PATH}/mirror_{color}_{rotation}.png")
+                        self._img.angle = -180
             case _:
                 self._img = None
 

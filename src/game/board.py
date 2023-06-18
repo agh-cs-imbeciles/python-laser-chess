@@ -98,11 +98,21 @@ class Board(PositionObserver, LaserObserver):
             return AmbiguousNotation.FILE
         return AmbiguousNotation.RANK
 
-    def get_laser_fields(self):
+    def get_laser_fields(self, player_id: int):
+        for las in self._lasguns:
+            if las.player_id == player_id:
+                return las.laser_fields
+
+    def get_end_hit(self, player_id: int):
+        for las in self._lasguns:
+            if las.player_id == player_id:
+                return las.end_hit
+
+    def get_all_laser_fields(self):
         all_las = []
         for las in self._lasguns:
             all_las.extend(las.laser_fields)
-        return all_las
+        return las.laser_fields
 
     def laser_fire_conditions(self, player_id: int):
         for las in self.lasguns:
@@ -240,7 +250,7 @@ class Board(PositionObserver, LaserObserver):
         # Check, if laser blocks movement
         #
         if piece.model != PieceModel.MIRROR and piece.model != PieceModel.PAWN and \
-                destination in self.get_laser_fields():
+                destination in self.get_all_laser_fields() and destination in self.get_all_laser_fields():
             return False
         #
         # Check, if player's king is under check - if it's, only covering moves are legal

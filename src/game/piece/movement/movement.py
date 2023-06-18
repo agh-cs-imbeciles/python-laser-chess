@@ -29,6 +29,29 @@ class Movement(Enum):
     def double_right(self) -> Movement:
         return self.right().right()
 
+    @classmethod
+    def from_tuple(cls, tup) -> Movement:
+        match tup:
+            case (-1, 0):
+                return Movement.LEFT_RANK
+            case (1, 0):
+                return Movement.RIGHT_RANK
+            case (0, 1):
+                return Movement.UPPER_FILE
+            case (0, -1):
+                return Movement.BOTTOM_FILE
+            case (-1, 1):
+                return Movement.UPPER_LEFT_DIAGONAL
+            case (1, 1):
+                return Movement.UPPER_RIGHT_DIAGONAL
+            case (1, -1):
+                return Movement.BOTTOM_RIGHT_DIAGONAL
+            case (-1, -1):
+                return Movement.BOTTOM_LEFT_DIAGONAL
+            case _:
+                raise ValueError("Invalid tuple parameter")
+        pass
+
     def to_tuple(self) -> tuple[int, int]:
         """
         Returns right increment tuple from Movement enum.
@@ -74,7 +97,7 @@ class Movement(Enum):
         moves = [BoardVector2d(x, y) for x, y in zip(xs, ys)]
         filtered = []
         for m in moves:
-            if m in board.get_laser_fields():
+            if m in board.get_all_laser_fields():
                 break
             filtered.append(m)
         return filtered

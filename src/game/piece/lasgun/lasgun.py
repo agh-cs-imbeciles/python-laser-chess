@@ -26,6 +26,7 @@ class Lasgun(MirrorPiece):
         self._fired = False
         self._propagation_count = 0
         self._laser_observers = []
+        self._end_hit = None
 
 
 
@@ -45,6 +46,9 @@ class Lasgun(MirrorPiece):
     def fired(self) -> bool:
         return self._fired
 
+    @property
+    def end_hit(self) -> bool:
+        return self._end_hit
 
 
     def __eq__(self, other):
@@ -61,19 +65,23 @@ class Lasgun(MirrorPiece):
         self._redirected = None
 
         if self._board.is_out_of_bounds(destination):
+            self._end_hit = None
             return True
 
         piece = self._board.get_piece(destination)
         if piece is None:
             return False
         model = piece.model
+
+        tup = ((origin - destination).x, (origin - destination).y)
         if model == PieceModel.LASGUN or model == PieceModel.PAWN:
+            self._end_hit = (destination, Movement.from_tuple(tup))
             return True
         if model != PieceModel.MIRROR:
             return False
-
         self._redirect(origin, destination)
         if self._redirected is None:
+            self._end_hit = (destination, Movement.from_tuple(tup))
             return True
 
         return False
