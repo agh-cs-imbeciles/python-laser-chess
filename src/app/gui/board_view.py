@@ -41,6 +41,7 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
         self._game.board_view = self
         self._game_app: GameApplication = GameApplication(self._game, online=True)
         self._grid = self.ids.board
+        self._inverted = True
         self._indicator_label: Label = self.ids.indicator_lab
         self._dots = empty(shape=27, dtype=Image)
         self._representations = empty(shape=(8, 8), dtype=PieceRepresentationLayout)
@@ -57,7 +58,7 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
         self._reset_button.vector = BoardVector2d(-1, -1)
         self._elements_dict = dict()
         self._notation_list = []
-        self._laser_painer = LaserPainter(self, self._board)
+        self._laser_painer = LaserPainter(self, self._board, self._inverted)
         self._elements_dict["board_images"] = empty(shape=(8, 8), dtype=Image)
         for id in self.ids:
             t = self.ids.get(id)
@@ -97,8 +98,12 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
         #
         # Cell buttons of the board
         #
-        for i in range(8):
-            for j in range(8):
+        if self._inverted:
+            iters = (7, -1, -1)
+        else:
+            iters = (0, 8, 1)
+        for i in range(*iters):
+            for j in range(*iters):
                 vector = BoardVector2d(j, 7 - i)
 
                 # preparation of every button on board
@@ -124,13 +129,13 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
                         piece.add_laser_observer(self)
 
                 # adding piece and button to board
-                piece_layout = PieceRepresentationLayout(piece, button)
+                piece_layout = PieceRepresentationLayout(piece, button, self._inverted)
                 self._grid.add_widget(piece_layout)
                 self._representations[vector.y][vector.x] = piece_layout
 
         # creation of promotion tab
         self._promotion_representation = [
-            PieceRepresentationLayout(None, Button(on_press=self.on_promotion_click)) for _ in
+            PieceRepresentationLayout(None, Button(on_press=self.on_promotion_click),False) for _ in
             self._board.get_possible_promotions()
         ]
         # for e in self._promotion_representation:

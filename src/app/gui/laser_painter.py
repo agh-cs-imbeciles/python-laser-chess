@@ -27,14 +27,22 @@ class LaserRepresentationEnum(Enum):
 
 
 class LaserPainter:
-    def __init__(self, board_view, board: Board):
+    def __init__(self, board_view, board: Board, inverted: bool):
         self._board_view = board_view
+        self._inverted = inverted
         self._board = board
         self._indicators = []
 
-    @classmethod
-    def _load(cls, rep_type: LaserRepresentationEnum, rotation: Movement):
+    def __inverse(self, direction: Movement) -> Movement | None:
+        if direction is None:
+            return None
+        if self._inverted:
+            return direction.double_right().double_right()
+        return direction
+
+    def _load(self, rep_type: LaserRepresentationEnum, rotation: Movement):
         image = RotatedImage(source=f"{Path.LASER_IMG_PATH}{rep_type.value}")
+        rotation = self.__inverse(rotation)
         if rep_type == LaserRepresentationEnum.MIRROR_BLACK \
                 or rep_type == LaserRepresentationEnum.MIRROR_WHITE:
             match rotation:
@@ -48,9 +56,9 @@ class LaserPainter:
                     image.angle = -180
         if rep_type == LaserRepresentationEnum.LASER:
             match rotation:
-                case Movement.UPPER_FILE:
+                case Movement.UPPER_FILE | Movement.BOTTOM_FILE:
                     image.angle = 0
-                case Movement.LEFT_RANK:
+                case Movement.LEFT_RANK | Movement.RIGHT_RANK:
                     image.angle = 90
         if rep_type == LaserRepresentationEnum.LASGUN_BLACK or rep_type == LaserRepresentationEnum.LASGUN_WHITE:
             match rotation:
@@ -100,8 +108,9 @@ class LaserPainter:
             if piece.model != PieceModel.PAWN:
                 continue
             view = None
+            rotation = self.__inverse(hit[1])
             if piece.player_id == 0:
-                match hit[1]:
+                match rotation:
                     case Movement.LEFT_RANK:
                         view = LaserRepresentationEnum.PAWN_WHITE_LEFT
                     case Movement.UPPER_FILE:
@@ -111,7 +120,7 @@ class LaserPainter:
                     case Movement.BOTTOM_FILE:
                         view = LaserRepresentationEnum.PAWN_WHITE_BOTTOM
             else:
-                match hit[1]:
+                match rotation:
                     case Movement.LEFT_RANK:
                         view = LaserRepresentationEnum.PAWN_BLACK_LEFT
                     case Movement.UPPER_FILE:

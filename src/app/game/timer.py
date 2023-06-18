@@ -8,9 +8,7 @@ class GameTimer:
         self.__game = game
         self.player_timers: list[int] = [self.__SECONDS_PER_PLAYER for i in range(player_number)]
 
-
     def run(self) -> None:
-        # self.__game.set
         # Run schedule interval, calling decrease_timer method once per second
         Clock.schedule_interval(self.decrease_timer, 1)
 
