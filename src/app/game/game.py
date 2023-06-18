@@ -1,8 +1,6 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 import asyncio
-from app.client import Sender
-from app.config import GameSettings
 from app.client import Connection
 
 if TYPE_CHECKING:
@@ -47,5 +45,4 @@ class GameApplication:
     async def on_move(self) -> None:
         if self.__online:
             move: PieceMove = self.__game.get_last_move()
-            print(move.to_dict())
             await Connection.communicate_move(move.to_dict())

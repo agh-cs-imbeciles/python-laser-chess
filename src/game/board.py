@@ -22,7 +22,6 @@ class Board(PositionObserver, LaserObserver):
     def __init__(self, game: Game, width: int, height: int):
         self._width: int = width
         self._height: int = height
-        self._move_number: int = 0
         self._pieces: dict[BoardVector2d, tuple[Piece, PieceMovement]] = {}
         self._kings: list[Piece] = []
         self._lasguns: list[Lasgun] = []

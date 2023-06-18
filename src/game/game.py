@@ -18,6 +18,7 @@ class Game:
         self.__BOARD_SIZE: int = 8
         self._board: Board = Board(self, self.__BOARD_SIZE, self.__BOARD_SIZE)
         self._players: list[int] = []
+        self._move_number: int = 0
         fill = PieceMove(move_type=PieceMoveType.MOVE)
         self._moves_history: list[list[PieceMove]] = [[fill], [fill]]
         self._last_move_index: tuple[int, int] = (0, 0)
@@ -27,6 +28,26 @@ class Game:
 
         self._notation_generator = NotationGenerator(self._board)
         self.add_observer(self._notation_generator)
+
+    @property
+    def board(self) -> Board:
+        return self._board
+
+    @property
+    def players(self) -> list[Any]:
+        return self._players
+
+    @players.setter
+    def players(self, value: list[Any]) -> None:
+        self._players = value
+
+    @property
+    def move_number(self) -> int:
+        return self._move_number
+
+    @property
+    def moves_history(self) -> list[Any]:
+        return self._moves_history
 
     # override
     def on_position_change(self, piece: Piece, move_types: list[PieceMoveType]) -> None:
@@ -53,14 +74,13 @@ class Game:
         mh[pid].append(piece_move)
         self._last_move_index = piece_move.piece.player_id, len(mh[pid]) - 1
 
-    def modify_last_move(self,**kwargs) -> None:
+    def modify_last_move(self, **kwargs) -> None:
         mh = self._moves_history
         lm = self._last_move_index
         last_move: PieceMove = mh[lm[0]][lm[1]]
         for key, val in kwargs.items():
             if val is not None:
                 setattr(last_move, key, val)
-
 
     def get_last_move(self) -> PieceMove:
         lmi = self._last_move_index
@@ -74,22 +94,6 @@ class Game:
 
     def add_observer(self, observer: GameEndObserver) -> None:
         self._observers.append(observer)
-
-    @property
-    def board(self) -> Board:
-        return self._board
-
-    @property
-    def players(self) -> list[Any]:
-        return self._players
-
-    @players.setter
-    def players(self, value: list[Any]) -> None:
-        self._players = value
-
-    @property
-    def moves_history(self) -> list[Any]:
-        return self._moves_history
 
     def __add_piece(self, piece_data: tuple[Piece, PieceMovement]):
         # piece_data[0].add_observer(self)
