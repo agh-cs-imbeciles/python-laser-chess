@@ -1,4 +1,4 @@
-<Menu>:
+<MenuView>:
     name: "menu"
     AnchorLayout:
         anchor_x: 'center'
@@ -11,15 +11,15 @@
             Button:
                 id: button_play_local
                 text: "Play a local game"
-                on_press:root.create_new_board(button_play_local)
+                on_press:root.create_new_board(False)
                 font_size:self.width/11
             Button:
                 id: button_play_host
                 text: "Host a game"
-                on_press:root.create_new_board(button_play_host)
+                on_press:root.create_new_board(True)
                 font_size:self.width/11
             Button:
                 id: button_play_online
                 text: "Play an online game"
-                on_press:root.create_new_board(button_play_online)
+                on_press:root.create_new_board(True)
                 font_size:self.width/11

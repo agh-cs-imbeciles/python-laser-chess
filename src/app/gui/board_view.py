@@ -34,12 +34,12 @@ class MetaAB(type(obs.PositionObserver), type(Screen)):
     pass
 
 
-class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
+class BoardView(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
     def __init__(self, **kwargs):
         super().__init__()
         self._game = g.Game()
-        self._game_app: GameApplication = GameApplication(self._game, online=True)
-        self._grid = self.ids.board
+        self._game_app: GameApplication = GameApplication(self._game, online=kwargs.get("online", False))
+        self._grid = self.ids["board"]
         self._indicator_label: Label = self.ids.indicator_lab
         self._dots = empty(shape=27, dtype=Image)
         self._representations = empty(shape=(8, 8), dtype=PieceRepresentationLayout)
