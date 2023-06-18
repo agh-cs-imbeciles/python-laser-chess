@@ -19,6 +19,7 @@ class MenuView(Screen):
     def __init__(self, **kwargs):
         super().__init__()
         self.code = "2137"
+        self.__popup: Popup = Popup()
         self.__game_id_label: TextInput = TextInput()
         self.__join_input: TextInput = TextInput()
 
@@ -34,7 +35,8 @@ class MenuView(Screen):
         self.code = value
 
     def pregame_popup(self, button):
-        popup = Popup(size_hint=(1, 0.5))
+        popup = self.__popup
+        popup.size_hint = (1, 0.5)
         title = "Play online game"
         content = BoxLayout(orientation="vertical")
 
@@ -83,7 +85,8 @@ class MenuView(Screen):
         async def join_online_game_async(game_id: str):
             try:
                 player_id = await PreGameHelper.join_game(game_id)
-                print(player_id)
+                self.__popup.dismiss()
+                self.create_new_board(True, game_id, player_id)
             except RuntimeError as error:
                 print(error)
 

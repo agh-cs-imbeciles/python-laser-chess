@@ -64,15 +64,24 @@ class Server:
         self.__connected[game_id].append(websocket)
 
         try:
+            # Send response to the joining player
             response = {
                 "status": str(MessageStatus.SUCCESS),
                 "messageType": str(MessageType.JOIN),
                 "playerId": player_id,
                 "gameId": game_id
             }
+            # Attach first move, if any
             if game.move_number == 1:
                 response["data"] = json.dumps(game.get_last_move())
-            await websockets.broadcast(self.__connected[game_id], json.dumps(response))
+            await websocket.send(json.dumps(response))
+
+            # Send message to the waiting player
+            response = {
+                "status": str(MessageStatus.SUCCESS),
+                "messageType": str(MessageStatus.JOIN)
+            }
+            await self.__connected[game_id][0].send(json.dumps(response))
         finally:
             self.__connected[game_id].remove(websocket)
 
