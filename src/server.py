@@ -20,7 +20,7 @@ class Server:
         async with websockets.serve(self.handler, "", 8000):
             await asyncio.Future()
 
-    async def start(self, websocket):
+    async def create(self, websocket):
         """
         Handle a connection from the first player. Start a new game.
         """
@@ -129,11 +129,10 @@ class Server:
         assert message["messageType"], "Message type hasn't been sent"
 
         match MessageType.from_str(message["messageType"]):
-            case MessageType.INIT:
-                if not self.__connected:
-                    await self.start(websocket)
-                elif len(self.__connected) == 1:
-                    await self.join(websocket, message.get("gameId"))
+            case MessageType.CREATE:
+                await self.create(websocket)
+                # elif len(self.__connected) == 1:
+                #     await self.join(websocket, message.get("gameId"))
             case MessageType.MOVE:
                 assert message["playerId"], "Player ID hasn't been sent"
                 player_id: str = message["playerId"]

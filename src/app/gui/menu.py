@@ -1,3 +1,6 @@
+from __future__ import annotations
+import asyncio
+
 from kivy.lang import Builder
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
@@ -7,6 +10,7 @@ from kivy.uix.screenmanager import Screen
 from kivy.uix.textinput import TextInput
 
 from app.gui import BoardView
+from app.game import PreGameHelper
 from app.config.settings import SettingsGameplay
 
 
@@ -15,24 +19,27 @@ class MenuView(Screen):
         super().__init__()
         self.code = "2137"
 
-    def create_new_board(self, online: bool):
+    def create_new_board(
+            self, online: bool = False,
+            game_id: str | None = None,
+            player_id: str | None = None):
         Builder.load_file("app/templates/board.kv")
-        self.manager.add_widget(BoardView(name="board", online=online))
+        self.manager.add_widget(BoardView(name="board", online=online, game_id=game_id, player_id=player_id))
         self.manager.current = "board"
 
     def __code(self, instance, value):
         self.code = value
 
-    def join_game_popup(self,button):
+    def join_game_popup(self, button):
         popup = Popup(size_hint=(0.6, 0.2))
         title = "Play online game"
         content = BoxLayout(orientation="vertical")
         l1 = Label(text="Create the new game")
         l2 = Label(text="Join to the existing game")
         b1 = Button(text="Create the game")
-        b1.bind(on_press=self.create_game)
+        b1.bind(on_press=self.create_online_game)
         b2 = Button(text="Join the game")
-        b2.bind(on_press=self.join_game)
+        b2.bind(on_press=self.join_online_game)
         text_input = TextInput(text="2137")
         text_input.bind(text=self.__code)
         content.add_widget(l1)
@@ -46,10 +53,14 @@ class MenuView(Screen):
         popup.content = content
         popup.open()
 
-    def create_game(self, instance):
-        pass
+    def create_online_game(self, instance):
+        async def create_online_game_async():
+            game_id, player_id = await PreGameHelper.create_game()
+            self.create_new_board(True, game_id, player_id)
 
-    def join_game(self, instance):
+        asyncio.run(create_online_game_async())
+
+    def join_online_game(self, instance):
         print(self.code)
         pass
 

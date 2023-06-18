@@ -8,20 +8,14 @@ class Connection:
     URI: str = "ws://127.0.0.1:8000"
     TIMEOUT_S: float = 15 * 60
 
-    # def __init__(self) -> None:
-    #     self.__websocket: WebSocketClientProtocol | None = None
-    #
-    # def is_established(self) -> bool:
-    #     return isinstance(self.__websocket, WebSocketClientProtocol)
-
-    # async def connect(self) -> None:
-    #     try:
-    #         self.__websocket = await websockets.connect(Connection.URI)
-    #     except asyncio.TimeoutError:
-    #         print("huh")
-    #
-    # async def ping(self) -> None:
-    #     await self.__websocket.ping()
+    @classmethod
+    async def create_game(cls) -> dict[str, any]:
+        async with websockets.connect(cls.URI) as websocket:
+            try:
+                await Sender.send_create(websocket)
+                return await Receiver.receive(websocket)
+            except ConnectionClosedOK:
+                pass
 
     @classmethod
     async def communicate_init(cls) -> dict[str, any]:

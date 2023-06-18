@@ -1,4 +1,4 @@
-from random import randint
+from __future__ import annotations
 from typing import cast
 import asyncio
 import itertools
@@ -37,8 +37,19 @@ class MetaAB(type(obs.PositionObserver), type(Screen)):
 class BoardView(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
     def __init__(self, **kwargs):
         super().__init__()
+
         self._game = g.Game()
-        self._game_app: GameApplication = GameApplication(self._game, online=kwargs.get("online", False))
+        online: bool = kwargs.get("online", False)
+        game_id: str | None = kwargs.get("game_id")
+        player_id: str | None = kwargs.get("player_id")
+        self._game_app: GameApplication = GameApplication(
+            self._game,
+            online=online,
+            game_id=game_id,
+            player_id=player_id
+        )
+
+
         self._grid = self.ids["board"]
         self._indicator_label: Label = self.ids.indicator_lab
         self._dots = empty(shape=27, dtype=Image)

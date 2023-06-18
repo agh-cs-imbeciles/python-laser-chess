@@ -47,20 +47,16 @@ class Board(PositionObserver, LaserObserver):
         self._height = value
 
     @property
-    def move_number(self) -> int:
-        return self._move_number
-
-    @move_number.setter
-    def move_number(self, value: int) -> None:
-        self._move_number = value
-
-    @property
     def pieces(self) -> dict[BoardVector2d, tuple[Piece, PieceMovement]]:
         return self._pieces
 
     @property
     def kings(self) -> list[Piece]:
         return self._kings
+
+    @property
+    def lasguns(self):
+        return self._lasguns
 
     def get_ambiguity_move_type(self, piece_movement: PieceMovement, destination: BoardVector2d) -> AmbiguousNotation:
         piece = piece_movement.piece
@@ -372,7 +368,3 @@ class Board(PositionObserver, LaserObserver):
 
     def add_critical_checked_squares(self, player_id: int, squares: list[BoardVector2d]) -> None:
         self._check_manager.add_critical_checked_squares(player_id, squares)
-
-    @property
-    def lasguns(self):
-        return self._lasguns
