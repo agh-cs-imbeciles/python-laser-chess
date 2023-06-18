@@ -39,20 +39,16 @@ class PreGameHelper:
         response: dict[str, any] = await Connection.create_game()
         status_raw: str | None = response.get("status")
         if not status_raw:
-            print("Failed creating the new game, message status hasn't been sent")
             raise RuntimeError("Failed creating the new game, message status hasn't been sent")
         status: MessageStatus = MessageStatus.from_str(status_raw)
         if status == MessageStatus.ERROR:
-            print("Failed creating the new game, error message status")
             raise RuntimeError("Failed creating the new game, error message status")
 
         game_id: str | None = response.get("gameId")
         if not game_id:
-            print("Failed creating the new game, game ID hasn't been sent")
             raise RuntimeError("Failed creating the new game, game ID hasn't been sent")
         player_id: str | None = response.get("playerId")
         if not player_id:
-            print("Failed creating the new game, player ID hasn't been sent")
             raise RuntimeError("Failed creating the new game, player ID hasn't been sent")
 
         print("Succeed creating the new game")
@@ -72,16 +68,13 @@ class PreGameHelper:
         response: dict[str, any] = await Connection.join_game(game_id)
         status_raw: str | None = response.get("status")
         if not status_raw:
-            print("Failed joining the game, message status hasn't been sent")
             raise RuntimeError("Failed joining the game, message status hasn't been sent")
         status: MessageStatus = MessageStatus.from_str(status_raw)
         if status == MessageStatus.ERROR:
-            print("Failed joining the game, error message status")
             raise RuntimeError("Failed joining the game, error message status")
 
         player_id: str | None = response.get("playerId")
         if not player_id:
-            print("Failed joining the game, player ID hasn't been sent")
             raise RuntimeError("Failed joining the game, player ID hasn't been sent")
 
         print("Succeed joining the game")
