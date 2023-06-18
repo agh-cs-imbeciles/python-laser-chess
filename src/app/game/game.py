@@ -85,3 +85,26 @@ class PreGameHelper:
         print("Waiting for the other player to join...")
         await Connection.wait_for_player()
         print("Succeed waiting for the other player")
+
+    @classmethod
+    async def join_game(cls, game_id: str) -> str:
+        print("Joining the game...")
+
+        response: dict[str, any] = await Connection.join_game(game_id)
+        status_raw: str | None = response.get("status")
+        if not status_raw:
+            print("Failed joining the game, message status hasn't been sent")
+            raise RuntimeError("Failed joining the game, message status hasn't been sent")
+        status: MessageStatus = MessageStatus.from_str(status_raw)
+        if status == MessageStatus.ERROR:
+            print("Failed joining the game, error message status")
+            raise RuntimeError("Failed joining the game, error message status")
+
+        player_id: str | None = response.get("playerId")
+        if not player_id:
+            print("Failed joining the game, player ID hasn't been sent")
+            raise RuntimeError("Failed joining the game, player ID hasn't been sent")
+
+        print("Succeed joining the game")
+
+        return player_id

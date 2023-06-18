@@ -26,10 +26,19 @@ class Connection:
                 pass
 
     @classmethod
-    async def communicate_init(cls) -> dict[str, any]:
+    async def join_game(cls, game_id: str) -> dict[str, any]:
         async with websockets.connect(cls.URI) as websocket:
-            await Sender.send_init(websocket)
-            return await Receiver.receive(websocket)
+            try:
+                await Sender.send_join(websocket, game_id)
+                return await Receiver.receive(websocket)
+            except ConnectionClosedOK:
+                pass
+
+    # @classmethod
+    # async def communicate_init(cls) -> dict[str, any]:
+    #     async with websockets.connect(cls.URI) as websocket:
+    #         await Sender.send_init(websocket)
+    #         return await Receiver.receive(websocket)
 
     @classmethod
     async def communicate_move(cls, data: dict[any, any], player_id: str | None) -> dict[str, any]:

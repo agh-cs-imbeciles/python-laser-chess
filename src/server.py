@@ -31,6 +31,7 @@ class Server:
         player_id: str | None = self.__generate_player_id()
         game: Game = Game()
         self.__games[game_id] = game
+        self.__connected[game_id] = []
         self.__connected[game_id].append(websocket)
 
         try:
@@ -44,35 +45,36 @@ class Server:
         finally:
             self.__connected[game_id].remove(websocket)
 
-    async def join(self, websocket, game_id: str | None):
+    async def join(self, websocket, game_id: str):
         """
         Handle a connection from the second player. Join an existing game.
         """
 
-        if not game_id:
+        if not game_id in self.__games:
             response = {
                 "status": str(MessageStatus.ERROR)
             }
             await websocket.send(json.dumps(response))
-            raise ValueError("Game ID hasn't been sent")
+            raise ValueError(f"There is no any game of ID: {game_id}")
 
         print("Joining the existing game...")
 
-        game: Game = self.__games[0]
-        self.__connected.append(websocket)
+        player_id: str = self.__generate_player_id()
+        game: Game = self.__games[game_id]
+        self.__connected[game_id].append(websocket)
 
         try:
             response = {
                 "status": str(MessageStatus.SUCCESS),
                 "messageType": str(MessageType.JOIN),
-                "playerId": self.__generate_player_id(),
+                "playerId": player_id,
                 "gameId": game_id
             }
             if game.move_number == 1:
                 response["data"] = json.dumps(game.get_last_move())
-            await websockets.broadcast(self.__connected, response)
+            await websockets.broadcast(self.__connected[game_id], json.dumps(response))
         finally:
-            self.__connected.remove(websocket)
+            self.__connected[game_id].remove(websocket)
 
     async def play(self, move: dict[any, any], player_id: str, game: Game):
         """
@@ -129,23 +131,28 @@ class Server:
         message = json.loads(message_plain)
         assert message["messageType"], "Message type hasn't been sent"
 
-        match MessageType.from_str(message["messageType"]):
+        message_type: MessageType = MessageType.from_str(message["messageType"])
+        match message_type:
             case MessageType.CREATE:
                 await self.create(websocket)
                 # elif len(self.__connected) == 1:
                 #     await self.join(websocket, message.get("gameId"))
+            case MessageType.JOIN:
+                assert message["gameId"], "Game ID hasn't been sent"
+                game_id: str = message["gameId"]
+                await self.join(websocket, game_id)
             case MessageType.MOVE:
                 assert message["playerId"], "Player ID hasn't been sent"
                 player_id: str = message["playerId"]
                 await self.play(message["data"], player_id, self.__games[0])
 
     def __generate_player_id(self) -> str:
-        prefix: str = "laschess_pid"
+        prefix: str = "lcpid"
         id: str = Key.generate_timestamp_id(8)
         return f"{prefix}_{id}"
 
     def __generate_game_id(self) -> str:
-        prefix: str = "laschess_gid"
+        prefix: str = "lcgid"
         id: str = Key.generate_timestamp_id(8)
         return f"{prefix}_{id}"
 

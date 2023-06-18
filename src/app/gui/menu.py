@@ -20,6 +20,7 @@ class MenuView(Screen):
         super().__init__()
         self.code = "2137"
         self.__game_id_label: TextInput = TextInput()
+        self.__join_input: TextInput = TextInput()
 
     def create_new_board(
             self, online: bool = False,
@@ -49,8 +50,8 @@ class MenuView(Screen):
 
         b2 = Button(text="Join the game")
         b2.bind(on_press=self.join_online_game)
-        text_input = TextInput(hint_text="Game ID")
-        text_input.bind(text=self.__code)
+        text_input = self.__join_input
+        text_input.hint_text = "Game ID"
 
         content.add_widget(l1)
         content.add_widget(b1)
@@ -79,8 +80,12 @@ class MenuView(Screen):
         asyncio.run(create_online_game_async())
 
     def join_online_game(self, instance):
-        print(self.code)
-        pass
+        async def join_online_game_async(game_id: str):
+            player_id = await PreGameHelper.join_game(game_id)
+            print(player_id)
+
+        game_id: str = self.__join_input.text
+        asyncio.run(join_online_game_async(game_id))
 
     def _update_width(self):
         self.ids.menu_box.height = self.ids.menu_box.width / 2

@@ -47,4 +47,4 @@ class MessageType(Enum):
             if type == str(t):
                 return t
 
-        raise ValueError("MessageType argument is invalid [from_str()]")
+        raise ValueError(f"MessageType {type} is invalid [from_str()]")
