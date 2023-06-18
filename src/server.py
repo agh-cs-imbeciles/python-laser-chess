@@ -12,8 +12,8 @@ from game.piece import Piece
 
 class Server:
     def __init__(self):
-        self.__games: list[Game] = []
-        self.__connected: list[any] = []
+        self.__games: dict[str, Game] = {}
+        self.__connected: dict[str, list[any]] = {}
         self.__move: int = 0
 
     async def main(self):
@@ -27,21 +27,22 @@ class Server:
 
         print("Starting the new game...")
 
+        game_id: str | None = self.__generate_game_id()
+        player_id: str | None = self.__generate_player_id()
         game: Game = Game()
-        self.__games.append(game)
-
-        self.__connected.append(websocket)
+        self.__games[game_id] = game
+        self.__connected[game_id].append(websocket)
 
         try:
             response = {
                 "status": str(MessageStatus.SUCCESS),
                 "messageType": str(MessageType.INIT),
-                "playerId": self.__generate_player_id(),
-                "gameId": self.__generate_game_id()
+                "gameId": game_id,
+                "playerId": player_id
             }
             await websocket.send(json.dumps(response))
         finally:
-            self.__connected.remove(websocket)
+            self.__connected[game_id].remove(websocket)
 
     async def join(self, websocket, game_id: str | None):
         """

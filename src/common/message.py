@@ -26,6 +26,7 @@ class MessageStatus(Enum):
 @unique
 class MessageType(Enum):
     CREATE  = auto()
+    JOIN    = auto()
     INIT    = auto()
     MOVE    = auto()
 
@@ -33,6 +34,8 @@ class MessageType(Enum):
         match self:
             case MessageType.CREATE:
                 return "create"
+            case MessageType.JOIN:
+                return "join"
             case MessageType.INIT:
                 return "init"
             case MessageType.MOVE:

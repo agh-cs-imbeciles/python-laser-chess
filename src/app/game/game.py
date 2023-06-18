@@ -79,3 +79,9 @@ class PreGameHelper:
         print("Succeed creating the new game")
 
         return game_id, player_id
+
+    @classmethod
+    async def wait_for_other_player(cls) -> None:
+        print("Waiting for the other player to join...")
+        await Connection.wait_for_player()
+        print("Succeed waiting for the other player")

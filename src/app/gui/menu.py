@@ -11,6 +11,7 @@ from kivy.uix.textinput import TextInput
 
 from app.gui import BoardView
 from app.game import PreGameHelper
+from app.client import Receiver
 from app.config.settings import SettingsGameplay
 
 
@@ -56,7 +57,9 @@ class MenuView(Screen):
     def create_online_game(self, instance):
         async def create_online_game_async():
             game_id, player_id = await PreGameHelper.create_game()
-            self.create_new_board(True, game_id, player_id)
+            print(game_id)
+            await PreGameHelper.wait_for_other_player()
+            # self.create_new_board(True, game_id, player_id)
 
         asyncio.run(create_online_game_async())
 

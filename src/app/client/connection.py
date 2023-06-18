@@ -18,6 +18,14 @@ class Connection:
                 pass
 
     @classmethod
+    async def wait_for_player(cls) -> None:
+        async with websockets.connect(cls.URI) as websocket:
+            try:
+                await Receiver.receive(websocket)
+            except ConnectionClosedOK:
+                pass
+
+    @classmethod
     async def communicate_init(cls) -> dict[str, any]:
         async with websockets.connect(cls.URI) as websocket:
             await Sender.send_init(websocket)
