@@ -19,13 +19,6 @@ class Sender:
         }
         await cls.__send(websocket, message)
 
-    # @classmethod
-    # async def send_init(cls, websocket) -> None:
-    #     message = {
-    #         "messageType": str(MessageType.INIT)
-    #     }
-    #     await cls.__send(websocket, message)
-
     @classmethod
     async def send_move(cls, websocket, data: dict[any, any], player_id: str | None) -> None:
         message = {

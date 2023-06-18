@@ -34,12 +34,6 @@ class Connection:
             except ConnectionClosedOK:
                 pass
 
-    # @classmethod
-    # async def communicate_init(cls) -> dict[str, any]:
-    #     async with websockets.connect(cls.URI) as websocket:
-    #         await Sender.send_init(websocket)
-    #         return await Receiver.receive(websocket)
-
     @classmethod
     async def communicate_move(cls, data: dict[any, any], player_id: str | None) -> dict[str, any]:
         if not player_id:

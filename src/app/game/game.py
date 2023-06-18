@@ -1,6 +1,5 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
-import asyncio
 
 from common import MessageStatus
 from app.game import GameTimer
@@ -25,26 +24,6 @@ class GameApplication:
         player_number: int = 2
         self.__game_timer: GameTimer = GameTimer(self.__game, seconds_per_player, player_number)
         self.__game_timer.run()
-
-    # async def run_async(self) -> None:
-    #     await self.connect()
-    #     while True:
-    #         print("huh1")
-    #         if self.__connection.is_established():
-    #             await self.__connection.ping()
-    #         await asyncio.sleep(1)
-    #
-    # async def connect(self) -> None:
-    #     print("Connecting asynchronously...")
-    #
-    #     connection = Connection()
-    #     await connection.connect()
-    #     if connection.is_established():
-    #         print("Connected")
-    #     else:
-    #         raise RuntimeError("Failed to connect to the websocket server")
-    #
-    #     await connection.send_init()
 
     async def on_move(self) -> None:
         if self.__online:
