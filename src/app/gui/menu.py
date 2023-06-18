@@ -81,8 +81,11 @@ class MenuView(Screen):
 
     def join_online_game(self, instance):
         async def join_online_game_async(game_id: str):
-            player_id = await PreGameHelper.join_game(game_id)
-            print(player_id)
+            try:
+                player_id = await PreGameHelper.join_game(game_id)
+                print(player_id)
+            except RuntimeError:
+                pass
 
         game_id: str = self.__join_input.text
         asyncio.run(join_online_game_async(game_id))

@@ -17,7 +17,6 @@ class Sender:
             "messageType": str(MessageType.JOIN),
             "gameId": game_id
         }
-        print(message)
         await cls.__send(websocket, message)
 
     # @classmethod
