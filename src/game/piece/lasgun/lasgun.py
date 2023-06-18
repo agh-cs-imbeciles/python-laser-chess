@@ -15,9 +15,9 @@ class Lasgun(MirrorPiece):
     def __init__(self, position: BoardVector2d, player_id: int, direction: Movement, board: Board):
         super().__init__(position, player_id, direction)
         self._model = PieceModel.LASGUN
-        self._charge_time = 5
+        self._charge_time = 6
         self._target_propagation_count = 2
-        self._charges_left = self._charge_time
+        self._charges_left = self._charge_time - self._target_propagation_count
         self._board = board
         self._laser_fields: list[BoardVector2d] = []
         self._redirected: BoardVector2d | None = None
@@ -142,8 +142,6 @@ class Lasgun(MirrorPiece):
     def propagate_until_target(self):
         if not self._fired:
             self._laser_fields.clear()
-            # for obs in self._laser_observers:
-            #     obs.on_laser_clear(self)
             return
         self._inc_propagation_count()
         self._propagate_laser_fields()

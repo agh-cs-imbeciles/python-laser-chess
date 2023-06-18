@@ -15,6 +15,7 @@ from game.piece.movement import Movement
 from game.piece.piece import Piece
 from kivy.graphics.context_instructions import Rotate
 
+
 # 0-white
 class PieceRepresentationLayout(RelativeLayout):
     def __init__(self, piece: Piece | None, button: Button, opacity=None, promotion=None):
