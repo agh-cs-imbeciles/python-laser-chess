@@ -38,6 +38,7 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
     def __init__(self, **kwargs):
         super().__init__()
         self._game = g.Game()
+        self._game.board_view = self
         self._game_app: GameApplication = GameApplication(self._game, online=True)
         self._grid = self.ids.board
         self._indicator_label: Label = self.ids.indicator_lab
@@ -369,3 +370,10 @@ class Board(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
             if rep.parent is not None:
                 rep.parent.remove_widget(rep)
         self._window_updater.refresh()
+
+    def set_time(self, player_id: int, time_string: str):
+        if player_id == 0:
+            name = "timer_white"
+        else:
+            name = "timer_black"
+        self._elements_dict.get(name).text = time_string
