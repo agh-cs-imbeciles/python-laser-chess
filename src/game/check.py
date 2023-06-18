@@ -5,12 +5,13 @@ from game.piece import PieceModel
 from game.piece.movement import PieceMovement, PawnMovement, RangedPieceMovement
 
 if TYPE_CHECKING:
-    from game import Board
+    from game import Game, Board
     from game.piece import Piece
 
 
 class CheckManager:
-    def __init__(self, board: Board) -> None:
+    def __init__(self, game: Game, board: Board) -> None:
+        self._game = game
         self._board = board
         self._checked_squares: list[dict[BoardVector2d, bool]] = [{}, {}]
         self._checking_pieces: list[dict[BoardVector2d, Piece]] = [{}, {}]
@@ -197,7 +198,7 @@ class CheckManager:
                 for sqr in self.get_pinned_squares(piece, moves):
                     self._pinned_squares[pinned.player_id][sqr] = True
 
-        self._can_move = self.can_player_move((self._board.move_number + 1) % 2)
+        self._can_move = self.can_player_move((self._game.move_number + 1) % 2)
         self.set_protecting_piece()
 
     def add_critical_checked_squares(self, player_id: int, squares: list[BoardVector2d]) -> None:

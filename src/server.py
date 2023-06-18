@@ -73,7 +73,7 @@ class Server:
         finally:
             self.__connected.remove(websocket)
 
-    async def play(self, move: dict[any, any], game: Game):
+    async def play(self, move: dict[any, any], player_id: str, game: Game):
         """
         Receive and process moves from a player.
         """
@@ -82,8 +82,6 @@ class Server:
             raise ValueError("Move object is invalid, doesn't contain \"origin\" key")
         if "destination" not in move:
             raise ValueError("Move object is invalid, doesn't contain \"destination\" key")
-        if "playerId" not in move:
-            raise ValueError("Move object is invalid, doesn't contain \"playerId\" key")
 
         print(f"Received a move from player", end='')
         origin: BoardVector2d = BoardVector2d.from_str(move["origin"])
@@ -107,6 +105,7 @@ class Server:
         response = {
             "status": str(MessageStatus.SUCCESS),
             "messageType": str(MessageType.MOVE),
+            "playerId": player_id,
             "data": game.get_last_move().to_dict()
         }
         websockets.broadcast(self.__connected, json.dumps(response))
@@ -136,8 +135,9 @@ class Server:
                 elif len(self.__connected) == 1:
                     await self.join(websocket, message.get("gameId"))
             case MessageType.MOVE:
-                await self.play(message["data"], self.__games[0])
-                pass
+                assert message["playerId"], "Player ID hasn't been sent"
+                player_id: str = message["playerId"]
+                await self.play(message["data"], player_id, self.__games[0])
 
     def __generate_player_id(self) -> str:
         prefix: str = "laschess_pid"

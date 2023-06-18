@@ -1,6 +1,8 @@
 from __future__ import annotations
 from typing import TYPE_CHECKING
 import asyncio
+
+from app.game import GameTimer
 from app.client import Connection
 
 if TYPE_CHECKING:
@@ -14,7 +16,14 @@ class GameApplication:
         self.__online = kwargs.get("online", False)
         self.__player_id: str | None = None
 
+        # Create timer
+        seconds_per_player: int = 5 * 60
+        player_number: int = 2
+        self.__game_timer: GameTimer = GameTimer(self.__game, seconds_per_player, player_number)
+        self.__game_timer.run()
+
         if self.__online:
+            # Establish connection with the websockets server
             asyncio.run(self.establish_connection())
 
     async def establish_connection(self):
@@ -45,4 +54,4 @@ class GameApplication:
     async def on_move(self) -> None:
         if self.__online:
             move: PieceMove = self.__game.get_last_move()
-            await Connection.communicate_move(move.to_dict())
+            await Connection.communicate_move(move.to_dict(), self.__player_id)

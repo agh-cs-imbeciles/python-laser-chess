@@ -30,10 +30,13 @@ class Connection:
             return await Receiver.receive(websocket)
 
     @classmethod
-    async def communicate_move(cls, data: dict[any, any]) -> dict[str, any]:
+    async def communicate_move(cls, data: dict[any, any], player_id: str | None) -> dict[str, any]:
+        if not player_id:
+            raise ValueError("Player ID is None")
+
         async with websockets.connect(cls.URI) as websocket:
             try:
-                await Sender.send_move(websocket, data)
+                await Sender.send_move(websocket, data, player_id)
                 return await Receiver.receive(websocket)
             except ConnectionClosedOK:
                 pass

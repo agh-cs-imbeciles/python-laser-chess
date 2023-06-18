@@ -56,13 +56,13 @@ class Game:
                 self._board.get_piece(BoardVector2d(self.__BOARD_SIZE - 1, piece.position.y)),
                 piece.position + BoardVector2d(-1, 0)
             )
-            self._board.move_number = (self._board.move_number + 1) % 2
+            self._move_number = (self._move_number + 1) % 2
         elif PieceMoveType.QUEEN_SIDE_CASTLING in move_types:
             self.move_piece(
                 self._board.get_piece(BoardVector2d(0, piece.position.y)),
                 piece.position + BoardVector2d(1, 0)
             )
-            self._board.move_number = (self._board.move_number + 1) % 2
+            self._move_number = (self._move_number + 1) % 2
         self.end_if_conditions_fulfilled()
 
     def set_notation_ambiguity(self, ambig: AmbiguousNotation) -> None:
@@ -90,7 +90,7 @@ class Game:
         mov = self._board.get_ending_move()
         if mov is not None:
             for obs in self._observers:
-                obs.on_end(self._board.move_number, mov)
+                obs.on_end(self._move_number, mov)
 
     def add_observer(self, observer: GameEndObserver) -> None:
         self._observers.append(observer)
@@ -199,4 +199,4 @@ class Game:
             cast(MirrorPiece, piece).move(piece.position, rotate)
         else:
             piece.move(destination)
-        self.board.move_number = (self.board.move_number + 1) % 2
+        self._move_number = (self._move_number + 1) % 2

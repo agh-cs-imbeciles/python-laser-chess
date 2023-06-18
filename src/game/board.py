@@ -1,6 +1,7 @@
 from __future__ import annotations
 from builtins import list
 from typing import TYPE_CHECKING, Optional, cast
+import itertools
 
 from utils import BoardVector2d, Rotation
 from game import CheckManager
@@ -11,7 +12,6 @@ from game.piece.move import PieceMoveType, PieceMoveDetector
 from game.promotion import PromotionManager
 from game.piece.move.piece_move import PieceMove
 from game.ambiguous_enum import AmbiguousNotation
-import itertools
 
 if TYPE_CHECKING:
     from game import Game
@@ -25,7 +25,7 @@ class Board(PositionObserver, LaserObserver):
         self._pieces: dict[BoardVector2d, tuple[Piece, PieceMovement]] = {}
         self._kings: list[Piece] = []
         self._lasguns: list[Lasgun] = []
-        self._check_manager: CheckManager = CheckManager(self)
+        self._check_manager: CheckManager = CheckManager(game, self)
         self._game: Game = game
         self._promotion_manager = PromotionManager(self)
         self._notation_list: list[str] = []
@@ -348,7 +348,7 @@ class Board(PositionObserver, LaserObserver):
         return self._check_manager.is_king_under_check(player_id)
 
     def get_ending_move(self) -> PieceMoveType | None:
-        mn = (self._move_number + 1) % 2
+        mn = (self._game.move_number + 1) % 2
         if self._check_manager.is_checkmate(mn):
             return PieceMoveType.CHECKMATE
         if self._check_manager.is_stalemate(mn):
