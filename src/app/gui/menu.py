@@ -7,6 +7,8 @@ from kivy.lang import Builder
 from kivy.clock import Clock
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.button import Button
+from kivy.uix.checkbox import CheckBox
+from kivy.uix.dropdown import DropDown
 from kivy.uix.label import Label
 from kivy.uix.popup import Popup
 from kivy.uix.screenmanager import Screen
@@ -14,17 +16,16 @@ from kivy.uix.textinput import TextInput
 
 from app.gui import BoardView
 from app.game import PreGameHelper
-from app.client import Receiver
-from app.config.settings import SettingsGameplay
+from app.gui.join_game_popup import JoinGamePopup
 
 
 class MenuView(Screen):
     def __init__(self, **kwargs):
         super().__init__()
         self.code = "2137"
-        self.__popup: Popup | None = None
         self.__game_id_label: Popup | None = None
         self.__join_input: Popup | None = None
+        self.__popup: JoinGamePopup = JoinGamePopup()
 
     def create_new_board(
             self, online: bool = False,
@@ -34,9 +35,6 @@ class MenuView(Screen):
         Builder.load_file("app/templates/board.kv")
         self.manager.add_widget(BoardView(name="board", online=online, game_id=game_id, player_id=player_id))
         self.manager.current = "board"
-
-    def __code(self, instance, value):
-        self.code = value
 
     def pregame_popup(self, button):
         self.__popup = popup = Popup()
@@ -96,6 +94,17 @@ class MenuView(Screen):
 
         game_id: str = self.__join_input.text
         asyncio.run(join_online_game_async(game_id))
+        self._popup.bind(create_clicked=self.create_game)
+        self._popup.bind(join_clicked=self.join_game)
+        self._popup.open()
+
+    def create_game(self,instance,value):
+        print(self._popup.host_code)
+        pass
+
+    def join_game(self,instance,value):
+        print(self._popup.join_code)
+        pass
 
     def _update_width(self):
         self.ids.menu_box.height = self.ids.menu_box.width / 2

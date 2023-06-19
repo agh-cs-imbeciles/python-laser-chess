@@ -37,8 +37,8 @@ class MetaAB(type(obs.PositionObserver), type(Screen)):
 class BoardView(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB):
     def __init__(self, **kwargs):
         super().__init__()
-
         self._game = g.Game()
+
         online: bool = kwargs.get("online", False)
         game_id: str | None = kwargs.get("game_id")
         player_id: str | None = kwargs.get("player_id")
@@ -49,8 +49,10 @@ class BoardView(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB)
             player_id=player_id
         )
 
-
         self._grid = self.ids["board"]
+        self._game.board_view = self
+        self._grid = self.ids.board
+        self._inverted = True
         self._indicator_label: Label = self.ids.indicator_lab
         self._dots = empty(shape=27, dtype=Image)
         self._representations = empty(shape=(8, 8), dtype=PieceRepresentationLayout)
@@ -67,7 +69,7 @@ class BoardView(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB)
         self._reset_button.vector = BoardVector2d(-1, -1)
         self._elements_dict = dict()
         self._notation_list = []
-        self._laser_painer = LaserPainter(self, self._board)
+        self._laser_painer = LaserPainter(self, self._board, self._inverted)
         self._elements_dict["board_images"] = empty(shape=(8, 8), dtype=Image)
         for id in self.ids:
             t = self.ids.get(id)
@@ -107,8 +109,12 @@ class BoardView(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB)
         #
         # Cell buttons of the board
         #
-        for i in range(8):
-            for j in range(8):
+        if self._inverted:
+            iters = (7, -1, -1)
+        else:
+            iters = (0, 8, 1)
+        for i in range(*iters):
+            for j in range(*iters):
                 vector = BoardVector2d(j, 7 - i)
 
                 # preparation of every button on board
@@ -134,13 +140,13 @@ class BoardView(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB)
                         piece.add_laser_observer(self)
 
                 # adding piece and button to board
-                piece_layout = PieceRepresentationLayout(piece, button)
+                piece_layout = PieceRepresentationLayout(piece, button, self._inverted)
                 self._grid.add_widget(piece_layout)
                 self._representations[vector.y][vector.x] = piece_layout
 
         # creation of promotion tab
         self._promotion_representation = [
-            PieceRepresentationLayout(None, Button(on_press=self.on_promotion_click)) for _ in
+            PieceRepresentationLayout(None, Button(on_press=self.on_promotion_click),False) for _ in
             self._board.get_possible_promotions()
         ]
         # for e in self._promotion_representation:
@@ -380,3 +386,10 @@ class BoardView(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB)
             if rep.parent is not None:
                 rep.parent.remove_widget(rep)
         self._window_updater.refresh()
+
+    def set_time(self, player_id: int, time_string: str):
+        if player_id == 0:
+            name = "timer_white"
+        else:
+            name = "timer_black"
+        self._elements_dict.get(name).text = time_string

@@ -18,13 +18,14 @@ from kivy.graphics.context_instructions import Rotate
 
 # 0-white
 class PieceRepresentationLayout(RelativeLayout):
-    def __init__(self, piece: Piece | None, button: Button, opacity=None, promotion=None):
+    def __init__(self, piece: Piece | None, button: Button, inverted: bool, opacity=None):
         super().__init__()
         self._button = button
         self.add_widget(button)
         self._img = None
         self._indicator = None
         self._piece = piece
+        self._inverted = inverted
         if opacity is not None:
             self.opacity = opacity
         if piece is None:
@@ -37,18 +38,24 @@ class PieceRepresentationLayout(RelativeLayout):
     def button(self) -> Button:
         return self._button
 
+    @classmethod
+    def __inverse(cls, direction: Movement, inverse: bool) -> Movement:
+        if inverse:
+            return direction.double_right().double_right()
+        return direction
+
     def __load(self, piece_type: PieceModel, player: int):
         if piece_type is None or player is None:
             self._img = None
             return
-
         color = ""
         match player:
             case 0:
                 color = "white"
             case 1:
                 color = "black"
-
+        if piece_type == PieceModel.MIRROR or piece_type == PieceModel.LASGUN:
+            direction = self.__inverse(cast(MirrorPiece, self._piece).direction, self._inverted)
         match piece_type:
             case piece_type.KING:
                 self._img = Image(source=f"{Path.PIECE_IMG_PATH}/king_{color}.png")
@@ -64,7 +71,7 @@ class PieceRepresentationLayout(RelativeLayout):
                 self._img = Image(source=f"{Path.PIECE_IMG_PATH}/rook_{color}.png")
             case piece_type.LASGUN:
                 self._img = RotatedImage(source=f"{Path.PIECE_IMG_PATH}/lasgun_{color}.png")
-                match cast(MirrorPiece, self._piece).direction:
+                match direction:
                     case Movement.LEFT_RANK:
                         self._img.angle = 90
                     case Movement.UPPER_FILE:
@@ -75,7 +82,7 @@ class PieceRepresentationLayout(RelativeLayout):
                         self._img.angle = -180
             case piece_type.MIRROR:
                 self._img = RotatedImage(source=f"{Path.PIECE_IMG_PATH}/mirror_{color}.png")
-                match cast(MirrorPiece, self._piece).direction:
+                match direction:
                     case Movement.UPPER_LEFT_DIAGONAL:
                         self._img.angle = 90
                     case Movement.UPPER_RIGHT_DIAGONAL:

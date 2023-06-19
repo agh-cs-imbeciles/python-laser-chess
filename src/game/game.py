@@ -17,6 +17,7 @@ class Game:
     def __init__(self) -> None:
         self.__BOARD_SIZE: int = 8
         self._board: Board = Board(self, self.__BOARD_SIZE, self.__BOARD_SIZE)
+        self._board_view = None
         self._players: list[int] = []
         self._move_number: int = 0
         fill = PieceMove(move_type=PieceMoveType.MOVE)
@@ -25,7 +26,6 @@ class Game:
         self._piece_factory = PieceFactory(self._board)
         self._observers: list[GameEndObserver] = []
         self.__init_board()
-
         self._notation_generator = NotationGenerator(self._board)
         self.add_observer(self._notation_generator)
 
@@ -48,6 +48,14 @@ class Game:
     @property
     def moves_history(self) -> list[Any]:
         return self._moves_history
+
+    @property
+    def board_view(self, board_view: Board):
+        return self._board_view
+
+    @board_view.setter
+    def board_view(self, board_view: Board):
+        self._board_view = board_view
 
     # override
     def on_position_change(self, piece: Piece, move_types: list[PieceMoveType]) -> None:
@@ -142,7 +150,8 @@ class Game:
             ])
         self.board.add_pieces([
             self._piece_factory.create_piece(PieceModel.PAWN, BoardVector2d(0, 1), 0),
-            self._piece_factory.create_piece(PieceModel.PAWN, BoardVector2d(self.__BOARD_SIZE - 1, self.__BOARD_SIZE - 2), 1)
+            self._piece_factory.create_piece(PieceModel.PAWN,
+                                             BoardVector2d(self.__BOARD_SIZE - 1, self.__BOARD_SIZE - 2), 1)
         ])
 
     def __init_bishops(self) -> None:
@@ -187,7 +196,7 @@ class Game:
     def __init_lasguns(self) -> None:
         lasgun_data = [
             (BoardVector2d(7, 0), 0, Movement.UPPER_FILE),
-            (BoardVector2d(0, self._board.height-1), 1, Movement.BOTTOM_FILE),
+            (BoardVector2d(0, self._board.height - 1), 1, Movement.BOTTOM_FILE),
         ]
         for pos, color, dir in lasgun_data:
             self.__add_piece(self._piece_factory.create_piece(PieceModel.LASGUN, pos, color, dir))
@@ -200,3 +209,13 @@ class Game:
         else:
             piece.move(destination)
         self._move_number = (self._move_number + 1) % 2
+
+    def set_time(self, player_id: int, seconds: int):
+        if seconds == 0:
+            # end game
+            pass
+        minutes = seconds // 60
+        seconds = seconds % 60
+        if self._board_view is None:
+            return
+        self._board_view.set_time(player_id, f"{minutes}:{seconds:02d}")
