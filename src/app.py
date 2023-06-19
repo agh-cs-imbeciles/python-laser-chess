@@ -12,10 +12,7 @@ class MyMainApp(App):
         super().__init__()
         self.manager = ScreenManager()
     def build(self):
-
         Builder.load_file("app/templates/menu.kv")
-        # LabelBase.register(name='DotGothic16', fn_regular='app/assets/DotGothic16-Regular.ttf')
-
         self.manager.add_widget(Menu(name="menu"))
         return self.manager
 

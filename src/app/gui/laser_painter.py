@@ -33,14 +33,14 @@ class LaserPainter:
         self._board = board
         self._indicators = []
 
-    def __inverse(self, direction: Movement) -> Movement | None:
+    def __inverse(self, direction: Movement | None) -> Movement | None:
         if direction is None:
             return None
         if self._inverted:
             return direction.double_right().double_right()
         return direction
 
-    def _load(self, rep_type: LaserRepresentationEnum, rotation: Movement):
+    def _load(self, rep_type: LaserRepresentationEnum, rotation: Movement | None):
         image = RotatedImage(source=f"{Path.LASER_IMG_PATH}{rep_type.value}")
         rotation = self.__inverse(rotation)
         if rep_type == LaserRepresentationEnum.MIRROR_BLACK \
