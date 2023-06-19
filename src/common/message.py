@@ -25,11 +25,20 @@ class MessageStatus(Enum):
 
 @unique
 class MessageType(Enum):
-    INIT = auto()
-    MOVE = auto()
+    CREATE  = auto()
+    JOIN    = auto()
+    WAIT    = auto()
+    INIT    = auto()
+    MOVE    = auto()
 
     def __str__(self) -> str:
         match self:
+            case MessageType.CREATE:
+                return "create"
+            case MessageType.JOIN:
+                return "join"
+            case MessageType.WAIT:
+                return "wait"
             case MessageType.INIT:
                 return "init"
             case MessageType.MOVE:
@@ -41,4 +50,4 @@ class MessageType(Enum):
             if type == str(t):
                 return t
 
-        raise ValueError("MessageType argument is invalid [from_str()]")
+        raise ValueError(f"MessageType {type} is invalid [from_str()]")

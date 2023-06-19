@@ -4,39 +4,52 @@ from websockets.exceptions import ConnectionClosedOK
 from app.client import Sender, Receiver
 
 
-class Connection:
+class ConnectionMeta(type):
+    _instances: dict[ConnectionMeta, Connection] = {}
+
+    def __call__(cls, *args, **kwargs) -> Connection:
+        if cls not in cls._instances:
+            instance = super().__call__(*args, **kwargs)
+            cls._instances[cls] = instance
+        return cls._instances[cls]
+
+
+class Connection(metaclass=ConnectionMeta):
     URI: str = "ws://127.0.0.1:8000"
     TIMEOUT_S: float = 15 * 60
 
-    # def __init__(self) -> None:
-    #     self.__websocket: WebSocketClientProtocol | None = None
-    #
-    # def is_established(self) -> bool:
-    #     return isinstance(self.__websocket, WebSocketClientProtocol)
+    def __init__(self) -> None:
+        self.__websocket = None
 
-    # async def connect(self) -> None:
-    #     try:
-    #         self.__websocket = await websockets.connect(Connection.URI)
-    #     except asyncio.TimeoutError:
-    #         print("huh")
-    #
-    # async def ping(self) -> None:
-    #     await self.__websocket.ping()
+    async def create_game(self) -> dict[str, any]:
+        self.__websocket = await websockets.connect(Connection.URI)
+        try:
+            await Sender.send_create(self.__websocket)
+            return await Receiver.receive(self.__websocket)
+        except ConnectionClosedOK:
+            pass
 
-    @classmethod
-    async def communicate_init(cls) -> dict[str, any]:
-        async with websockets.connect(cls.URI) as websocket:
-            await Sender.send_init(websocket)
-            return await Receiver.receive(websocket)
+    async def join_game(self, game_id: str) -> dict[str, any]:
+        self.__websocket = await websockets.connect(Connection.URI)
+        try:
+            await Sender.send_join(self.__websocket, game_id)
+            return await Receiver.receive(self.__websocket)
+        except ConnectionClosedOK:
+            pass
 
-    @classmethod
-    async def communicate_move(cls, data: dict[any, any], player_id: str | None) -> dict[str, any]:
+    async def wait_for_player(self, game_id: str) -> None:
+        try:
+            response = await Receiver.receive(self.__websocket)
+            print(response)
+        except ConnectionClosedOK as exception:
+            pass
+
+    async def communicate_move(self, data: dict[any, any], player_id: str | None) -> dict[str, any]:
         if not player_id:
             raise ValueError("Player ID is None")
 
-        async with websockets.connect(cls.URI) as websocket:
-            try:
-                await Sender.send_move(websocket, data, player_id)
-                return await Receiver.receive(websocket)
-            except ConnectionClosedOK:
-                pass
+        try:
+            await Sender.send_move(self.__websocket, data, player_id)
+            return await Receiver.receive(self.__websocket)
+        except ConnectionClosedOK:
+            pass
