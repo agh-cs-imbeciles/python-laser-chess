@@ -15,9 +15,9 @@ class Lasgun(MirrorPiece):
     def __init__(self, position: BoardVector2d, player_id: int, direction: Movement, board: Board):
         super().__init__(position, player_id, direction)
         self._model = PieceModel.LASGUN
-        self._charge_time = 5
+        self._charge_time = 6
         self._target_propagation_count = 2
-        self._charges_left = self._charge_time
+        self._charges_left = self._charge_time - self._target_propagation_count
         self._board = board
         self._laser_fields: list[BoardVector2d] = []
         self._redirected: BoardVector2d | None = None
@@ -26,6 +26,7 @@ class Lasgun(MirrorPiece):
         self._fired = False
         self._propagation_count = 0
         self._laser_observers = []
+        self._end_hit = None
 
 
 
@@ -45,6 +46,9 @@ class Lasgun(MirrorPiece):
     def fired(self) -> bool:
         return self._fired
 
+    @property
+    def end_hit(self) -> bool:
+        return self._end_hit
 
 
     def __eq__(self, other):
@@ -61,19 +65,23 @@ class Lasgun(MirrorPiece):
         self._redirected = None
 
         if self._board.is_out_of_bounds(destination):
+            self._end_hit = None
             return True
 
         piece = self._board.get_piece(destination)
         if piece is None:
             return False
         model = piece.model
+
+        tup = ((origin - destination).x, (origin - destination).y)
         if model == PieceModel.LASGUN or model == PieceModel.PAWN:
+            self._end_hit = (destination, Movement.from_tuple(tup))
             return True
         if model != PieceModel.MIRROR:
             return False
-
         self._redirect(origin, destination)
         if self._redirected is None:
+            self._end_hit = (destination, Movement.from_tuple(tup))
             return True
 
         return False
@@ -134,8 +142,6 @@ class Lasgun(MirrorPiece):
     def propagate_until_target(self):
         if not self._fired:
             self._laser_fields.clear()
-            # for obs in self._laser_observers:
-            #     obs.on_laser_clear(self)
             return
         self._inc_propagation_count()
         self._propagate_laser_fields()

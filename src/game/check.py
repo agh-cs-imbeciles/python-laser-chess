@@ -5,12 +5,13 @@ from game.piece import PieceModel
 from game.piece.movement import PieceMovement, PawnMovement, RangedPieceMovement
 
 if TYPE_CHECKING:
-    from game import Board
+    from game import Game, Board
     from game.piece import Piece
 
 
 class CheckManager:
-    def __init__(self, board: Board) -> None:
+    def __init__(self, game: Game, board: Board) -> None:
+        self._game = game
         self._board = board
         self._checked_squares: list[dict[BoardVector2d, bool]] = [{}, {}]
         self._checking_pieces: list[dict[BoardVector2d, Piece]] = [{}, {}]
@@ -126,7 +127,6 @@ class CheckManager:
     def is_king_dead(self, player_id: int) -> bool:
         return len(self._board.get_pieces_of(PieceModel.KING, player_id))==0
 
-
     def is_pinned_square(self, position: BoardVector2d, player_id: int) -> bool:
         return self._pinned_squares[player_id].get(position, False)
 
@@ -134,7 +134,7 @@ class CheckManager:
         #
         # Go through player's all pieces movement
         #
-        pieces = self._board.get_player_pieces_movements(player_id)
+        pieces = self._board.get_player_piece_movements(player_id)
         for pie, mov in pieces:
             ll = mov.get_legal_moves()
             all_moves = []
@@ -198,7 +198,7 @@ class CheckManager:
                 for sqr in self.get_pinned_squares(piece, moves):
                     self._pinned_squares[pinned.player_id][sqr] = True
 
-        self._can_move = self.can_player_move((self._board.move_number + 1) % 2)
+        self._can_move = self.can_player_move((self._game.move_number + 1) % 2)
         self.set_protecting_piece()
 
     def add_critical_checked_squares(self, player_id: int, squares: list[BoardVector2d]) -> None:

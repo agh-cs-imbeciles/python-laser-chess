@@ -1,6 +1,7 @@
 from __future__ import annotations
 from builtins import list
 from typing import TYPE_CHECKING, Optional, cast
+import itertools
 
 from utils import BoardVector2d, Rotation
 from game import CheckManager
@@ -11,7 +12,6 @@ from game.piece.move import PieceMoveType, PieceMoveDetector
 from game.promotion import PromotionManager
 from game.piece.move.piece_move import PieceMove
 from game.ambiguous_enum import AmbiguousNotation
-import itertools
 
 if TYPE_CHECKING:
     from game import Game
@@ -19,16 +19,13 @@ if TYPE_CHECKING:
 
 
 class Board(PositionObserver, LaserObserver):
-
-
     def __init__(self, game: Game, width: int, height: int):
         self._width: int = width
         self._height: int = height
-        self._move_number: int = 0
         self._pieces: dict[BoardVector2d, tuple[Piece, PieceMovement]] = {}
         self._kings: list[Piece] = []
         self._lasguns: list[Lasgun] = []
-        self._check_manager: CheckManager = CheckManager(self)
+        self._check_manager: CheckManager = CheckManager(game, self)
         self._game: Game = game
         self._promotion_manager = PromotionManager(self)
         self._notation_list: list[str] = []
@@ -50,20 +47,16 @@ class Board(PositionObserver, LaserObserver):
         self._height = value
 
     @property
-    def move_number(self) -> int:
-        return self._move_number
-
-    @move_number.setter
-    def move_number(self, value: int) -> None:
-        self._move_number = value
-
-    @property
     def pieces(self) -> dict[BoardVector2d, tuple[Piece, PieceMovement]]:
         return self._pieces
 
     @property
     def kings(self) -> list[Piece]:
         return self._kings
+
+    @property
+    def lasguns(self):
+        return self._lasguns
 
     def get_ambiguity_move_type(self, piece_movement: PieceMovement, destination: BoardVector2d) -> AmbiguousNotation:
         piece = piece_movement.piece
@@ -98,11 +91,21 @@ class Board(PositionObserver, LaserObserver):
             return AmbiguousNotation.FILE
         return AmbiguousNotation.RANK
 
-    def get_laser_fields(self):
+    def get_laser_fields(self, player_id: int):
+        for las in self._lasguns:
+            if las.player_id == player_id:
+                return las.laser_fields
+
+    def get_end_hit(self, player_id: int):
+        for las in self._lasguns:
+            if las.player_id == player_id:
+                return las.end_hit
+
+    def get_all_laser_fields(self):
         all_las = []
         for las in self._lasguns:
             all_las.extend(las.laser_fields)
-        return all_las
+        return las.laser_fields
 
     def laser_fire_conditions(self, player_id: int):
         for las in self.lasguns:
@@ -144,7 +147,7 @@ class Board(PositionObserver, LaserObserver):
         #
         mp, op = self.get_piece(origin), self.get_piece(destination)
         self._pieces[destination] = self._pieces.pop(origin, None)
-        if mp is not None and mp.model == PieceModel.PAWN:
+        if mp is not None and op is None and mp.model == PieceModel.PAWN:
             pos = destination - self.get_piece_movement(destination).direction
             if self.is_piece_at(pos):
                 self._pieces.pop(pos)
@@ -158,7 +161,7 @@ class Board(PositionObserver, LaserObserver):
                 las.charge()
 
         #
-        # Updating check and promotion menagers
+        # Updating check and promotion managers
         #
         self._check_manager.update()
         self._promotion_manager.check_promotion(mp)
@@ -187,7 +190,7 @@ class Board(PositionObserver, LaserObserver):
             return None
         return piece[0]
 
-    def get_player_pieces_movements(self, player_id: int) -> list[tuple[Piece, PieceMovement]]:
+    def get_player_piece_movements(self, player_id: int) -> list[tuple[Piece, PieceMovement]]:
         movements = []
         for piece, mov in self._pieces.values():
             if piece.is_same_color(player_id):
@@ -206,7 +209,6 @@ class Board(PositionObserver, LaserObserver):
         if piece is None:
             return None
         return piece[1]
-
 
     def is_out_of_bounds(self, destination: BoardVector2d) -> bool:
         return destination.x < 0 or destination.x >= self.width or destination.y < 0 or destination.y >= self.height
@@ -241,7 +243,7 @@ class Board(PositionObserver, LaserObserver):
         # Check, if laser blocks movement
         #
         if piece.model != PieceModel.MIRROR and piece.model != PieceModel.PAWN and \
-                destination in self.get_laser_fields():
+                destination in self.get_all_laser_fields() and destination in self.get_all_laser_fields():
             return False
         #
         # Check, if player's king is under check - if it's, only covering moves are legal
@@ -339,6 +341,7 @@ class Board(PositionObserver, LaserObserver):
             return
         self.add_piece(new)
         self._game.modify_last_move(promotion=new[0], move_type=PieceMoveType.PROMOTION)
+        self._check_manager.update()
         return new
 
     def get_possible_promotions(self) -> list[PieceModel]:
@@ -351,7 +354,7 @@ class Board(PositionObserver, LaserObserver):
         return self._check_manager.is_king_under_check(player_id)
 
     def get_ending_move(self) -> PieceMoveType | None:
-        mn = (self._move_number + 1) % 2
+        mn = (self._game.move_number + 1) % 2
         if self._check_manager.is_checkmate(mn):
             return PieceMoveType.CHECKMATE
         if self._check_manager.is_stalemate(mn):
@@ -365,7 +368,3 @@ class Board(PositionObserver, LaserObserver):
 
     def add_critical_checked_squares(self, player_id: int, squares: list[BoardVector2d]) -> None:
         self._check_manager.add_critical_checked_squares(player_id, squares)
-
-    @property
-    def lasguns(self):
-        return self._lasguns

@@ -27,7 +27,6 @@ class NotationGenerator(object):
         if lm.piece.model == PieceModel.PAWN and PieceMoveType.CAPTURE in lm.move_types:
             gen_str += lm.origin.x_to_str()
         else:
-            same_pieces = self._board.get_pieces_of(lm.piece.model, lm.piece.player_id)
             match self._ambiguity:
                 case AmbiguousNotation.FILE:
                     gen_str += lm.origin.y_to_str()
@@ -40,8 +39,8 @@ class NotationGenerator(object):
         gen_str += lm.destination.x_to_str() + lm.destination.y_to_str()
         if PieceMoveType.ROTATION in lm.move_types:
             gen_str += str(lm.rotation)
-        if PieceMoveType.PROMOTION in lm.move_types:
-            gen_str += str(PieceMoveType.PROMOTION) + str(lm.promotion_piece)
+        if PieceMoveType.PROMOTION in lm.move_types and hasattr(lm, "promotion"):
+            gen_str += str(PieceMoveType.PROMOTION) + str(lm.promotion)
         for m in lm.move_types:
             if m == PieceMoveType.CHECK or m == PieceMoveType.CHECKMATE or m == PieceMoveType.STALEMATE:
                 gen_str += str(m)

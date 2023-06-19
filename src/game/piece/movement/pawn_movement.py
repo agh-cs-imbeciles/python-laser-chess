@@ -27,7 +27,7 @@ class PawnMovement(PieceMovement):
             -self.direction.reverse_axis() + self.direction,    # Left capture delta
             self.direction.reverse_axis() + self.direction      # Right capture delta
         ]
-        
+
     @property
     def direction(self) -> BoardVector2d:
         return self._direction
@@ -40,11 +40,11 @@ class PawnMovement(PieceMovement):
     def promotion_position(self):
         return self._promotion_position
 
-    def __is_en_passant_legal(self, destination: BoardVector2d) -> bool:
+    def is_en_passant_legal(self, destination: BoardVector2d) -> bool:
         p, b = self._get_aliases()
         other = b.get_piece(destination - self.direction)
         return other and not other.is_same_color(p) and other.model == PieceModel.PAWN and b.can_move_to(destination, p) \
-            and b.get_last_move().piece == other
+            and b.get_last_move().piece == other and self.piece.position == self._en_passant_position
 
     # override
     def get_all_moves(self) -> list[list[BoardVector2d]]:
@@ -71,13 +71,14 @@ class PawnMovement(PieceMovement):
         for pos in self.get_capturable_moves()[0]:
             if not b.is_out_of_bounds(pos):
                 moves[0].append(pos)
+
         #
         # En passant
         #
         if p.position != enp:
             return moves
         for pos in [p.position + d for d in self.capture_deltas]:
-            if self.__is_en_passant_legal(pos):
+            if self.is_en_passant_legal(pos):
                 moves[0].append(pos)
 
         return moves
@@ -122,8 +123,9 @@ class PawnMovement(PieceMovement):
             self._legal_moves.append(moves)
             return self._legal_moves
         for pos in [p.position + d for d in self.capture_deltas]:
-            if self.__is_en_passant_legal(pos):
+            if self.is_en_passant_legal(pos):
                 moves.append(pos)
+
 
         self._legal_moves.append(moves)
         return self._legal_moves

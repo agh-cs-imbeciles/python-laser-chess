@@ -1,25 +1,31 @@
 from __future__ import annotations
+
+from kivy.graphics import Rotate, Translate, PushMatrix
+from kivy.lang import Builder
 from kivy.uix.button import Button
 from kivy.uix.image import Image
 from kivy.uix.relativelayout import RelativeLayout
 from typing import cast
 
 from app.gui import Path
+from app.gui.utils.rotated_image import RotatedImage
 from game.piece import PieceModel
 from game.piece.lasgun import MirrorPiece
 from game.piece.movement import Movement
 from game.piece.piece import Piece
+from kivy.graphics.context_instructions import Rotate
 
 
 # 0-white
 class PieceRepresentationLayout(RelativeLayout):
-    def __init__(self, piece: Piece | None, button: Button, opacity=None, promotion=None):
+    def __init__(self, piece: Piece | None, button: Button, inverted: bool, opacity=None):
         super().__init__()
         self._button = button
         self.add_widget(button)
         self._img = None
         self._indicator = None
         self._piece = piece
+        self._inverted = inverted
         if opacity is not None:
             self.opacity = opacity
         if piece is None:
@@ -32,18 +38,24 @@ class PieceRepresentationLayout(RelativeLayout):
     def button(self) -> Button:
         return self._button
 
+    @classmethod
+    def __inverse(cls, direction: Movement, inverse: bool) -> Movement:
+        if inverse:
+            return direction.double_right().double_right()
+        return direction
+
     def __load(self, piece_type: PieceModel, player: int):
         if piece_type is None or player is None:
             self._img = None
             return
-
         color = ""
         match player:
             case 0:
                 color = "white"
             case 1:
                 color = "black"
-
+        if piece_type == PieceModel.MIRROR or piece_type == PieceModel.LASGUN:
+            direction = self.__inverse(cast(MirrorPiece, self._piece).direction, self._inverted)
         match piece_type:
             case piece_type.KING:
                 self._img = Image(source=f"{Path.PIECE_IMG_PATH}/king_{color}.png")
@@ -58,25 +70,33 @@ class PieceRepresentationLayout(RelativeLayout):
             case piece_type.ROOK:
                 self._img = Image(source=f"{Path.PIECE_IMG_PATH}/rook_{color}.png")
             case piece_type.LASGUN:
-                self._img = Image(source=f"{Path.PIECE_IMG_PATH}/lasgun_{color}.png")
+                self._img = RotatedImage(source=f"{Path.PIECE_IMG_PATH}/lasgun_{color}.png")
+                match direction:
+                    case Movement.LEFT_RANK:
+                        self._img.angle = 90
+                    case Movement.UPPER_FILE:
+                        self._img.angle = 0
+                    case Movement.RIGHT_RANK:
+                        self._img.angle = -90
+                    case Movement.BOTTOM_FILE:
+                        self._img.angle = -180
             case piece_type.MIRROR:
-                match cast(MirrorPiece, self._piece).direction:
+                self._img = RotatedImage(source=f"{Path.PIECE_IMG_PATH}/mirror_{color}.png")
+                match direction:
                     case Movement.UPPER_LEFT_DIAGONAL:
-                        rotation = "ul"
+                        self._img.angle = 90
                     case Movement.UPPER_RIGHT_DIAGONAL:
-                        rotation = "ur"
+                        self._img.angle = 0
                     case Movement.BOTTOM_RIGHT_DIAGONAL:
-                        rotation = "br"
+                        self._img.angle = -90
                     case Movement.BOTTOM_LEFT_DIAGONAL:
-                        rotation = "bl"
-                    case _:
-                        rotation = "bl"
-                self._img = Image(source=f"{Path.PIECE_IMG_PATH}/mirror_{color}_{rotation}.png")
+                        self._img.angle = -180
             case _:
                 self._img = None
 
         if self._img:
             self._img.allow_stretch = True
+            self._img.texture.min_filter = "nearest"
             self._img.texture.mag_filter = "nearest"
 
     def __add_img_to_repr(self, img: Image):

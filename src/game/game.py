@@ -17,7 +17,9 @@ class Game:
     def __init__(self) -> None:
         self.__BOARD_SIZE: int = 8
         self._board: Board = Board(self, self.__BOARD_SIZE, self.__BOARD_SIZE)
+        self._board_view = None
         self._players: list[int] = []
+        self._move_number: int = 0
         fill = PieceMove(move_type=PieceMoveType.MOVE)
         self._moves_history: list[list[PieceMove]] = [[fill], [fill]]
         self._last_move_index: tuple[int, int] = (0, 0)
@@ -26,55 +28,6 @@ class Game:
         self.__init_board()
         self._notation_generator = NotationGenerator(self._board)
         self.add_observer(self._notation_generator)
-
-    # override
-    def on_position_change(self, piece: Piece, move_types: list[PieceMoveType]) -> None:
-        if PieceMoveType.KING_SIDE_CASTLING in move_types:
-            self.move_piece(
-                self._board.get_piece(BoardVector2d(self.__BOARD_SIZE - 1, piece.position.y)),
-                piece.position + BoardVector2d(-1, 0)
-            )
-            self._board.move_number = (self._board.move_number + 1) % 2
-        elif PieceMoveType.QUEEN_SIDE_CASTLING in move_types:
-            self.move_piece(
-                self._board.get_piece(BoardVector2d(0, piece.position.y)),
-                piece.position + BoardVector2d(1, 0)
-            )
-            self._board.move_number = (self._board.move_number + 1) % 2
-        self.end_if_conditions_fulfilled()
-
-    def set_notation_ambiguity(self, ambig: AmbiguousNotation) -> None:
-        self._notation_generator.ambiguity = ambig
-
-    def add_move_to_history(self, piece_move: PieceMove) -> None:
-        mh = self._moves_history
-        pid = piece_move.piece.player_id
-        mh[pid].append(piece_move)
-        self._last_move_index = piece_move.piece.player_id, len(mh[pid]) - 1
-
-    def modify_last_move(self, piece: Piece = None, origin: BoardVector2d = None, destination: BoardVector2d = None,
-                         promotion: Piece = None, move_type: list[PieceMoveType] = None, move: int = None) -> None:
-        given = locals()
-        given.pop('self')
-        mh = self._moves_history
-        lm = self._last_move_index
-        last_move: PieceMove = mh[lm[0]][lm[1]]
-        for key, val in given.items():
-            if val is not None:
-                setattr(last_move, key, val)
-
-    def get_last_move(self) -> PieceMove:
-        lmi = self._last_move_index
-        return self._moves_history[lmi[0]][lmi[1]]
-
-    def end_if_conditions_fulfilled(self) -> None:
-        mov = self._board.get_ending_move()
-        if mov is not None:
-            for obs in self._observers:
-                obs.on_end(self._board.move_number, mov)
-
-    def add_observer(self, observer: GameEndObserver) -> None:
-        self._observers.append(observer)
 
     @property
     def board(self) -> Board:
@@ -89,8 +42,66 @@ class Game:
         self._players = value
 
     @property
+    def move_number(self) -> int:
+        return self._move_number
+
+    @property
     def moves_history(self) -> list[Any]:
         return self._moves_history
+
+    @property
+    def board_view(self, board_view: Board):
+        return self._board_view
+
+    @board_view.setter
+    def board_view(self, board_view: Board):
+        self._board_view = board_view
+
+    # override
+    def on_position_change(self, piece: Piece, move_types: list[PieceMoveType]) -> None:
+        if PieceMoveType.KING_SIDE_CASTLING in move_types:
+            self.move_piece(
+                self._board.get_piece(BoardVector2d(self.__BOARD_SIZE - 1, piece.position.y)),
+                piece.position + BoardVector2d(-1, 0)
+            )
+            self._move_number = (self._move_number + 1) % 2
+        elif PieceMoveType.QUEEN_SIDE_CASTLING in move_types:
+            self.move_piece(
+                self._board.get_piece(BoardVector2d(0, piece.position.y)),
+                piece.position + BoardVector2d(1, 0)
+            )
+            self._move_number = (self._move_number + 1) % 2
+        self.end_if_conditions_fulfilled()
+
+    def set_notation_ambiguity(self, ambig: AmbiguousNotation) -> None:
+        self._notation_generator.ambiguity = ambig
+
+    def add_move_to_history(self, piece_move: PieceMove) -> None:
+        mh = self._moves_history
+        pid = piece_move.piece.player_id
+        mh[pid].append(piece_move)
+        self._last_move_index = piece_move.piece.player_id, len(mh[pid]) - 1
+
+    def modify_last_move(self, **kwargs) -> None:
+        mh = self._moves_history
+        lm = self._last_move_index
+        last_move: PieceMove = mh[lm[0]][lm[1]]
+        for key, val in kwargs.items():
+            if val is not None:
+                setattr(last_move, key, val)
+
+    def get_last_move(self) -> PieceMove:
+        lmi = self._last_move_index
+        return self._moves_history[lmi[0]][lmi[1]]
+
+    def end_if_conditions_fulfilled(self) -> None:
+        mov = self._board.get_ending_move()
+        if mov is not None:
+            for obs in self._observers:
+                obs.on_end(self._move_number, mov)
+
+    def add_observer(self, observer: GameEndObserver) -> None:
+        self._observers.append(observer)
 
     def __add_piece(self, piece_data: tuple[Piece, PieceMovement]):
         # piece_data[0].add_observer(self)
@@ -139,7 +150,8 @@ class Game:
             ])
         self.board.add_pieces([
             self._piece_factory.create_piece(PieceModel.PAWN, BoardVector2d(0, 1), 0),
-            self._piece_factory.create_piece(PieceModel.PAWN, BoardVector2d(self.__BOARD_SIZE - 1, self.__BOARD_SIZE - 2), 1)
+            self._piece_factory.create_piece(PieceModel.PAWN,
+                                             BoardVector2d(self.__BOARD_SIZE - 1, self.__BOARD_SIZE - 2), 1)
         ])
 
     def __init_bishops(self) -> None:
@@ -184,7 +196,7 @@ class Game:
     def __init_lasguns(self) -> None:
         lasgun_data = [
             (BoardVector2d(7, 0), 0, Movement.UPPER_FILE),
-            (BoardVector2d(0, self._board.height-1), 1, Movement.BOTTOM_FILE),
+            (BoardVector2d(0, self._board.height - 1), 1, Movement.BOTTOM_FILE),
         ]
         for pos, color, dir in lasgun_data:
             self.__add_piece(self._piece_factory.create_piece(PieceModel.LASGUN, pos, color, dir))
@@ -196,4 +208,14 @@ class Game:
             cast(MirrorPiece, piece).move(piece.position, rotate)
         else:
             piece.move(destination)
-        self.board.move_number = (self.board.move_number + 1) % 2
+        self._move_number = (self._move_number + 1) % 2
+
+    def set_time(self, player_id: int, seconds: int):
+        if seconds == 0:
+            # end game
+            pass
+        minutes = seconds // 60
+        seconds = seconds % 60
+        if self._board_view is None:
+            return
+        self._board_view.set_time(player_id, f"{minutes}:{seconds:02d}")
