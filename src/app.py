@@ -3,7 +3,6 @@ from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager
 
 from app.gui import MenuView
-from app.websocket import WebSocketClient
 
 
 class MyMainApp(App):
