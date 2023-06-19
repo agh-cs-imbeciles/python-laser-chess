@@ -1,7 +1,4 @@
 from __future__ import annotations
-
-from kivy.graphics import Rotate, Translate, PushMatrix
-from kivy.lang import Builder
 from kivy.uix.button import Button
 from kivy.uix.image import Image
 from kivy.uix.relativelayout import RelativeLayout
@@ -13,7 +10,7 @@ from game.piece import PieceModel
 from game.piece.lasgun import MirrorPiece
 from game.piece.movement import Movement
 from game.piece.piece import Piece
-from kivy.graphics.context_instructions import Rotate
+
 
 
 # 0-white
@@ -133,6 +130,10 @@ class PieceRepresentationLayout(RelativeLayout):
         if self._indicator is not None:
             return
         self._indicator = img
+        if img is not None:
+            img.allow_stretch = True
+            img.texture.min_filter = "nearest"
+            img.texture.mag_filter = "nearest"
         img.size_hint = (0.5, 0.5)
         self.__add_img_to_repr(img)
 

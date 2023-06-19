@@ -13,7 +13,6 @@ class MyMainApp(App):
         super().__init__()
         self.manager = ScreenManager()
 
-
     def build(self):
         Builder.load_file("app/templates/menu.kv")
         self.manager.add_widget(MenuView(name="menu"))

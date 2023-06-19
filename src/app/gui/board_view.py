@@ -52,7 +52,7 @@ class BoardView(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB)
         self._grid = self.ids["board"]
         self._game.board_view = self
         self._grid = self.ids.board
-        self._inverted = True
+        self._inverted = False
         self._indicator_label: Label = self.ids.indicator_lab
         self._dots = empty(shape=27, dtype=Image)
         self._representations = empty(shape=(8, 8), dtype=PieceRepresentationLayout)

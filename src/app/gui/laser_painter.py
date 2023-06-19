@@ -10,20 +10,29 @@ from game.piece.lasgun import Lasgun, MirrorPiece
 from game.piece.movement import Movement
 from utils import BoardVector2d
 
-class LaserRepresentationEnum(Enum):
-    LASER = "/laser.png"
-    LASGUN_BLACK = "/lasgun_laser_black.png"
-    LASGUN_WHITE = "/lasgun_laser_white.png"
-    MIRROR_BLACK = "/mirror_laser_black.png"
-    MIRROR_WHITE = "/mirror_laser_white.png"
-    PAWN_BLACK_BOTTOM = "/pawn_laser_b_black.png"
-    PAWN_BLACK_TOP = "/pawn_laser_t_black.png"
-    PAWN_BLACK_LEFT = "/pawn_laser_l_black.png"
-    PAWN_BLACK_RIGHT = "/pawn_laser_r_black.png"
-    PAWN_WHITE_BOTTOM = "/pawn_laser_b_white.png"
-    PAWN_WHITE_TOP = "/pawn_laser_t_white.png"
-    PAWN_WHITE_LEFT = "/pawn_laser_l_white.png"
-    PAWN_WHITE_RIGHT = "/pawn_laser_r_white.png"
+# Piece model
+# Colour
+# Laser colour
+# Direction
+
+
+class ElementString(Enum):
+    LASER = "laser"
+    LASGUN = "lasgun_laser"
+    MIRROR = "mirror_laser"
+    PAWN = "pawn_laser"
+
+
+class ColorString(Enum):
+    WHITE = "white"
+    BLACK = "black"
+
+
+class OrientationString(Enum):
+    TOP = "t"
+    RIGHT = "r"
+    BOTTOM = "b"
+    LEFT = "l"
 
 
 class LaserPainter:
@@ -40,11 +49,10 @@ class LaserPainter:
             return direction.double_right().double_right()
         return direction
 
-    def _load(self, rep_type: LaserRepresentationEnum, rotation: Movement | None):
-        image = RotatedImage(source=f"{Path.LASER_IMG_PATH}{rep_type.value}")
+    def _load(self, path: str, element: ElementString, rotation: Movement | None):
+        image = RotatedImage(source=f"{Path.LASER_IMG_PATH}/{path}.png")
         rotation = self.__inverse(rotation)
-        if rep_type == LaserRepresentationEnum.MIRROR_BLACK \
-                or rep_type == LaserRepresentationEnum.MIRROR_WHITE:
+        if element == ElementString.MIRROR:
             match rotation:
                 case Movement.UPPER_LEFT_DIAGONAL:
                     image.angle = 90
@@ -54,13 +62,13 @@ class LaserPainter:
                     image.angle = -90
                 case Movement.BOTTOM_LEFT_DIAGONAL:
                     image.angle = -180
-        if rep_type == LaserRepresentationEnum.LASER:
+        if element == ElementString.LASER:
             match rotation:
                 case Movement.UPPER_FILE | Movement.BOTTOM_FILE:
                     image.angle = 0
                 case Movement.LEFT_RANK | Movement.RIGHT_RANK:
                     image.angle = 90
-        if rep_type == LaserRepresentationEnum.LASGUN_BLACK or rep_type == LaserRepresentationEnum.LASGUN_WHITE:
+        if element == ElementString.LASGUN:
             match rotation:
                 case Movement.UPPER_FILE:
                     image.angle = 0
@@ -83,53 +91,87 @@ class LaserPainter:
             fields = self._board.get_laser_fields(las.player_id)
             if len(fields) == 0:
                 continue
-            las = cast(Lasgun,las)
+
+            #
+            # Fields with lasguns
+            #
+
+            las = cast(Lasgun, las)
             if las.player_id == 0:
-                piece = LaserRepresentationEnum.LASGUN_WHITE
+                piece = ElementString.LASGUN
+                laser_color = ColorString.WHITE
             else:
-                piece = LaserRepresentationEnum.LASGUN_BLACK
-            self._indicators.append((self._load(piece,las.direction),las.position))
+                piece = ElementString.LASGUN
+                laser_color = ColorString.BLACK
+            string_value = f"{piece.value}_{laser_color.value}"
+            self._indicators.append((self._load(string_value, ElementString.LASGUN, las.direction), las.position))
+
             direction = las.direction
             for f in fields:
-                piece = cast(MirrorPiece,self._board.get_piece(f))
-                if piece is None:
-                    self._indicators.append((self._load(LaserRepresentationEnum.LASER, direction), f))
+                piece_real = cast(MirrorPiece, self._board.get_piece(f))
+                if piece_real is None:
+                    string_value = f"{ElementString.LASER.value}_{laser_color.value}"
+                    self._indicators.append((self._load(string_value, ElementString.LASER, direction), f))
                 else:
-                    if piece.player_id == 0:
-                        value = LaserRepresentationEnum.MIRROR_WHITE
+                    piece = ElementString.MIRROR
+                    if piece_real.player_id == 0:
+                        color = ColorString.WHITE
                     else:
-                        value = LaserRepresentationEnum.MIRROR_BLACK
-                    self._indicators.append((self._load(value,piece.direction),piece.position))
+                        color = ColorString.BLACK
+                    string_value = f"{piece.value}_{color.value}_{laser_color.value}"
+                    self._indicators.append((self._load(string_value, piece, piece_real.direction), piece_real.position))
                     direction = Movement.UPPER_FILE if Movement.LEFT_RANK == direction else Movement.LEFT_RANK
             hit = self._board.get_end_hit(las.player_id)
             if hit is None:
                 continue
-            piece = self._board.get_piece(hit[0])
-            if piece.model != PieceModel.PAWN:
-                continue
-            view = None
-            rotation = self.__inverse(hit[1])
-            if piece.player_id == 0:
-                match rotation:
-                    case Movement.LEFT_RANK:
-                        view = LaserRepresentationEnum.PAWN_WHITE_LEFT
-                    case Movement.UPPER_FILE:
-                        view = LaserRepresentationEnum.PAWN_WHITE_TOP
-                    case Movement.RIGHT_RANK:
-                        view = LaserRepresentationEnum.PAWN_WHITE_RIGHT
-                    case Movement.BOTTOM_FILE:
-                        view = LaserRepresentationEnum.PAWN_WHITE_BOTTOM
+            piece_real = self._board.get_piece(hit[0])
+
+            if piece_real.player_id == 0:
+                color = ColorString.WHITE
             else:
+                color = ColorString.BLACK
+            rotation = self.__inverse(hit[1])
+
+            if piece_real.model == PieceModel.PAWN:
+                rotation_mirror = None
+                piece = ElementString.PAWN
                 match rotation:
                     case Movement.LEFT_RANK:
-                        view = LaserRepresentationEnum.PAWN_BLACK_LEFT
+                        orientation = OrientationString.LEFT
                     case Movement.UPPER_FILE:
-                        view = LaserRepresentationEnum.PAWN_BLACK_TOP
+                        orientation = OrientationString.TOP
                     case Movement.RIGHT_RANK:
-                        view = LaserRepresentationEnum.PAWN_BLACK_RIGHT
+                        orientation = OrientationString.RIGHT
                     case Movement.BOTTOM_FILE:
-                        view = LaserRepresentationEnum.PAWN_BLACK_BOTTOM
-            self._indicators.append((self._load(view, None), hit[0]))
+                        orientation = OrientationString.BOTTOM
+            else:
+                piece_real = cast(MirrorPiece, piece_real)
+                rotation_mirror = self.__inverse(piece_real.direction)
+                piece = ElementString.MIRROR
+                # rotation
+                match piece_real.direction:
+                    case Movement.UPPER_LEFT_DIAGONAL:
+                        if rotation == Movement.BOTTOM_FILE:
+                            orientation = OrientationString.LEFT
+                        else:
+                            orientation = OrientationString.BOTTOM
+                    case Movement.UPPER_RIGHT_DIAGONAL:
+                        if rotation == Movement.LEFT_RANK:
+                            orientation = OrientationString.LEFT
+                        else:
+                            orientation = OrientationString.BOTTOM
+                    case Movement.BOTTOM_RIGHT_DIAGONAL:
+                        if rotation == Movement.LEFT_RANK:
+                            orientation = OrientationString.BOTTOM
+                        else:
+                            orientation = OrientationString.LEFT
+                    case Movement.BOTTOM_LEFT_DIAGONAL:
+                        if rotation == Movement.UPPER_FILE:
+                            orientation = OrientationString.BOTTOM
+                        else:
+                            orientation = OrientationString.LEFT
+            string_value = f"{piece.value}_{orientation.value}_{color.value}_{laser_color.value}"
+            self._indicators.append((self._load(string_value, piece, rotation_mirror), hit[0]))
 
         for s, f in self._indicators:
             self._board_view._representations[f.y][f.x].add_widget(s)
