@@ -27,6 +27,7 @@ class MessageStatus(Enum):
 class MessageType(Enum):
     CREATE  = auto()
     JOIN    = auto()
+    WAIT    = auto()
     INIT    = auto()
     MOVE    = auto()
 
@@ -36,6 +37,8 @@ class MessageType(Enum):
                 return "create"
             case MessageType.JOIN:
                 return "join"
+            case MessageType.WAIT:
+                return "wait"
             case MessageType.INIT:
                 return "init"
             case MessageType.MOVE:

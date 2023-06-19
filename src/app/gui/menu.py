@@ -29,7 +29,8 @@ class MenuView(Screen):
     def create_new_board(
             self, online: bool = False,
             game_id: str | None = None,
-            player_id: str | None = None):
+            player_id: str | None = None,
+            *args):
         Builder.load_file("app/templates/board.kv")
         self.manager.add_widget(BoardView(name="board", online=online, game_id=game_id, player_id=player_id))
         self.manager.current = "board"
@@ -78,7 +79,10 @@ class MenuView(Screen):
         async def create_online_game_async():
             game_id, player_id = await PreGameHelper.create_game()
             Clock.schedule_once(partial(self.__set_game_id, game_id))
-            await PreGameHelper.wait_for_other_player()
+            await PreGameHelper.wait_for_other_player(game_id)
+            await PreGameHelper.wait_for_other_player(game_id)
+            await PreGameHelper.wait_for_other_player(game_id)
+            await PreGameHelper.wait_for_other_player(game_id)
             Clock.schedule_once(partial(self.create_new_board, True, game_id, player_id))
 
         thread: Thread = Thread(target=lambda: asyncio.run(create_online_game_async()))

@@ -29,7 +29,7 @@ class GameApplication:
     async def on_move(self) -> None:
         if self.__online:
             move: PieceMove = self.__game.get_last_move()
-            await Connection.communicate_move(move.to_dict(), self.__player_id)
+            await Connection().communicate_move(move.to_dict(), self.__player_id)
 
 
 class PreGameHelper:
@@ -37,7 +37,7 @@ class PreGameHelper:
     async def create_game(cls) -> tuple[str, str]:
         print("Creating the new game...")
 
-        response: dict[str, any] = await Connection.create_game()
+        response: dict[str, any] = await Connection().create_game()
         status_raw: str | None = response.get("status")
         if not status_raw:
             raise RuntimeError("Failed creating the new game, message status hasn't been sent")
@@ -57,16 +57,16 @@ class PreGameHelper:
         return game_id, player_id
 
     @classmethod
-    async def wait_for_other_player(cls) -> None:
+    async def wait_for_other_player(cls, game_id: str) -> None:
         print("Waiting for the other player to join...")
-        await Connection.wait_for_player()
+        await Connection().wait_for_player(game_id)
         print("Succeed waiting for the other player")
 
     @classmethod
     async def join_game(cls, game_id: str) -> str:
         print("Joining the game...")
 
-        response: dict[str, any] = await Connection.join_game(game_id)
+        response: dict[str, any] = await Connection().join_game(game_id)
         status_raw: str | None = response.get("status")
         if not status_raw:
             raise RuntimeError("Failed joining the game, message status hasn't been sent")

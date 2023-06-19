@@ -41,7 +41,7 @@ class Server:
                 "gameId": game_id,
                 "playerId": player_id
             }
-            await websocket.send(json.dumps(response))
+            # await websocket.send(json.dumps(response))
         finally:
             self.__connected[game_id].remove(websocket)
 
@@ -79,11 +79,16 @@ class Server:
             # Send message to the waiting player
             response = {
                 "status": str(MessageStatus.SUCCESS),
-                "messageType": str(MessageStatus.JOIN)
+                "messageType": str(MessageType.JOIN)
             }
+            print(response)
             await self.__connected[game_id][0].send(json.dumps(response))
         finally:
             self.__connected[game_id].remove(websocket)
+
+    async def wait(self, websocket) -> None:
+        # print(websocket == web)
+        pass
 
     async def play(self, move: dict[any, any], player_id: str, game: Game):
         """
@@ -150,6 +155,9 @@ class Server:
                 assert message["gameId"], "Game ID hasn't been sent"
                 game_id: str = message["gameId"]
                 await self.join(websocket, game_id)
+            case MessageType.WAIT:
+                print(websocket == self.__connected[message["gameId"]][0])
+                await self.wait(websocket)
             case MessageType.MOVE:
                 assert message["playerId"], "Player ID hasn't been sent"
                 player_id: str = message["playerId"]
