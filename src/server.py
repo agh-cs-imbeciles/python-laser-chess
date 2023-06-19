@@ -83,13 +83,6 @@ class Server:
         finally:
             self.__connected[game_id].remove(websocket)
 
-    # async def wait(self, websocket) -> None:
-    #     response = {
-    #         "status": str(MessageStatus.SUCCESS),
-    #         "messageType": str(MessageType.JOIN)
-    #     }
-    #     await websocket.send(json.dumps(response))
-
     async def play(self, move: dict[any, any], player_id: str, game_id: str):
         """
         Receive and process moves from a player.

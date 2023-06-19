@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING
 from common import MessageStatus
 from app.game import GameTimer
 from app.client import Connection
-from app.websocket import WebSocketClient
 
 if TYPE_CHECKING:
     from game import Game

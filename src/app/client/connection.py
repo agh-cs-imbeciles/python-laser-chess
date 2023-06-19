@@ -1,7 +1,4 @@
 from __future__ import annotations
-
-import asyncio
-
 import websockets
 from websockets.exceptions import ConnectionClosedOK
 from app.client import Sender, Receiver
