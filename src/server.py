@@ -27,8 +27,8 @@ class Server:
 
         print("Creating the new game...")
 
-        game_id: str | None = self.__generate_game_id()
-        player_id: str | None = self.__generate_player_id()
+        game_id: str | None = Server.__generate_game_id()
+        player_id: str | None = Server.__generate_player_id()
         game: Game = Game()
         self.__games[game_id] = game
         self.__connected[game_id] = []
@@ -56,7 +56,7 @@ class Server:
 
         print("Joining the existing game...")
 
-        player_id: str = self.__generate_player_id()
+        player_id: str = Server.__generate_player_id()
         game: Game = self.__games[game_id]
         self.__connected[game_id].append(websocket)
 
@@ -152,12 +152,14 @@ class Server:
                     player_id: str = message["playerId"]
                     await self.play(message["data"], player_id, game_id)
 
-    def __generate_player_id(self) -> str:
+    @classmethod
+    def __generate_player_id(cls) -> str:
         prefix: str = "lcpid"
         id: str = Key.generate_timestamp_id(8)
         return f"{prefix}_{id}"
 
-    def __generate_game_id(self) -> str:
+    @classmethod
+    def __generate_game_id(cls) -> str:
         prefix: str = "lcgid"
         id: str = Key.generate_timestamp_id(8)
         return f"{prefix}_{id}"
