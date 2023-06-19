@@ -19,8 +19,6 @@ class ImageButtonLayout(RelativeLayout):
             self._img.allow_stretch = True
             self._img.texture.mag_filter = "nearest"
             self.add_widget(self._img)
-        # if addit_src is not None:
-        #     self._indicator = Image(source=addit_src)
         if opacity is not None:
             self.opacity = opacity
 
@@ -45,34 +43,12 @@ class ImageButtonLayout(RelativeLayout):
         self._img = img
         self.__add_img_to_repr(img)
 
-    # def add_indicator(self, src: str):
-    #     if self._indicator is not None:
-    #         return
-    #     img = Image(source=src)
-    #     self._indicator = img
-    #     img.size_hint = (0.5, 0.5)
-    #     self.__add_img_to_repr(img)
-
-    # def remove_indicator(self):
-    #     if self._indicator is None:
-    #         return None
-    #     img = self._indicator
-    #     self.remove_widget(self._indicator)
-    #     self._indicator = None
-    #     return img
 
     # not used (yet)
     @property
     def img(self):
         return self._img
 
-    # @property
-    # def indicator(self):
-    #     return self._indicator
-    #
-    # def replace_indicator(self, src: str):
-    #     self.remove_indicator()
-    #     self.add_indicator(src)
 
 
 class Paths(Enum):
