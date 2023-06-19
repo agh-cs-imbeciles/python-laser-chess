@@ -30,14 +30,6 @@ class Connection(metaclass=ConnectionMeta):
             await Sender.send_create(self.__websocket)
             return await Receiver.receive(self.__websocket)
         except ConnectionClosedOK:
-            print("Closed")
-            pass
-
-    async def wait_for_player(self, game_id: str) -> None:
-        try:
-            response = await Receiver.receive(self.__websocket)
-            print(response)
-        except ConnectionClosedOK as exception:
             pass
 
     async def join_game(self, game_id: str) -> dict[str, any]:
@@ -46,6 +38,13 @@ class Connection(metaclass=ConnectionMeta):
             await Sender.send_join(self.__websocket, game_id)
             return await Receiver.receive(self.__websocket)
         except ConnectionClosedOK:
+            pass
+
+    async def wait_for_player(self, game_id: str) -> None:
+        try:
+            response = await Receiver.receive(self.__websocket)
+            print(response)
+        except ConnectionClosedOK as exception:
             pass
 
     async def communicate_move(self, data: dict[any, any], player_id: str | None) -> dict[str, any]:

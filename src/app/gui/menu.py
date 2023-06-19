@@ -80,9 +80,6 @@ class MenuView(Screen):
             game_id, player_id = await PreGameHelper.create_game()
             Clock.schedule_once(partial(self.__set_game_id, game_id))
             await PreGameHelper.wait_for_other_player(game_id)
-            await PreGameHelper.wait_for_other_player(game_id)
-            await PreGameHelper.wait_for_other_player(game_id)
-            await PreGameHelper.wait_for_other_player(game_id)
             Clock.schedule_once(partial(self.create_new_board, True, game_id, player_id))
 
         thread: Thread = Thread(target=lambda: asyncio.run(create_online_game_async()))
