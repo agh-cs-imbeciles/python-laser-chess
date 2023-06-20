@@ -125,7 +125,8 @@ class LaserPainter:
             if hit is None:
                 continue
             piece_real = self._board.get_piece(hit[0])
-
+            if piece_real.model == PieceModel.LASGUN:
+                continue
             if piece_real.player_id == 0:
                 color = ColorString.WHITE
             else:
@@ -144,7 +145,7 @@ class LaserPainter:
                         orientation = OrientationString.RIGHT
                     case Movement.BOTTOM_FILE:
                         orientation = OrientationString.BOTTOM
-            else:
+            elif piece_real.model == PieceModel.MIRROR:
                 piece_real = cast(MirrorPiece, piece_real)
                 rotation_mirror = self.__inverse(piece_real.direction)
                 piece = ElementString.MIRROR

@@ -3,7 +3,7 @@ from builtins import list
 from typing import TYPE_CHECKING, Optional, cast
 import itertools
 
-from utils import BoardVector2d, Rotation
+from utils import BoardVector2d, Rotation, GameEnding
 from game import CheckManager
 from game.observer import PositionObserver, LaserObserver
 from game.piece import Piece, PieceModel
@@ -117,7 +117,8 @@ class Board(PositionObserver, LaserObserver):
             pc = self.get_piece(field)
             if pc is not None and pc.model != PieceModel.MIRROR:
                 self.destroy_piece(pc)
-        self._game.end_if_conditions_fulfilled()
+        if self.get_ending_move() == PieceMoveType.LASER_MATE:
+            self._game.end_game(self._game.move_number, GameEnding.LASER_MATE)
 
     def on_rotation(self, origin: BoardVector2d, rotation: Rotation) -> None:
         mp = self.get_piece(origin)

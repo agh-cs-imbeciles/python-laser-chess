@@ -186,7 +186,6 @@ class BoardView(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB)
 
         self._game_app.stop_timer()
         popup = Popup(size_hint=(0.6, 0.2), auto_dismiss=False)
-        content = Button(text="End game")
         title = "Do you really want to end game"
         content = BoxLayout(orientation="horizontal", padding=20, size_hint=(1, 1))
         no = Button(text="No", size_hint=(0.5, 0.5))
@@ -199,6 +198,40 @@ class BoardView(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB)
         popup.size_hint_min = (200, 200)
         popup.size_hint_max = (300, 300)
         popup.content = content
+        popup.open()
+
+    def _show_game_is_ended_popup(self, winner: int, game_ending: GameEnding):
+        def close(instance):
+            popup.dismiss()
+            self.parent.current = "menu"
+            self.parent.remove_widget(self)
+
+        title = "Game has finished"
+        if winner == 0:
+            win_string = "white"
+        else:
+            win_string = "black"
+        message = ""
+        match game_ending:
+            case GameEnding.CHECKMATE:
+                message = f"Checkmate, {win_string} won"
+            case GameEnding.LASER_MATE:
+                message = f"Lasermate, {win_string} won"
+            case GameEnding.TIME_END:
+                message = f"Time has depleted, {win_string} won"
+            case GameEnding.STALEMATE:
+                message = f"Stalemate"
+        l = Label(text=message)
+        b = Button(text="Go to menu", size_hint=(0.5, 0.5))
+
+        b.bind(on_press=close)
+        content = BoxLayout(orientation="vertical", padding=20, size_hint=(1, 1))
+        content.add_widget(l)
+        content.add_widget(b)
+        popup = Popup(title=title, content=content, size_hint=(0.6, 0.2))
+
+        popup.size_hint_min = (100, 100)
+        popup.size_hint_max = (200, 200)
         popup.open()
 
     # def _show_notification_popup(self, instance):
@@ -355,13 +388,12 @@ class BoardView(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB)
 
     # override
     def on_end(self, winner: int, game_ending: GameEnding) -> None:
-        if game_ending != GameEnding.DRAW:
-            pass
-        self.parent.current = "menu"
-        self.parent.remove_widget(self)
-        # for rep_arr in self._representations:
-        #     for rep in rep_arr:
-        #         cast(PieceRepresentationLayout, rep).button.unbind(on_press=self.on_tile_click)
+        if game_ending == GameEnding.DRAW:
+            self.parent.current = "menu"
+            self.parent.remove_widget(self)
+        else:
+            self._show_game_is_ended_popup(winner, game_ending)
+
 
     def update_indicator_label(self, text: str):
         self._indicator_label.text = text
