@@ -17,7 +17,7 @@ from app.gui.utils.common_font_label import CommonFontLabel
 from game.piece import PieceModel
 from game.piece.lasgun import Lasgun
 from game.piece.move import PieceMoveType
-from utils import BoardVector2d, Rotation
+from utils import BoardVector2d, Rotation, GameEnding
 from app.gui.utils import rgba_int_to_float, ImageButtonLayout, Paths
 import game as g
 import game.observer as obs
@@ -52,7 +52,7 @@ class BoardView(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB)
         self._grid = self.ids["board"]
         self._game.board_view = self
         self._grid = self.ids.board
-        self._inverted = True
+        self._inverted = False
         self._indicator_label: Label = self.ids.indicator_lab
         self._dots = empty(shape=27, dtype=Image)
         self._representations = empty(shape=(8, 8), dtype=PieceRepresentationLayout)
@@ -176,23 +176,35 @@ class BoardView(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB)
                 boxes[j].add_widget(label)
 
     def _show_end_popup(self, instance):
+        def run_close(button):
+            self._game_app.run_timer()
+            popup.dismiss()
+
+        def end(button):
+            popup.dismiss()
+            self._end_game()
+
+        self._game_app.stop_timer()
         popup = Popup(size_hint=(0.6, 0.2), auto_dismiss=False)
-        title = "Koniec gry. Wygrał ..."
         content = Button(text="End game")
-        if isinstance(instance, Button):
-            title = "Do you really want to end game"
-            content = BoxLayout(orientation="horizontal", padding=20, size_hint=(1, 1))
-            no = Button(text="No", size_hint=(0.5, 0.5))
-            yes = Button(text="Yes", size_hint=(0.5, 0.5))
-            content.add_widget(yes)
-            content.add_widget(no)
-            yes.bind(on_press=popup.dismiss)
-            no.bind(on_press=popup.dismiss)
+        title = "Do you really want to end game"
+        content = BoxLayout(orientation="horizontal", padding=20, size_hint=(1, 1))
+        no = Button(text="No", size_hint=(0.5, 0.5))
+        yes = Button(text="Yes", size_hint=(0.5, 0.5))
+        content.add_widget(yes)
+        content.add_widget(no)
+        yes.bind(on_press=end)
+        no.bind(on_press=run_close)
         popup.title = title
         popup.size_hint_min = (200, 200)
         popup.size_hint_max = (300, 300)
         popup.content = content
         popup.open()
+
+    # def _show_notification_popup(self, instance):
+
+    def _end_game(self):
+        self._game.end_game(None, GameEnding.DRAW)
 
     def _show_checks(self):
         for king in self._board.kings:
@@ -342,11 +354,14 @@ class BoardView(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB)
         self._show_lasgun_ready_indicators()
 
     # override
-    def on_end(self, winner: int, type: PieceMoveType) -> None:
-        self.update_indicator_label("Wygrywa " + str(winner))
-        for rep_arr in self._representations:
-            for rep in rep_arr:
-                cast(PieceRepresentationLayout, rep).button.unbind(on_press=self.on_tile_click)
+    def on_end(self, winner: int, game_ending: GameEnding) -> None:
+        if game_ending != GameEnding.DRAW:
+            pass
+        self.parent.current = "menu"
+        self.parent.remove_widget(self)
+        # for rep_arr in self._representations:
+        #     for rep in rep_arr:
+        #         cast(PieceRepresentationLayout, rep).button.unbind(on_press=self.on_tile_click)
 
     def update_indicator_label(self, text: str):
         self._indicator_label.text = text

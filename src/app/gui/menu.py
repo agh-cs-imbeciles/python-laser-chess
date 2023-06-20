@@ -22,9 +22,7 @@ from app.gui.join_game_popup import JoinGamePopup
 class MenuView(Screen):
     def __init__(self, **kwargs):
         super().__init__()
-        self.code = "2137"
-        self.__game_id_label: Popup | None = None
-        self.__join_input: Popup | None = None
+        self.__game_id_label: TextInput | None = None
         self.__popup: JoinGamePopup = JoinGamePopup()
 
     def create_new_board(
@@ -37,43 +35,14 @@ class MenuView(Screen):
         self.manager.current = "board"
 
     def pregame_popup(self, button):
-        self.__popup = popup = Popup()
-        popup.size_hint = (1, 0.5)
-        title = "Play online game"
-        content = BoxLayout(orientation="vertical")
-
-        l1 = Label(text="Create the new game")
-        l2 = Label(text="Join to the existing game")
-        b1 = Button(text="Create the game")
-        b1.bind(on_press=self.create_online_game)
-        self.__game_id_label = game_id_label = TextInput()
-        game_id_label.readonly = True
-        game_id_label.background_color = (0, 0, 0, 0)
-        game_id_label.foreground_color = (.9, .9, .9, 1)
-        game_id_label.cursor_color = (0, 0, 0, 0)
-
-        b2 = Button(text="Join the game")
-        b2.bind(on_press=self.join_online_game)
-        self.__join_input = text_input = TextInput()
-        text_input.hint_text = "Game ID"
-
-        content.add_widget(l1)
-        content.add_widget(b1)
-        content.add_widget(game_id_label)
-        content.add_widget(l2)
-        content.add_widget(text_input)
-        content.add_widget(b2)
-
-        popup.title = title
-        popup.size_hint_min = (200, 200)
-        popup.size_hint_max = (300, 300)
-        popup.content = content
-        popup.open()
+        self.__popup.bind(create_clicked=self.create_online_game)
+        self.__popup.bind(join_clicked=self.join_online_game)
+        self.__popup.open()
 
     def __set_game_id(self, game_id: str, *args):
-        self.__game_id_label.text = game_id
+        self.__popup.host_code = game_id
 
-    def create_online_game(self, instance):
+    def create_online_game(self, instance, value):
         async def create_online_game_async():
             game_id, player_id = await PreGameHelper.create_game()
             Clock.schedule_once(partial(self.__set_game_id, game_id))
@@ -83,7 +52,7 @@ class MenuView(Screen):
         thread: Thread = Thread(target=lambda: asyncio.run(create_online_game_async()))
         thread.start()
 
-    def join_online_game(self, instance):
+    def join_online_game(self, instance, value):
         async def join_online_game_async(game_id: str):
             try:
                 player_id = await PreGameHelper.join_game(game_id)
@@ -92,19 +61,11 @@ class MenuView(Screen):
             except RuntimeError as error:
                 print(error)
 
-        game_id: str = self.__join_input.text
+        game_id: str = self.__popup.join_code
         asyncio.run(join_online_game_async(game_id))
         self._popup.bind(create_clicked=self.create_game)
         self._popup.bind(join_clicked=self.join_game)
         self._popup.open()
-
-    def create_game(self,instance,value):
-        print(self._popup.host_code)
-        pass
-
-    def join_game(self,instance,value):
-        print(self._popup.join_code)
-        pass
 
     def _update_width(self):
         self.ids.menu_box.height = self.ids.menu_box.width / 2
