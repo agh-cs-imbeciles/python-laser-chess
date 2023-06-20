@@ -1,6 +1,13 @@
 <BoardView>:
     id: "everything"
     name: "board"
+    canvas.before:
+        Color:
+            rgba: 25 / 255., 23 / 255., 27 / 255., 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
     AnchorLayout:
         anchor_x: "center"
         anchor_y: "center"
@@ -18,7 +25,7 @@
             BoxLayout:
                 canvas.before:
                     Color:
-                        rgba: 100 / 255., 230 / 255., 88 / 20., 1
+                        rgba: 67 / 255., 59 / 255., 74 / 255., 1
                     Rectangle:
                         pos: self.pos
                         size: self.size
@@ -34,9 +41,9 @@
                         id: indicator_lab
                         canvas.before:
                             Color:
-                                rgba: (1, 1, 1, 0.7)
+                                rgba: 103 / 255., 89 / 255., 115 / 255., 1
                             Line:
-                                width: 1.1
+                                width: 1
                                 rectangle: self.x, self.y, self.width, self.height
                 BoxLayout:
                     size_hint: 1, 0.2
@@ -46,23 +53,23 @@
                         id: timer_white
                         canvas.before:
                             Color:
-                                rgba: (1, 1, 1, 0.7)
+                                rgba: 103 / 255., 89 / 255., 115 / 255., 1
                             Line:
-                                width: 1.1
+                                width: 1
                                 rectangle: self.x, self.y, self.width, self.height
                     CommonFontLabel:
                         font_modificator: 0.2
                         id: timer_black
                         canvas.before:
                             Color:
-                                rgba: (1, 1, 1, 0.7)
+                                rgba: 103 / 255., 89 / 255., 115 / 255., 1
                             Line:
-                                width: 1.1
+                                width: 1
                                 rectangle: self.x, self.y, self.width, self.height
                 ScrollView:
                     canvas.before:
                         Color:
-                            rgba: 20 / 255., 200 / 255., 5 / 255., 1
+                            rgba: 49 / 255., 44 / 255., 55 / 255., 1
                         Rectangle:
                             pos: self.pos
                             size: self.size
