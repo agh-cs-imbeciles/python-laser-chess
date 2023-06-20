@@ -1,19 +1,19 @@
 <BoardView>:
-    id:"everything"
+    id: "everything"
     name: "board"
     AnchorLayout:
-        anchor_x: 'center'
-        anchor_y: 'center'
-        id:anchor
-        size_hint:1,1
+        anchor_x: "center"
+        anchor_y: "center"
+        id: anchor
+        size_hint: 1, 1
         BoxLayout:
             canvas.before:
                 Color:
-                    rgba: 216 / 255., 195 / 255., 88 / 255., 1
+                    rgba: 38 / 255., 35 / 255., 42 / 255., 1
                 Rectangle:
                     pos: self.pos
                     size: self.size
-            id:whole
+            id: whole
             size_hint: 0,0
             BoxLayout:
                 canvas.before:
@@ -22,40 +22,40 @@
                     Rectangle:
                         pos: self.pos
                         size: self.size
-                id:left_box
+                id: left_box
                 size_hint: 0.35, 1
-                orientation: 'vertical'
+                orientation: "vertical"
                 AnchorLayout:
-                    size_hint:1,0.1
+                    size_hint: 1 , .1
                     anchor_x: "center"
                     anchor_y: "center"
                     CommonFontLabel:
                         font_modificator: 0.1
-                        id:indicator_lab
+                        id: indicator_lab
                         canvas.before:
                             Color:
-                                rgba: (1,1,1,0.7)
+                                rgba: (1, 1, 1, 0.7)
                             Line:
                                 width: 1.1
                                 rectangle: self.x, self.y, self.width, self.height
                 BoxLayout:
-                    size_hint:1,0.2
+                    size_hint: 1, 0.2
                     orientation: "horizontal"
                     CommonFontLabel:
                         font_modificator: 0.2
-                        id:timer_white
+                        id: timer_white
                         canvas.before:
                             Color:
-                                rgba: (1,1,1,0.7)
+                                rgba: (1, 1, 1, 0.7)
                             Line:
                                 width: 1.1
                                 rectangle: self.x, self.y, self.width, self.height
                     CommonFontLabel:
                         font_modificator: 0.2
-                        id:timer_black
+                        id: timer_black
                         canvas.before:
                             Color:
-                                rgba: (1,1,1,0.7)
+                                rgba: (1, 1, 1, 0.7)
                             Line:
                                 width: 1.1
                                 rectangle: self.x, self.y, self.width, self.height
@@ -66,65 +66,65 @@
                         Rectangle:
                             pos: self.pos
                             size: self.size
-                    id:scroll
-                    effect_self:"ScrollEffect"
-                    size_hint:1,0.6
+                    id: scroll
+                    effect_self: "ScrollEffect"
+                    size_hint: 1, 0.6
                     do_scroll_x: False
                     do_scroll_y: True
                     GridLayout:
-                        id:notation
+                        id: notation
                         size_hint_y: None
-                        height:self.minimum_height
-                        cols:2
+                        height: self.minimum_height
+                        cols: 2
                         Label:
-                            size_hint_y:0
-                            height:0
+                            size_hint_y: 0
+                            height: 0
                         Label:
-                            size_hint_y:0
-                            height:0
+                            size_hint_y: 0
+                            height: 0
 
                 BoxLayout:
-                    id:button_tab
-                    size_hint:1,0.1
+                    id: button_tab
+                    size_hint: 1, 0.1
 
                 BoxLayout:
-                    id:rotation_promotion_tab
-                    orientation: 'horizontal'
-                    size_hint:1,0.3
-                    vertical_align:'top'
+                    id: rotation_promotion_tab
+                    orientation: "horizontal"
+                    size_hint: 1, 0.3
+                    vertical_align: "top"
 
             BoxLayout:
-                id:board_addit
-                orientation: 'vertical'
-                size_hint:0.65,1
+                id: board_addit
+                orientation: "vertical"
+                size_hint: 0.65, 1
                 AnchorLayout:
-                    size_hint:1,0.1
-                    anchor_x:'center'
+                    size_hint: 1, 0.1
+                    anchor_x: "center"
                     BoxLayout:
-                        id:top
-                        size_hint:0.84,1
-                        orientation: 'horizontal'
+                        id: top
+                        size_hint: 0.84, 1
+                        orientation: "horizontal"
                 BoxLayout:
-                    id:mid
-                    orientation: 'horizontal'
-                    size_hint:1,0.8
+                    id: mid
+                    orientation: "horizontal"
+                    size_hint: 1, 0.8
                     BoxLayout:
-                        id:left
-                        size_hint:0.1,1
-                        orientation: 'vertical'
+                        id: left
+                        size_hint: 0.1, 1
+                        orientation: "vertical"
                     GridLayout:
-                        id:board
-                        size_hint:1,1
-                        cols:8
-                        rows:8
+                        id: board
+                        size_hint: 1, 1
+                        cols: 8
+                        rows: 8
                     BoxLayout:
-                        id:right
-                        size_hint:0.1,1
-                        orientation: 'vertical'
+                        id: right
+                        size_hint: 0.1, 1
+                        orientation: "vertical"
                 AnchorLayout:
-                    size_hint:1,0.1
-                    anchor_x:'center'
+                    size_hint: 1, 0.1
+                    anchor_x: "center"
                     BoxLayout:
-                        id:bot
-                        size_hint:0.84,1
-                        orientation: 'horizontal'
+                        id: bot
+                        size_hint: 0.84, 1
+                        orientation: "horizontal"
