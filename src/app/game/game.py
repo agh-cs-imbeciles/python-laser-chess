@@ -30,6 +30,13 @@ class GameApplication:
             move: PieceMove = self.__game.get_last_move()
             await Connection().communicate_move(move.to_dict(), self.__player_id)
 
+    def stop_timer(self):
+        self.__game_timer.stop()
+
+    def run_timer(self):
+        self.__game_timer.run()
+
+
 
 class PreGameHelper:
     @classmethod

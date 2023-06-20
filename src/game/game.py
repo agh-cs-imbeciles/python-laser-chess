@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import Any
 from typing import cast
 
-from utils import BoardVector2d, Rotation
+from utils import BoardVector2d, Rotation, GameEnding
 from game import Board
 from game.piece import Piece, PieceModel, PieceFactory
 from game.piece.move import PieceMove, PieceMoveType, PieceMoveDetector
@@ -71,7 +71,19 @@ class Game:
                 piece.position + BoardVector2d(1, 0)
             )
             self._move_number = (self._move_number + 1) % 2
-        self.end_if_conditions_fulfilled()
+
+        mov = self._board.get_ending_move()
+        if mov is not None:
+            winner = (self._move_number + 1) % 2
+            match mov:
+                case PieceMoveType.CHECKMATE:
+                    end = GameEnding.CHECKMATE
+                case PieceMoveType.STALEMATE:
+                    end = GameEnding.STALEMATE
+                    winner = None
+                case PieceMoveType.LASER_MATE:
+                    end = GameEnding.LASER_MATE
+            self.end_game(winner, end)
 
     def set_notation_ambiguity(self, ambig: AmbiguousNotation) -> None:
         self._notation_generator.ambiguity = ambig
@@ -94,11 +106,9 @@ class Game:
         lmi = self._last_move_index
         return self._moves_history[lmi[0]][lmi[1]]
 
-    def end_if_conditions_fulfilled(self) -> None:
-        mov = self._board.get_ending_move()
-        if mov is not None:
-            for obs in self._observers:
-                obs.on_end(self._move_number, mov)
+    def end_game(self, winner: int | None, game_ending: GameEnding) -> None:
+        for obs in self._observers:
+            obs.on_end(winner, game_ending)
 
     def add_observer(self, observer: GameEndObserver) -> None:
         self._observers.append(observer)
