@@ -82,7 +82,7 @@ class BoardView(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB)
 
         # create ending button
         end_button = Button()
-        label = CommonFontLabel(font_modificator=0.08, text="End game")
+        label = CommonFontLabel(font_modificator=0.08, text="Resign")
         end_button.add_widget(label)
         end_button.bind(size=label.setter("size"))
         end_button.bind(pos=label.setter("pos"))
@@ -90,7 +90,7 @@ class BoardView(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB)
         self._elements_dict.get("button_tab").add_widget(end_button)
 
         # assigning observer to game
-        self._game.add_observer(self);
+        self._game.add_observer(self)
 
         # creation of indicator dots
         for i in range(len(self._dots)):
@@ -186,7 +186,8 @@ class BoardView(obs.PositionObserver, GameEndObserver, Screen, metaclass=MetaAB)
 
         self._game_app.stop_timer()
         popup = Popup(size_hint=(0.6, 0.2), auto_dismiss=False)
-        title = "Do you really want to end game"
+        content = Button(text="Resign")
+        title = "Do you really want to resign the game"
         content = BoxLayout(orientation="horizontal", padding=20, size_hint=(1, 1))
         no = Button(text="No", size_hint=(0.5, 0.5))
         yes = Button(text="Yes", size_hint=(0.5, 0.5))

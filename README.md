@@ -1,6 +1,9 @@
-# <img src="assets/game-icon.png" alt="Game Icon" height="64" align="middle"> Laser Chess - the Python mobile game
+# Laser Chess - the Python mobile game
+A university Python course project based on modified laser chess
 
-#### A university Python course project based on modified laser chess
+<p align="center">
+    <img src="assets/game-logo.png" alt="Game logo" align="middle">
+</p>
 
 ## Used resources
 - [Pixel chess asset pack by Brysia](https://brysiaa.itch.io/pixel-chess-assets-pack)

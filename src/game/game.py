@@ -85,7 +85,6 @@ class Game:
                     end = GameEnding.LASER_MATE
             self.end_game(winner, end)
 
-
     def set_notation_ambiguity(self, ambig: AmbiguousNotation) -> None:
         self._notation_generator.ambiguity = ambig
 
@@ -230,5 +229,3 @@ class Game:
         if self._board_view is None:
             return
         self._board_view.set_time(player_id, f"{minutes}:{seconds:02d}")
-
-
